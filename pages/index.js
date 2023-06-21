@@ -37,7 +37,7 @@ function Overview() {
   return (
     <OverviewWrapper>
       <Head>
-        <title>Tokyo Free Black NextJS Javascript Admin Dashboard</title>
+        <title>Tattoo Streaming</title>
       </Head>
       <HeaderWrapper>
         <Container maxWidth="lg">

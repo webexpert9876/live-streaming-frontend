@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,6 +12,8 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { FormControl } from '@mui/material';
+import axios from 'axios';
 
 function Copyright(props) {
   return (
@@ -26,18 +28,48 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
-export default function SignInSide() {
+export default function SignInSide() {  
+  const [email, setEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+
+    // Perform forgot password logic here
+    // For example, send a reset password email to the provided email address
+
+   // Reset the email input field
+    axios .post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
+      email
+    })
+    
+    .then((response) => {
+      // Handle the response from the API      
+      console.log(response.data);
+      console.log("Email send sucsess!")
+
+    })
+    .catch((error) => {
+      // Handle errors
+      if (error.response) {
+        // The request was made and the server responded with a status code outside the range of 2xx
+        const errorMessage = error.response.data.message;
+        setErrorMessage(errorMessage);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received from the server.');
+      } else {
+        // Something happened in setting up the request that triggered an error
+        console.error('Error occurred while sending the request.', error.message);
+      }
     });
+    console.log("Email Change")
   };
 
   return (
@@ -74,7 +106,8 @@ export default function SignInSide() {
             <Typography  variant="h5">
             Reset your password
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <FormControl onSubmit={handleSubmit}>
+            <Box component="form" noValidate sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -84,9 +117,8 @@ export default function SignInSide() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                onChange={handleEmailChange}
               />
-              
-             
               <Button
                 type="submit"
                 fullWidth
@@ -94,10 +126,10 @@ export default function SignInSide() {
                 sx={{ mt: 3, mb: 2 }}
               >
                 Reset your password
-              </Button>
-       
+              </Button>              
               <Copyright sx={{ mt: 5 }} />
             </Box>
+            </FormControl>
           </Box>
         </Grid>
       </Grid>

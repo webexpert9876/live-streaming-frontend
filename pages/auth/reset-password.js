@@ -1,4 +1,6 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 
 function Copyright(props) {
   return (
@@ -31,14 +34,43 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const router = useRouter();
+  console.log('asdfsadf',router.query);
+  const { token } = router.query;
+  
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
   };
+
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPassword(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (password !== confirmPassword) {
+      // Handle password mismatch error
+      console.error('Passwords do not match.');
+      return;
+    }
+
+    try {
+      // Send a request to the password reset API endpoint
+      await axios.post(`https://tattoo-live-streaming-api-server.onrender.com/auth/reset/password/${token}`, {password, confirmPassword});
+
+      // Password reset successful
+      console.log('Password reset successful.');
+    } catch (error) {
+      // Handle password reset error
+      console.error('Error resetting password:', error);
+    }
+  };
+
+
 
   return (
     <ThemeProvider>
@@ -71,11 +103,11 @@ export default function SignInSide() {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography  variant="h5">
-            Change Password
+            <Typography variant="h5">
+              Change Password
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              
+
               <TextField
                 margin="normal"
                 required
@@ -84,6 +116,7 @@ export default function SignInSide() {
                 label="Password"
                 type="password"
                 id="password"
+                onChange={handlePasswordChange}
                 autoComplete="current-password"
               />
               <TextField
@@ -94,9 +127,10 @@ export default function SignInSide() {
                 label="Confirm password"
                 type="confirmPassword"
                 id="confirmPassword"
+                onChange={handleConfirmPasswordChange}
                 autoComplete="confirmPassword"
               />
-             
+
               <Button
                 type="submit"
                 fullWidth
@@ -105,7 +139,7 @@ export default function SignInSide() {
               >
                 Change Password
               </Button>
-              
+
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>

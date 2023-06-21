@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/router'
 
 import NextLink from 'next/link';
 
@@ -76,6 +77,17 @@ function HeaderUserbox() {
     setOpen(false);
   };
 
+  
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // Perform logout logic here, such as clearing user session or JWT token
+    // After logout, you can redirect the user to the login page or any other desired page
+    // For example, redirecting to the login page:
+    router.push('/auth/login');
+    console.log("Click to logout")
+  };
+
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
@@ -137,7 +149,7 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button color="primary" fullWidth>
+          <Button color="primary" fullWidth onClick={handleLogout}>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out
           </Button>

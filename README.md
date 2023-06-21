@@ -1,3 +1,14 @@
+
+*** Start App ***
+npm run dev
+
+*** Build App ***
+npm run build
+
+*** dashboard profile logout file ***
+C:\Next\live-streaming-frontend\src\layouts\SidebarLayout\Header\Userbox\index.js
+
+
 <p align="center">
     <a href="https://bloomui.com" title="BloomUI.com">
         <img src="https://bloomui.s3.us-east-2.amazonaws.com/tokyo-logo.png" alt="Tokyo Free Black Javascript Next.js Admin Dashboard">

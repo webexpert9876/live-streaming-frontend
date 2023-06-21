@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -18,6 +18,8 @@ import Select from '@mui/material/Select';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -50,14 +52,104 @@ const defaultTheme = createTheme();
 
 
 export default function SignInSide() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [promotions, setPromotions] = useState('');
+  const [style, setStyle] = useState([]);
+  const [styleList, setStyleList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleFirstNameChange = (event) => {
+    setFirstName(event.target.value);
+  };
+
+  const handleLastNameChange = (event) => {
+    setLastName(event.target.value);
+  };
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  const handlePromotionsChange = (event) => {
+    setPromotions(event.target.value);
+  };
+
+  const handleStyleChange = (event) => {
+    setStyle(event.target.value);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    // Send registration request to the API using Axios
+    axios
+      .post('https://tattoo-live-streaming-api-server.onrender.com/auth/register', {
+        firstName,
+        lastName,
+        email,
+        password,
+        promotions,
+        style,
+      })
+      .then((response) => {
+        // Handle the successful registration response from the API
+        console.log(response.data);
+        setSuccessMessage('You are now successfuly register!');
+        setErrorMessage('');
+        // Optionally, you can redirect the user to a success page or perform other actions
+        
+      })
+      .catch((error) => {
+        // Handle errors
+        if (error.response) {          
+          setSuccessMessage('');
+          // The request was made and the server responded with a status code outside the range of 2xx
+          const errorMessage = error.response.data.message;
+          setErrorMessage(errorMessage);
+        } else if (error.request) {          
+          // The request was made but no response was received
+          console.error('No response received from the server.');
+        } else {
+          // Something happened in setting up the request that triggered an error
+          console.error('Error occurred while sending the request.', error.message);          
+        }
+      });
   };
+
+  // This is style start
+  useEffect(() => {
+    axios
+    .get('https://tattoo-live-streaming-api-server.onrender.com/public/api/free/get/all/category')
+    .then((response) => {
+      // get the styles
+      setStyleList(response.data.TattoCategories)   
+    })
+    .catch((error) => {
+      // Handle errors
+      if (error.response) {
+        // The request was made and the server responded with a status code outside the range of 2xx
+        const errorMessage = error.response.data.message;
+        setErrorMessage(errorMessage);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received from the server.');
+      } else {
+        // Something happened in setting up the request that triggered an error
+        console.error('Error occurred while sending the request.', error.message);
+      }
+    });
+  },[])
+ 
+  // This is style End
+
   const theme = useTheme();
   const [personName, setPersonName] = React.useState([]);
 
@@ -71,19 +163,7 @@ export default function SignInSide() {
     );
   };
 
-  const styles = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ];
-
+  
   function getStyles(styles, personName, theme) {
     return {
       fontWeight:
@@ -129,88 +209,114 @@ export default function SignInSide() {
               Sign up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    autoComplete="given-name"
-                    name="firstName"
-                    required
-                    fullWidth
-                    id="firstName"
-                    label="First Name"
-                    autoFocus
-                  />
+              <FormControl onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      autoComplete="given-name"
+                      name="firstName"
+                      required
+                      fullWidth
+                      id="firstName"
+                      value={firstName}
+                      onChange={handleFirstNameChange}
+                      label="First Name"
+
+                      autoFocus
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="lastName"
+                      value={lastName}
+                      onChange={handleLastNameChange}
+                      label="Last Name"
+                      name="lastName"
+                      autoComplete="family-name"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                      label="Email Address"
+                      name="email"
+                      autoComplete="email"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                      value={password}
+                      onChange={handlePasswordChange}
+                      autoComplete="new-password"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl sx={{ width: "100%" }}>
+                      <InputLabel id="demo-multiple-name-label">Styles</InputLabel>
+                      <Select
+                        labelId="demo-multiple-name-label"
+                        multiple
+                        id="style"
+                        value={style}
+                        onChange={handleStyleChange}
+                        input={<OutlinedInput label="Name" />}
+                        MenuProps={MenuProps}
+                      >
+                        {styleList.map((styles) => (
+                          <MenuItem
+                            key={styles._id}
+                            value={styles._id}
+                            style={getStyles(styles, personName, theme)}
+                          >
+                            {styles.title}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      onChange={handlePromotionsChange}
+                      id={promotions}
+                      control={<Checkbox value="allowExtraEmails" color="primary" />}
+                      label="I want to receive inspiration, marketing promotions and updates via email."
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="lastName"
-                    label="Last Name"
-                    name="lastName"
-                    autoComplete="family-name"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="new-password"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl sx={{width: "100%" }}>
-                    <InputLabel id="demo-multiple-name-label">Styles</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      multiple
-                      value={personName}
-                      onChange={handleChange}
-                      input={<OutlinedInput label="Name" />}
-                      MenuProps={MenuProps}
-                    >
-                      {styles.map((styles) => (
-                        <MenuItem
-                          key={styles}
-                          value={styles}
-                          style={getStyles(styles, personName, theme)}
-                        >
-                          {styles}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={<Checkbox value="allowExtraEmails" color="primary" />}
-                    label="I want to receive inspiration, marketing promotions and updates via email."
-                  />
-                </Grid>
-              </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign Up
-              </Button>
+                <FormControl>
+                 
+                  {errorMessage && <p style={{ color: "#f00" }}> {errorMessage} </p>} 
+                  {successMessage && <p style={{ color: "#0f0" }}>{successMessage}</p>}
+{/* 
+                  { isError === true && (<div>Error!</div>) }
+                  { isError === false && (<div>Success!</div>) } */}
+                  
+
+
+       
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Sign Up
+                </Button>
+              </FormControl>
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Link href="/auth/login" variant="body2">
