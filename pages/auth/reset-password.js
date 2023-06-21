@@ -37,7 +37,7 @@ export default function SignInSide() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
-  console.log('asdfsadf',router.query);
+  // console.log('asdfsadf',router.query);
   const { token } = router.query;
   
 
@@ -60,10 +60,10 @@ export default function SignInSide() {
 
     try {
       // Send a request to the password reset API endpoint
-      await axios.post(`https://tattoo-live-streaming-api-server.onrender.com/auth/reset/password/${token}`, {password, confirmPassword});
+      await axios.put(`https://tattoo-live-streaming-api-server.onrender.com/auth/reset/password/${token}`, {password, confirmPassword});
 
       // Password reset successful
-      console.log('Password reset successful.');
+      console.log('Password reset successful...');
     } catch (error) {
       // Handle password reset error
       console.error('Error resetting password:', error);
@@ -106,7 +106,7 @@ export default function SignInSide() {
             <Typography variant="h5">
               Change Password
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }} style={{maxWidth: "400px", width: "100%"}}>
 
               <TextField
                 margin="normal"

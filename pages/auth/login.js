@@ -124,7 +124,7 @@ const LoginForm = () => {
                 Sign in
               </Typography>
               <Container maxWidth="sm" max-auto>
-              <FormControl onSubmit={handleSubmit}>
+              <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%"}}>
               <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                 <TextField
                   margin="normal"

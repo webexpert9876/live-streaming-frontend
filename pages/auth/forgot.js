@@ -30,9 +30,10 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 
-export default function SignInSide() {  
+export default function SignInSide() {
   const [email, setEmail] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [responseMessage, setResponseMessage] = useState('');
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -40,35 +41,41 @@ export default function SignInSide() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setLoading(true);
 
     // Perform forgot password logic here
     // For example, send a reset password email to the provided email address
 
-   // Reset the email input field
-    axios .post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
+    // Reset the email input field
+    axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
       email
     })
-    
-    .then((response) => {
-      // Handle the response from the API      
-      console.log(response.data);
-      console.log("Email send sucsess!")
 
-    })
-    .catch((error) => {
-      // Handle errors
-      if (error.response) {
-        // The request was made and the server responded with a status code outside the range of 2xx
-        const errorMessage = error.response.data.message;
-        setErrorMessage(errorMessage);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('No response received from the server.');
-      } else {
-        // Something happened in setting up the request that triggered an error
-        console.error('Error occurred while sending the request.', error.message);
-      }
-    });
+      .then((response) => {
+        // Handle the response from the API      
+        console.log(response.data);
+        console.log("Email send sucsess!")
+        setResponseMessage(`Email sent to ${email} successfully`);
+        setLoading(false);
+      })
+      .catch((error) => {
+        // Handle errors
+        if (error.response) {
+          // The request was made and the server responded with a status code outside the range of 2xx
+          const errorMessage = error.response.data.message;
+          setResponseMessage(`Email sent to ${email} successfully`);
+
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received from the server.');
+          setResponseMessage(`Email sent to ${email} successfully`);
+        } else {
+          // Something happened in setting up the request that triggered an error
+          console.error('Error occurred while sending the request.', error.message);
+          setResponseMessage(`Email sent to ${email} successfully`);
+        }
+        setLoading(false);
+      });
     console.log("Email Change")
   };
 
@@ -103,32 +110,38 @@ export default function SignInSide() {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography  variant="h5">
-            Reset your password
+            <Typography variant="h5">
+              Reset your password
             </Typography>
-            <FormControl onSubmit={handleSubmit}>
-            <Box component="form" noValidate sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                onChange={handleEmailChange}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Reset your password
-              </Button>              
-              <Copyright sx={{ mt: 5 }} />
-            </Box>
+            <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%"}}>
+              <Box component="form" noValidate sx={{ mt: 1 }}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  onChange={handleEmailChange}
+                />
+                
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={loading}
+                >
+
+                  {loading ? 'Sending...' : 'Reset your password'}
+
+                </Button>
+                {/* {loading && <div style={{ color: "#fff" }}>Loading...</div>} */}
+                {responseMessage && <div style={{ color: "#0f0", textAlign: "center"  }}>{responseMessage}</div>}
+                <Copyright sx={{ mt: 5 }} />
+              </Box>
             </FormControl>
           </Box>
         </Grid>

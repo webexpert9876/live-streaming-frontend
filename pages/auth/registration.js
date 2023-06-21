@@ -209,7 +209,7 @@ export default function SignInSide() {
               Sign up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              <FormControl onSubmit={handleSubmit}>
+              <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%"}}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -299,9 +299,7 @@ export default function SignInSide() {
                  
                   {errorMessage && <p style={{ color: "#f00" }}> {errorMessage} </p>} 
                   {successMessage && <p style={{ color: "#0f0" }}>{successMessage}</p>}
-{/* 
-                  { isError === true && (<div>Error!</div>) }
-                  { isError === false && (<div>Success!</div>) } */}
+
                   
 
 
