@@ -9,11 +9,23 @@ import createEmotionCache from 'src/createEmotionCache';
 import { SidebarProvider } from 'src/contexts/SidebarContext';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { Provider } from "react-redux";
+import { wrapper } from '../store/index';
+// import authReducer from '../slices/authSlice';
 
 const clientSideEmotionCache = createEmotionCache();
 
-function TokyoApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+// const store = configureStore({
+//   reducer: {
+//     auth: authReducer,
+//   },
+// });
+
+function TokyoApp({Component, ...rest}) {
+  const { emotionCache = clientSideEmotionCache} = rest;
+  const { store, props } = wrapper.useWrappedStore(rest);
+  const { pageProps } = props;
+
   const getLayout = Component.getLayout ?? ((page) => page);
 
   Router.events.on('routeChangeStart', nProgress.start);
@@ -21,23 +33,25 @@ function TokyoApp(props) {
   Router.events.on('routeChangeComplete', nProgress.done);
 
   return (
-    <CacheProvider value={emotionCache}>
-      <Head>
-        <title>Tokyo Free Black NextJS Javascript Admin Dashboard</title>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-      </Head>
-      <SidebarProvider>
-        <ThemeProvider>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <CssBaseline />
-            {getLayout(<Component {...pageProps} />)}
-          </LocalizationProvider>
-        </ThemeProvider>
-      </SidebarProvider>
-    </CacheProvider>
+    <Provider store={store}>
+      <CacheProvider value={emotionCache}>
+        <Head>
+          <title>Tokyo Free Black NextJS Javascript Admin Dashboard</title>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+          />
+        </Head>
+        <SidebarProvider>
+          <ThemeProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <CssBaseline />
+              {getLayout(<Component {...pageProps} />)}
+            </LocalizationProvider>
+          </ThemeProvider>
+        </SidebarProvider>
+      </CacheProvider>
+    </Provider>
   );
 }
 

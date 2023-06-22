@@ -1,3 +1,5 @@
+
+import { useDispatch } from 'react-redux';
 import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -16,6 +18,8 @@ import { FormControl } from '@mui/material';
 import axios from 'axios';
 import Container from '@mui/material/Container';
 import { useRouter } from 'next/router';
+import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
+
 
 function Copyright(props) {
   return (
@@ -35,6 +39,7 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 const LoginForm = () => {  
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -61,6 +66,11 @@ const LoginForm = () => {
     .then((response) => {
       // Handle the response from the API      
       console.log(response.data);
+      localStorage.setItem('authUser', JSON.stringify(response.data.user))
+      localStorage.setItem('authState', true)
+      dispatch(setAuthState(true));
+      dispatch(setAuthUser(response.data.user));
+      // console.log(response.data);
       router.push('/dashboards/tasks');
     })
     .catch((error) => {
@@ -123,8 +133,8 @@ const LoginForm = () => {
               <Typography variant="h5">
                 Sign in
               </Typography>
-              <Container maxWidth="sm" max-auto>
-              <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%"}}>
+              <Container maxWidth="sm" max-auto style={{textAlign: "center"}}>
+              <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%",}}>
               <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                 <TextField
                   margin="normal"
@@ -137,6 +147,7 @@ const LoginForm = () => {
                   onChange={handleUsernameChange}
                   autoComplete="email"
                   autoFocus
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 />
                 <TextField
                   margin="normal"
