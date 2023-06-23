@@ -53,11 +53,11 @@ function Overview() {
               <Box>
                 <Button
                   component={Link}
-                  href="/dashboards/tasks"
+                  href="/auth/login"
                   variant="contained"
                   sx={{ ml: 2 }}
                 >
-                  Live Preview
+                  Login
                 </Button>
               </Box>
             </Box>

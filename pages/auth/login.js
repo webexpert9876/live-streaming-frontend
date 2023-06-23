@@ -21,6 +21,7 @@ import { useRouter } from 'next/router';
 import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
 
 
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -37,7 +38,6 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
-
 const LoginForm = () => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
@@ -53,15 +53,13 @@ const LoginForm = () => {
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
-
-
-  // https://tattoo-live-streaming-api-server.onrender.com/auth/login
+  
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
 
     // Send login request to the API using Axios
-    axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/login', {
+    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
       email,
       password
     })
@@ -77,31 +75,12 @@ const LoginForm = () => {
         setLoading(false);
       })
       .catch((error) => {
-        // Handle errors
-        if (error.response) {
           // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
-          setErrorMessage(errorMessage);
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.error('No response received from the server.');
-        } else {
-          // Something happened in setting up the request that triggered an error
-          console.error('Error occurred while sending the request.', error.message);
-        }
+          setErrorMessage(errorMessage);        
         setLoading(false);
       });
-
-
-    // console.log({
-    //   email: data.get('email'),
-    //   password: data.get('password'),
-    // });
   };
-
-
-
-
 
   return (
     <ThemeProvider>

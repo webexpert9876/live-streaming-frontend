@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 const isLocalStorageAvailable = typeof window !== 'undefined' && window.localStorage;
+
 const initialState = {
   authState: false,
   authUser: {},  
