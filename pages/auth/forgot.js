@@ -1,3 +1,7 @@
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+
 import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -14,6 +18,15 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { FormControl } from '@mui/material';
 import axios from 'axios';
+
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .required('Email is required')
+    .email('Email is invalid')
+    .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/),
+});
+
+
 
 function Copyright(props) {
   return (
@@ -39,8 +52,18 @@ export default function SignInSide() {
     setEmail(event.target.value);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+
+  const formOptions = { resolver: yupResolver(validationSchema) };
+
+  // get functions to build form with useForm() hook
+  const { register, handleSubmit, reset, formState } = useForm(formOptions);
+  const { errors } = formState;
+
+  function onSubmit(data) {
+    // display form data on success
+    // alert('SUCCESS!! :-)\n\n' + JSON.stringify(data, null, 4));
+    // return false;
+    // event.preventDefault();
     setLoading(true);
 
     // Perform forgot password logic here
@@ -48,8 +71,10 @@ export default function SignInSide() {
 
     // Reset the email input field
     axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
-      email
+      email: data.email
     })
+    // webexpert987@gmail.com
+
 
       .then((response) => {
         // Handle the response from the API      
@@ -75,8 +100,47 @@ export default function SignInSide() {
           setResponseMessage(`Email sent to ${email} successfully`);
         }
         setLoading(false);
-      });
-    console.log("Email Change")
+      })
+
+
+    // const handleSubmit = (event) => {
+    //   event.preventDefault();
+    //   setLoading(true);
+
+    //   // Perform forgot password logic here
+    //   // For example, send a reset password email to the provided email address
+
+    //   // Reset the email input field
+    //   axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
+    //     email
+    //   })
+
+    //     .then((response) => {
+    //       // Handle the response from the API      
+    //       console.log(response.data);
+    //       console.log("Email send sucsess!")
+    //       setResponseMessage(`Email sent to ${email} successfully`);
+    //       setLoading(false);
+    //     })
+    //     .catch((error) => {
+    //       // Handle errors
+    //       if (error.response) {
+    //         // The request was made and the server responded with a status code outside the range of 2xx
+    //         const errorMessage = error.response.data.message;
+    //         setResponseMessage(`Email sent to ${email} successfully`);
+
+    //       } else if (error.request) {
+    //         // The request was made but no response was received
+    //         console.error('No response received from the server.');
+    //         setResponseMessage(`Email sent to ${email} successfully`);
+    //       } else {
+    //         // Something happened in setting up the request that triggered an error
+    //         console.error('Error occurred while sending the request.', error.message);
+    //         setResponseMessage(`Email sent to ${email} successfully`);
+    //       }
+    //       setLoading(false);
+    //     });
+    //   console.log("Email Change")
   };
 
   return (
@@ -113,7 +177,7 @@ export default function SignInSide() {
             <Typography variant="h5">
               Reset your password
             </Typography>
-            <FormControl onSubmit={handleSubmit} style={{maxWidth: "400px", width: "100%"}}>
+            <FormControl onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: "400px", width: "100%" }}>
               <Box component="form" noValidate sx={{ mt: 1 }}>
                 <TextField
                   margin="normal"
@@ -124,9 +188,11 @@ export default function SignInSide() {
                   name="email"
                   autoComplete="email"
                   autoFocus
-                  onChange={handleEmailChange}
+                  {...register('email')}
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
                 />
-                
+
                 <Button
                   type="submit"
                   fullWidth
@@ -139,7 +205,7 @@ export default function SignInSide() {
 
                 </Button>
                 {/* {loading && <div style={{ color: "#fff" }}>Loading...</div>} */}
-                {responseMessage && <div style={{ color: "#0f0", textAlign: "center"  }}>{responseMessage}</div>}
+                {responseMessage && <div style={{ color: "#0f0", textAlign: "center" }}>{responseMessage}</div>}
                 <Copyright sx={{ mt: 5 }} />
               </Box>
             </FormControl>

@@ -59,8 +59,9 @@ export default function SignInSide() {
   const [promotions, setPromotions] = useState('');
   const [style, setStyle] = useState([]);
   const [styleList, setStyleList] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');  
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false)
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -88,6 +89,7 @@ export default function SignInSide() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setLoading(true);
 
     // Send registration request to the API using Axios
     axios
@@ -105,6 +107,7 @@ export default function SignInSide() {
         setSuccessMessage('You are now successfuly register!');
         setErrorMessage('');
         // Optionally, you can redirect the user to a success page or perform other actions
+        setLoading(false);
         
       })
       .catch((error) => {
@@ -121,7 +124,8 @@ export default function SignInSide() {
           // Something happened in setting up the request that triggered an error
           console.error('Error occurred while sending the request.', error.message);          
         }
-      });
+        setLoading(false);
+      });      
   };
 
   // This is style start
@@ -310,9 +314,10 @@ export default function SignInSide() {
                   type="submit"
                   fullWidth
                   variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Sign Up
+                  sx={{ mt: 3, mb: 2 }}                  
+                  disabled={loading}
+                >                  
+                  {loading ? 'Sending...' : 'Sign Up1'}
                 </Button>
               </FormControl>
               <Grid container justifyContent="flex-end">
