@@ -29,7 +29,7 @@ const validationSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .required('Password is required')
     .min(8, 'Password must be at least 8 characters')
-    .oneOf([Yop.ref('password'), null], 'Password must match')
+    .oneOf([Yup.ref('password'), null], 'Password must match')
 });
 
 function Copyright(props) {
