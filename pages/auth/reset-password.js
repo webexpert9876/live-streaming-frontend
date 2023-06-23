@@ -97,7 +97,7 @@ export default function SignInSide() {
        
           // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
-          setResponseMessage("<span style={{color: 'red'}}>" + error.response.data.message + "</span>");
+          setResponseMessage(<span style={{ color: 'red' }}>{error.response.data.message}</span>);
           // console.log(error.response.data)
 
        
