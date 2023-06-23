@@ -89,7 +89,7 @@ export default function SignInSide() {
         // Handle the response from the API
         console.log(response.data);
         console.log("Password send sucsess!")
-        setResponseMessage(`Password changed successfully`);
+        setResponseMessage(`Password changed successfully 1`);
         setLoading(false);
       })
       .catch((error) => {
@@ -97,16 +97,16 @@ export default function SignInSide() {
         if (error.response) {
           // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
-          setResponseMessage(`Password changed successfully`);
+          setResponseMessage(`No response received from the server.`);
 
         } else if (error.request) {
           // The request was made but no response was received
           console.error('No response received from the server.');
-          setResponseMessage(`Password changed successfully`);
+          setResponseMessage(`No response received from the server.`);
         } else {
           // Something happened in setting up the request that triggered an error
           console.error('Error occurred while sending the request.', error.message);
-          setResponseMessage(`Password changed successfully`);
+          setResponseMessage(`No response received from the server.`);
         }
         setLoading(false);
       })
