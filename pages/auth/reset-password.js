@@ -97,7 +97,8 @@ export default function SignInSide() {
         if (error.response) {
           // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
-          setResponseMessage(`No response received from the server.`);
+          // setResponseMessage(`No response received from the server.`);
+          console.log(error.response.data)
 
         } else if (error.request) {
           // The request was made but no response was received
