@@ -59,6 +59,7 @@ const LoginForm = () => {
     setLoading(true);
 
     // Send login request to the API using Axios
+    debugger
     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
       email,
       password
