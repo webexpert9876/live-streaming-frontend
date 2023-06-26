@@ -73,9 +73,6 @@ export default function SignInSide() {
     axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
       email: data.email
     })
-    // webexpert987@gmail.com
-
-
       .then((response) => {
         // Handle the response from the API      
         console.log(response.data);
@@ -84,63 +81,14 @@ export default function SignInSide() {
         setLoading(false);
       })
       .catch((error) => {
-        // Handle errors
-        if (error.response) {
-          // The request was made and the server responded with a status code outside the range of 2xx
+        // Handle errors        
           const errorMessage = error.response.data.message;
           setResponseMessage(`Email sent to ${email} successfully`);
-
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.error('No response received from the server.');
-          setResponseMessage(`Email sent to ${email} successfully`);
-        } else {
-          // Something happened in setting up the request that triggered an error
-          console.error('Error occurred while sending the request.', error.message);
-          setResponseMessage(`Email sent to ${email} successfully`);
-        }
         setLoading(false);
       })
 
 
-    // const handleSubmit = (event) => {
-    //   event.preventDefault();
-    //   setLoading(true);
-
-    //   // Perform forgot password logic here
-    //   // For example, send a reset password email to the provided email address
-
-    //   // Reset the email input field
-    //   axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
-    //     email
-    //   })
-
-    //     .then((response) => {
-    //       // Handle the response from the API      
-    //       console.log(response.data);
-    //       console.log("Email send sucsess!")
-    //       setResponseMessage(`Email sent to ${email} successfully`);
-    //       setLoading(false);
-    //     })
-    //     .catch((error) => {
-    //       // Handle errors
-    //       if (error.response) {
-    //         // The request was made and the server responded with a status code outside the range of 2xx
-    //         const errorMessage = error.response.data.message;
-    //         setResponseMessage(`Email sent to ${email} successfully`);
-
-    //       } else if (error.request) {
-    //         // The request was made but no response was received
-    //         console.error('No response received from the server.');
-    //         setResponseMessage(`Email sent to ${email} successfully`);
-    //       } else {
-    //         // Something happened in setting up the request that triggered an error
-    //         console.error('Error occurred while sending the request.', error.message);
-    //         setResponseMessage(`Email sent to ${email} successfully`);
-    //       }
-    //       setLoading(false);
-    //     });
-    //   console.log("Email Change")
+   
   };
 
   return (

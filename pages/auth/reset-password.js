@@ -80,8 +80,6 @@ export default function SignInSide() {
       console.error('Passwords do not match.');
       return;
     }
-
-
     // Send a request to the password reset API endpoint
     axios.put(`https://tattoo-live-streaming-api-server.onrender.com/auth/reset/password/${token}`, { password, confirmPassword })
 
@@ -94,13 +92,8 @@ export default function SignInSide() {
       })
       .catch((error) => {
         // Handle errors
-       
-          // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
           setResponseMessage(<span style={{ color: 'red' }}>{error.response.data.message}</span>);
-          // console.log(error.response.data)
-
-       
         setLoading(false);
       })
     }

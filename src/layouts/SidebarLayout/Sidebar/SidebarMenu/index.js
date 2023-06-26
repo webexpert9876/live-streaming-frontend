@@ -330,6 +330,21 @@ function SidebarMenu() {
         >
           <SubMenuWrapper>
             <List component="div">
+            <ListItem component="div">
+                <NextLink href="/components/videos" passHref>
+                  <Button
+                    className={
+                      currentRoute === '/components/videos' ? 'active' : ''
+                    }
+                    disableRipple
+                    component="a"
+                    onClick={closeSidebar}
+                    startIcon={<BallotTwoToneIcon />}
+                  >
+                    Videos
+                  </Button>
+                </NextLink>
+              </ListItem>
               <ListItem component="div">
                 <NextLink href="/components/buttons" passHref>
                   <Button

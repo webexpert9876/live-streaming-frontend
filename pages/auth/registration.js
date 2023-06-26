@@ -1,3 +1,6 @@
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -32,6 +35,8 @@ const MenuProps = {
   },
 };
 
+
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -61,7 +66,9 @@ export default function SignInSide() {
   const [styleList, setStyleList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');  
   const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+
+
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -104,7 +111,7 @@ export default function SignInSide() {
       .then((response) => {
         // Handle the successful registration response from the API
         console.log(response.data);
-        setSuccessMessage('You are now successfuly register!');
+        setSuccessMessage('You are successfuly register!');
         setErrorMessage('');
         // Optionally, you can redirect the user to a success page or perform other actions
         setLoading(false);
@@ -317,7 +324,7 @@ export default function SignInSide() {
                   sx={{ mt: 3, mb: 2 }}                  
                   disabled={loading}
                 >                  
-                  {loading ? 'Sending...' : 'Sign Up1'}
+                  {loading ? 'Sending...' : 'Sign Up'}
                 </Button>
               </FormControl>
               <Grid container justifyContent="flex-end">
