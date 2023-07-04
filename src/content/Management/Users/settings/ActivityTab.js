@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from 'react';
 import {
   Box,
   CardMedia,
@@ -18,6 +19,10 @@ import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 import Text from 'src/components/Text';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthState } from 'store/slices/authSlice';
+import { selectAuthUser } from 'store/slices/authSlice';
+import { setAuthUser, setAuthState } from 'store/slices/authSlice';
 
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
@@ -27,6 +32,19 @@ const CardActionsWrapper = styled(CardActions)(
 );
 
 function ActivityTab() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    let authUser = JSON.parse(localStorage.getItem('authUser'))
+    let authState = JSON.parse(localStorage.getItem('authState'))
+    if (authUser) {
+      dispatch(setAuthUser(authUser));
+      dispatch(setAuthState(authState));
+    } 
+  }, [])
+  const authState = useSelector(selectAuthUser);
+
+
   return (
     <Card>
       <CardHeader
@@ -38,7 +56,8 @@ function ActivityTab() {
         }
         titleTypographyProps={{ variant: 'h4' }}
         subheaderTypographyProps={{ variant: 'subtitle2' }}
-        title="Allison Lipshutz"
+        title={authState && `${authState.firstName} ${authState.lastName}`}
+
         subheader={
           <>
             Managing Partner,{' '}

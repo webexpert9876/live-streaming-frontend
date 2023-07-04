@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Grid,
   Typography,
@@ -12,8 +13,14 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DoneTwoToneIcon from '@mui/icons-material/DoneTwoTone';
 import Text from 'src/components/Text';
 import Label from 'src/components/Label';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthUser } from 'store/slices/authSlice';
 
-function EditProfileTab() {
+
+function EditProfileTab() {  
+  const authState = useSelector(selectAuthUser)
+
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -42,12 +49,12 @@ function EditProfileTab() {
               <Grid container spacing={0}>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Name:
+                    Full Name:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>Craig Donin</b>
+                    <b> {authState && `${authState.firstName} ${authState.lastName}`}</b>
                   </Text>
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
@@ -62,14 +69,13 @@ function EditProfileTab() {
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
-                    Address:
+                    Style:
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
                     <Text color="black">
-                      1749 High Meadow Lane, SEQUOIA NATIONAL PARK, California,
-                      93262
+                      style code
                     </Text>
                   </Box>
                 </Grid>
@@ -169,22 +175,12 @@ function EditProfileTab() {
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>example@demo.com</b>
+                    <b>{authState && authState.email}</b>
                   </Text>
                   <Box pl={1} component="span">
                     <Label color="success">Primary</Label>
                   </Box>
-                </Grid>
-                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                  <Box pr={3} pb={2}>
-                    Email ID:
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={8} md={9}>
-                  <Text color="black">
-                    <b>demo@example.com</b>
-                  </Text>
-                </Grid>
+                </Grid>     
               </Grid>
             </Typography>
           </CardContent>

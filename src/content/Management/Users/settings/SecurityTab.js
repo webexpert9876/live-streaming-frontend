@@ -111,7 +111,7 @@ function SecurityTab() {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <Box pb={2}>
           <Typography variant="h3">Social Accounts</Typography>
           <Typography variant="subtitle2">
@@ -184,7 +184,7 @@ function SecurityTab() {
             </ListItem>
           </List>
         </Card>
-      </Grid>
+      </Grid> */}
       <Grid item xs={12}>
         <Box pb={2}>
           <Typography variant="h3">Security</Typography>

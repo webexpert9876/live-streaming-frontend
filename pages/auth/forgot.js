@@ -77,13 +77,13 @@ export default function SignInSide() {
         // Handle the response from the API      
         console.log(response.data);
         console.log("Email send sucsess!")
-        setResponseMessage(`Email sent to ${email} successfully`);
+        setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
         setLoading(false);
       })
       .catch((error) => {
         // Handle errors        
           const errorMessage = error.response.data.message;
-          setResponseMessage(`Email sent to ${email} successfully`);
+          setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
         setLoading(false);
       })
 
