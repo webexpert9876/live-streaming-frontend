@@ -58,8 +58,7 @@ const LoginForm = () => {
     event.preventDefault();
     setLoading(true);
 
-    // Send login request to the API using Axios
-    // const URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    // Send login request to the API using Axios    
     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
       email,
       password

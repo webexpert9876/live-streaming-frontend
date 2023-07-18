@@ -6,6 +6,7 @@ import {
   Typography,
   styled
 } from '@mui/material';
+import { useState } from 'react';
 
 import Link from 'src/components/Link';
 
@@ -95,9 +96,28 @@ const NextJsAvatar = styled(Box)(
 `
 );
 
+// const [atciveTabs, setAtciveTabs] = useState();
+
+
+
+// const atciveTab = atciveTabs(id) (
+//     console.log("get the id")
+// );
+
 function Hero() {
   return (
     <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
+      {/* tabs */}
+
+      {/* <div className='tabslist'>
+        <button onClick={atciveTab}>Test 1</button>
+      </div> */}
+
+      {/* tabs */}     
+
+
+
+
       <Grid
         spacing={{ xs: 6, md: 10 }}
         justifyContent="center"

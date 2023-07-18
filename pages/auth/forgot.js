@@ -70,7 +70,7 @@ export default function SignInSide() {
     // For example, send a reset password email to the provided email address
 
     // Reset the email input field
-    axios.post('https://tattoo-live-streaming-api-server.onrender.com/auth/forgot/password', {
+    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forgot/password`, {
       email: data.email
     })
       .then((response) => {

@@ -1,0 +1,31 @@
+.userLiveChannelName {
+    font-size: 12px;
+    color: #000;
+}
+body.lightVersion,
+body.lightVersion .css-1q4pwzv {
+    background: #fff;
+}
+body.lightVersion .css-umajub-MuiPaper-root-MuiCard-root {
+    margin-bottom: 0;
+    background-color: #fff;
+    border-bottom: solid 1px #ddd;
+    z-index: 99999;
+    /* position: relative; */
+}
+body.lightVersion .css-1j1bfsq-MuiToolbar-root {
+    background: #efeff1;
+}
+body.lightVersion .css-p2k8gh-MuiPaper-root-MuiDrawer-paper {
+    background: #fff;
+}
+.topmargin .MuiPaper-root.MuiPaper-elevation {
+    margin-top: 100px;
+}
+[aria-label="open drawer"] {
+    position: relative;
+    left: 42px;
+}
+.css-umajub-MuiPaper-root-MuiCard-root {
+    border-radius: 0 !important;
+}

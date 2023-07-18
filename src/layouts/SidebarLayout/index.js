@@ -37,6 +37,7 @@ const SidebarLayout = ({ children }) => {
         }}
       >
         <Header />
+        
         <Sidebar />
         <Box
           sx={{
@@ -51,6 +52,7 @@ const SidebarLayout = ({ children }) => {
           }}
         >
           <Box display="block">{children}</Box>
+          
         </Box>
       </Box>
     </>

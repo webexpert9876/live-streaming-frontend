@@ -11,6 +11,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { Provider } from "react-redux";
 import { wrapper } from '../store/index';
+import styleFrontEnd from './Assets/styleFrontEnd.css'
 // import authReducer from '../slices/authSlice';
 
 const clientSideEmotionCache = createEmotionCache();

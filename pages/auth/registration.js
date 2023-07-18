@@ -100,7 +100,7 @@ export default function SignInSide() {
 
     // Send registration request to the API using Axios
     axios
-      .post('https://tattoo-live-streaming-api-server.onrender.com/auth/register', {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`, {
         firstName,
         lastName,
         email,
@@ -138,7 +138,7 @@ export default function SignInSide() {
   // This is style start
   useEffect(() => {
     axios
-    .get('https://tattoo-live-streaming-api-server.onrender.com/public/api/free/get/all/category')
+    .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/free/get/all/category`)
     .then((response) => {
       // get the styles
       setStyleList(response.data.TattoCategories)   
