@@ -23,6 +23,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import SimpleSlider from './Slider/index';
 import Recommended from './Recommended/index';
+import LiveChannelList from './LiveChannelList';
 
 const drawerWidth = 240;
 
@@ -222,6 +223,7 @@ export default function OverviewPage() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <SimpleSlider />
         <Recommended />
+        <LiveChannelList />
       </Box>
     </Box>
   );

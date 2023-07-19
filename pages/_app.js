@@ -1,3 +1,5 @@
+import styleFrontEnd from './Assets/styleFrontEnd.css'
+import style from "../src/content/Overview/Slider/style.css"
 import Head from 'next/head';
 import Router from 'next/router';
 import nProgress from 'nprogress';
@@ -11,7 +13,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { Provider } from "react-redux";
 import { wrapper } from '../store/index';
-import styleFrontEnd from './Assets/styleFrontEnd.css'
+
 // import authReducer from '../slices/authSlice';
 
 const clientSideEmotionCache = createEmotionCache();
@@ -34,7 +36,9 @@ function TokyoApp({Component, ...rest}) {
   Router.events.on('routeChangeComplete', nProgress.done);
 
   return (
+    
     <Provider store={store}>
+      
       <CacheProvider value={emotionCache}>
         <Head>
           <title>Tokyo Free Black NextJS Javascript Admin Dashboard</title>
@@ -42,7 +46,9 @@ function TokyoApp({Component, ...rest}) {
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
           />
+      
         </Head>
+
         <SidebarProvider>
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>

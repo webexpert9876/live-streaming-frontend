@@ -77,8 +77,8 @@ const Recommended = () => {
 
     return (
         <>
-            <Container style={{ width: "100%", maxWidth: "100%", marginTop: "100px" }}>
-                <h2>Recommended <Link href="#">New World</Link> channels</h2>
+            <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>
+                <h2><Link href="#">Live channels</Link> we think you’ll like</h2>
                 <Grid sx={recommendedStyle} className='desktop5'>
                     {staticChannelData.map((channel) => (
                         <Grid item xs={12} sm={6} md={4} key={channel.channelName}>

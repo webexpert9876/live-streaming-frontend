@@ -1,3 +1,10 @@
+* {
+    transition: all 0.5s ease;
+}
+a:hover {
+    text-decoration: none !important;
+    opacity: .7;
+}
 .userLiveChannelName {
     font-size: 12px;
     color: #000;
@@ -28,4 +35,110 @@ body.lightVersion .css-p2k8gh-MuiPaper-root-MuiDrawer-paper {
 }
 .css-umajub-MuiPaper-root-MuiCard-root {
     border-radius: 0 !important;
+}
+/* .desktop5 {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    gap: 15px;
+} */
+Container {
+    width:100%;
+    max-width:100%;
+}
+.showAllItemHr {
+    display: table;
+    width: 100%;
+    text-align: center;
+    padding: 20px 0 5px 0;
+    position: relative;
+}
+.showAllItemHr:before {
+    content: "";
+    height: 1px;
+    width: 100%;
+    display: block;
+    background: #272d4d;
+    position: absolute;
+    top: 60%;
+}
+.showAllItemHr a {
+    background: #111633;
+    padding: 15px 30px;
+    display: inline-block;
+    position: relative;
+    z-index: 99;
+    color: #fff;
+    cursor: pointer;
+}
+.css-1qzevvg {
+    position: absolute !important;
+    top: 45%;
+    width: 100% !important;
+    left: 0;
+    right: 0;
+    margin: 0 auto !important;
+    z-index: 9999;
+}
+.css-1qzevvg img:first-child {
+    margin-left: -50px;
+    -webkit-filter: invert(50%); /* Safari/Chrome */
+    filter: invert(50%);
+    cursor: pointer;
+}
+.css-1qzevvg img:last-child {
+    margin-right: -50px;
+    -webkit-filter: invert(50%); /* Safari/Chrome */
+    filter: invert(50%);
+    cursor: pointer;
+}
+.br100 {
+    border-radius: 100px;
+}
+.listChannelIconSize {
+    width: 40px;
+}
+.liveViewCount {
+    padding: 0px 0.4rem;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 58%);
+    color: #ddd;
+    font-size: 14px;
+    border-radius: 3px;
+    position: absolute;
+    bottom: 5px;
+    margin-left: 5px;
+}
+ul.videoTags {
+    display: block;
+}
+ul.videoTags li {
+    display: inline-block;
+    padding: 1px;
+}
+ul.videoTags li a {
+    background: #212954;
+    display: block;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-size: 12px;
+}
+ul.videoTags li a:hover {
+    text-decoration: none;
+    background: #161c3c;
+    color: #9f91f4;
+}
+ul.videoTags {
+    margin: 15px 0 0 0;
+    padding: 0;
+}
+.css-2mh162-MuiGrid-root {
+    align-items: flex-start !important;
+}
+.mt5 {
+    margin-top: 5px;
+    display: block;
 }
