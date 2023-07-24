@@ -46,7 +46,7 @@ export const VideoJS = (props) => {
 
   return (
     // <div data-vjs-player>
-      <div className='video-player' ref={videoRef} />
+      <div ref={videoRef} />
     // </div>
   );
 }

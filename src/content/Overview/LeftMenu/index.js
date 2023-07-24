@@ -21,6 +21,13 @@ const AuthorImg = styled.img`
   height: 40px;
 `;
 
+const liveChannelList = {
+  channelTitle: "The Sims 4",
+  channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png",
+  channelCategory: "New World",
+  liveViewers: "793 viewers"
+}
+
 const PrimaryMainTheme = createTheme({
   palette: {
     primary: {

@@ -142,3 +142,29 @@ ul.videoTags {
     margin-top: 5px;
     display: block;
 }
+.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation1.MuiCard-root.css-umajub-MuiPaper-root-MuiCard-root.MuiPaper-elevation1 {
+    position: fixed;
+    z-index: 999;
+}
+.MuiBox-root.css-k008qs {
+    padding-top: 100px;
+}
+body .css-1o8jgg6 {
+    min-height: 46px;
+}
+.cateBadge {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.cateBadge {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    background: #8162d2;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 0.5em;
+    color: #fff;
+}

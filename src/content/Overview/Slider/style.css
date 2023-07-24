@@ -8,7 +8,7 @@
     background-color: transparent;
   }
   .video-player {
-    width: 67%;
+    width: 75%;
   }
   .twitch-width {
     width: 85%;
@@ -107,3 +107,6 @@
     font-size: 14px;
     line-height: 150%;
   }
+  .sliderVideoTitle .MuiCardHeader-title {
+    color: #000;
+}
