@@ -23,8 +23,9 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import SimpleSlider from './Slider/index';
 import Recommended from './Recommended/index';
-import LiveChannelList from './LiveChannelList';
+// import LiveStreamings from './LiveStreamings/LiveStreamings';
 import ChannelCategory from './ChannelCategory';
+import LiveStreamings from './LiveStreamings/index'
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
@@ -103,25 +104,27 @@ export default function OverviewPage() {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-  const [channelData, setChannelData] = useState([]);
+  const [channels, setChannels] = useState([]);
+  const [tattooCategories, setTattooCategories] = useState([]);
+  const [liveStreamings, setLiveStreamings] = useState([])
 
-  const { data, loading, error } = useQuery(gql`
-  query Query {
-    channels {
-      _id
-      channelPicture
-      channelName
-    }
-  }
-`,);
+//   const { data, loading, error } = useQuery(gql`
+//   query Query {
+//     channels {
+//       _id
+//       channelPicture
+//       channelName
+//     }
+//   }
+// `,);
 
-  if (loading) {
-    return <div>loading</div>;
-  }
+//   if (loading) {
+//     return <div>loading</div>;
+//   }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+//   if (error) {
+//     return <div>{error}</div>;
+//   }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -157,21 +160,38 @@ export default function OverviewPage() {
   
 // }
 
-  // client.query({
-  //   query: gql`
-  //         query Query {
-  //           channels {
-  //             _id
-  //             channelPicture
-  //             channelName
-  //           }
-  //         }
-  //     `,
-  // })
-  //   .then((result) => {
-  //     console.log(result.data)
-  //     setChannelData(result.data.channels)
-  //   });
+useEffect(()=>{
+  client.query({
+    query: gql`
+          query Query {
+            channels {
+              _id
+              channelPicture
+              channelName
+            }
+            tattooCategories {
+              _id
+              profilePicture
+              tags
+              title
+            }
+            liveStreamings {
+              _id
+              title
+              tattooCategory
+              videoId
+              viewers
+            }
+          }
+      `,
+  })
+    .then((result) => {
+      console.log('result.data', result.data)
+      setChannels(result.data.channels)
+      setTattooCategories(result.data.tattooCategories)
+      setLiveStreamings(result.data.liveStreamings)
+    });
+}, [])
 
   const LiveChannelsList = [{
     channelName: "StreamerHouse",
@@ -333,14 +353,14 @@ export default function OverviewPage() {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <SimpleSlider />
-        <Recommended />
-        <LiveChannelList />
-        <ChannelCategory />
-        {channelData?<div className='test'>
+        <Recommended channels = {channels} />        
+        <LiveStreamings liveStreamings = {liveStreamings} />
+        <ChannelCategory tattooCategories = {tattooCategories} />
+        {/* {channelData?<div className='test'>
           {channelData.map((item)=>{
             <p>{item}</p>
           })}
-        </div>: null}
+        </div>: null} */}
       </Box>
     </Box >
   );

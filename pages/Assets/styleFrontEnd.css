@@ -168,3 +168,9 @@ body .css-1o8jgg6 {
     line-height: 0.5em;
     color: #fff;
 }
+.twitch .twitch-button svg {
+    fill: #ddd;
+}
+.twitch .twitch-button:hover svg {
+    fill: #999;
+}

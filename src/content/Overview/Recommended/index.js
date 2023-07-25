@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Container, Link } from '@mui/material';
 import { borders } from '@mui/system';
-import {styled} from '@mui/system';
+import { styled } from '@mui/system';
 
 // const RecommendedStyle = styled(`Grid`)({
 //     display: 'grid',
@@ -20,7 +20,12 @@ const recommendedStyle = {
     gridTemplateColumns: 'auto auto auto auto auto',
     gap: '15px'
 }
-const Recommended = () => {
+const Recommended = ({ channels }) => {
+    const [showCount, setShowCount] = React.useState(8);
+
+    const handleShowMore = () => {
+        setShowCount(prevCount => prevCount + 8);
+    };
 
     const staticChannelData = [{
         channelName: "StreamerHouse",
@@ -80,7 +85,7 @@ const Recommended = () => {
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "100px" }}>
                 <h2>Recommended <Link href="#">New World</Link> channels</h2>
                 <Grid sx={recommendedStyle} className='desktop5'>
-                    {staticChannelData.map((channel) => (
+                    {channels.map((channel) => (
                         <Grid item xs={12} sm={6} md={4} key={channel.channelName}>
                             <Card sx={{ maxWidth: 345 }}>
                                 <div style={{ position: 'relative' }}>
@@ -119,7 +124,11 @@ const Recommended = () => {
                         </Grid>
                     ))}
                 </Grid>
-                <div className='showAllItemHr'><Link>Show All</Link></div>
+                {showCount < channels.length && (
+                    <div className='showAllItemHr'>
+                        <Button variant="contained" color="primary" onClick={handleShowMore}>Show More</Button>
+                    </div>
+                )}
             </Container>
         </>
     );

@@ -156,7 +156,7 @@ const [open, setOpen] = React.useState(true);
             target="_blank"
             rel="noopener noreferrer"
           >
-            BloomUI.com
+            Tatto
           </Link>
         </Typography>
       </Container>
