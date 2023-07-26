@@ -13,6 +13,7 @@ import {
 import Logo from 'src/components/LogoSign';
 import Link from 'src/components/Link';
 import Head from 'next/head';
+import { Transform } from '@mui/icons-material';
 
 export default function Category() {
   const HeaderWrapper = styled(Card)(
@@ -54,22 +55,21 @@ export default function Category() {
           </Box>
         </Container>
       </HeaderWrapper>
-
+      <Container>
       <Grid container spacing={2}>
         {/* Left Image Section */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={2}>
           <img
             src="https://static-cdn.jtvnw.net/ttv-boxart/493597_IGDB.jpg"
             alt="Left Image"
-            style={{ width: '100%', height: 'auto' }}
+            style={{ width: '150px', height: 'auto' }}
           />
         </Grid>
 
         {/* Right Text Section */}
-              
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={10}>
           <Paper elevation={3} style={{ padding: '16px' }}>
-            <Typography variant="h5">Heading</Typography>
+            <Typography variant="h5"><span style={{textTransform: "uppercase"}}>{router.query.category}</span></Typography>
             <Typography variant="body1">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis
               pulvinar erat ut sapien mattis scelerisque. Sed quis est sit amet
@@ -78,8 +78,8 @@ export default function Category() {
           </Paper>
         </Grid>
       </Grid>
-
-      <p>Post: {router.query.category}</p>
+      
+      </Container>
     </>
   )
 }
