@@ -34,85 +34,87 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 function Overview() {
   const drawerWidth = 240;
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+
+  const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== 'open',
+  })(({ theme, open }) => ({
+    zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.leavingScreen,
     }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
+    ...(open && {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
+    }),
+  }));
+
+  const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+    ({ theme, open }) => ({
+      '& .MuiDrawer-paper': {
+        position: 'relative',
+        whiteSpace: 'nowrap',
+        width: drawerWidth,
         transition: theme.transitions.create('width', {
           easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
+          duration: theme.transitions.duration.enteringScreen,
         }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+        boxSizing: 'border-box',
+        ...(!open && {
+          overflowX: 'hidden',
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+          width: theme.spacing(7),
+          [theme.breakpoints.up('sm')]: {
+            width: theme.spacing(9),
+          },
+        }),
+      },
+    }),
+  );
 
-const HeaderWrapper = styled(Card)(
-  ({ theme }) => `
+  const HeaderWrapper = styled(Card)(
+    ({ theme }) => `
   width: 100%;
   display: flex;
   align-items: center;
   height: ${theme.spacing(10)};
   margin-bottom: ${theme.spacing(10)};
 `
-);
+  );
 
-const OverviewWrapper = styled(Box)(
-  ({ theme }) => `
+  const OverviewWrapper = styled(Box)(
+    ({ theme }) => `
     overflow: auto;
     background: ${theme.palette.common.white};
     flex: 1;
     overflow-x: hidden;
 `
-);
+  );
 
-const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
 
-  useEffect(() =>
-  {        
-      document.body.classList.add("lightVersion0");      
+  useEffect(() => {
+    document.body.classList.add("lightVersion0");
   });
+
+
   return (
     <OverviewWrapper>
       <Head>
         <title>Tattoo Streaming</title>
       </Head>
-      <HeaderWrapper>
+      <HeaderWrapper className='stickyHeader'>
         <Container maxWidth="lg">
           <Box display="flex" alignItems="center">
             <Logo />
@@ -138,13 +140,13 @@ const [open, setOpen] = React.useState(true);
         </Container>
       </HeaderWrapper>
       {/* <Hero /> */}
-      
+
       <OverviewPage />
-      
 
 
 
-      
+
+
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Typography textAlign="center" variant="subtitle1">
           Crafted by{' '}
