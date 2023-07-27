@@ -18,16 +18,16 @@ import { styled } from '@mui/system';
 // })
 const Styledesktop10 = {
     display: 'grid',
-    gridTemplateColumns: 'auto auto auto auto auto auto auto auto auto auto',
+    gridTemplateColumns: 'auto auto auto auto auto auto',
     gap: '10px'
 }
 
 
 const ChannelCategory = ({ tattooCategories }) => {
-    const [showCount, setShowCount] = React.useState(8);
+    const [showCount, setShowCount] = React.useState(6);
 
     const handleShowMore = () => {
-      setShowCount(prevCount => prevCount + 8);
+      setShowCount(prevCount => prevCount + 6);
     };
 
     return (
@@ -37,7 +37,7 @@ const ChannelCategory = ({ tattooCategories }) => {
                 <Grid sx={Styledesktop10}>
                 {tattooCategories.slice(0, showCount).map((channelCat) => (
                         <Grid item xs={12} sm={10} md={4} key={channelCat._id}>
-                            <Card sx={{ maxWidth: 190 }} style={{ position: 'relative' }}>
+                            <Card sx={{ maxWidth: 290 }} style={{ position: 'relative' }}>
                                 <div style={{ position: 'relative' }}>
                                     <CardMedia
                                         sx={{ height: 280 }}

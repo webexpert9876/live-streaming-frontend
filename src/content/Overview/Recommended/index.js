@@ -27,57 +27,57 @@ const Recommended = ({ channels }) => {
         setShowCount(prevCount => prevCount + 8);
     };
 
-    const staticChannelData = [{
-        channelName: "StreamerHouse",
-        liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-        channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png",
-        videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_streamerhouse-440x248.jpg',
-        liveView: "54",
-        subscribers: "15445",
-        channelCategory: "Sea of Thieves",
-        videoTags: ["TwitchOG", "AlwaysOn", "Marathon"]
-    },
-    {
-        channelName: "DannehTV",
-        liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-        channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/f2ec9b7c-ccf3-440c-8dc1-7f4c1e0b6bb6-profile_image-50x50.png",
-        videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_dannehtv-440x248.jpg',
-        liveView: "545",
-        subscribers: "15445",
-        channelCategory: "New World",
-        videoTags: ["TwitchOG", "Marathon"]
-    },
-    {
-        channelName: "VeliaInn",
-        liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-        channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6eadc3b0-61dc-4d11-8e14-924bbfa35664-profile_image-50x50.png",
-        videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_veliainn-440x248.jpg',
-        liveView: "96",
-        subscribers: "15445",
-        channelCategory: "New World",
-        videoTags: ["AlwaysOn", "Marathon"]
-    },
-    {
-        channelName: "BenedictG",
-        liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-        channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/c71b60fc-4215-4c41-aaaa-17908502babf-profile_image-50x50.png",
-        videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_benedictg-440x248.jpg',
-        liveView: "5454",
-        subscribers: "15445",
-        channelCategory: "New World",
-        videoTags: ["TwitchOG", "AlwaysOn"]
-    },
-    {
-        channelName: "zackrawrr",
-        liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-        channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6a3f6d25-96c3-403e-8b3c-e30544344bab-profile_image-50x50.png",
-        videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_mikars-440x248.jpg',
-        liveView: "3 viewers",
-        subscribers: "15445",
-        channelCategory: "New World",
-        videoTags: ["TwitchOG", "Marathon"]
-    }
-    ]
+    // const staticChannelData = [{
+    //     channelName: "StreamerHouse",
+    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
+    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png",
+    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_streamerhouse-440x248.jpg',
+    //     liveView: "54",
+    //     subscribers: "15445",
+    //     channelCategory: "Sea of Thieves",
+    //     videoTags: ["TwitchOG", "AlwaysOn", "Marathon"]
+    // },
+    // {
+    //     channelName: "DannehTV",
+    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
+    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/f2ec9b7c-ccf3-440c-8dc1-7f4c1e0b6bb6-profile_image-50x50.png",
+    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_dannehtv-440x248.jpg',
+    //     liveView: "545",
+    //     subscribers: "15445",
+    //     channelCategory: "New World",
+    //     videoTags: ["TwitchOG", "Marathon"]
+    // },
+    // {
+    //     channelName: "VeliaInn",
+    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
+    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6eadc3b0-61dc-4d11-8e14-924bbfa35664-profile_image-50x50.png",
+    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_veliainn-440x248.jpg',
+    //     liveView: "96",
+    //     subscribers: "15445",
+    //     channelCategory: "New World",
+    //     videoTags: ["AlwaysOn", "Marathon"]
+    // },
+    // {
+    //     channelName: "BenedictG",
+    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
+    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/c71b60fc-4215-4c41-aaaa-17908502babf-profile_image-50x50.png",
+    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_benedictg-440x248.jpg',
+    //     liveView: "5454",
+    //     subscribers: "15445",
+    //     channelCategory: "New World",
+    //     videoTags: ["TwitchOG", "AlwaysOn"]
+    // },
+    // {
+    //     channelName: "zackrawrr",
+    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
+    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6a3f6d25-96c3-403e-8b3c-e30544344bab-profile_image-50x50.png",
+    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_mikars-440x248.jpg',
+    //     liveView: "3 viewers",
+    //     subscribers: "15445",
+    //     channelCategory: "New World",
+    //     videoTags: ["TwitchOG", "Marathon"]
+    // }
+    // ]
 
 
     return (

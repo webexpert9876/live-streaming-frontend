@@ -22,7 +22,7 @@ const recommendedStyle = {
 }
 const LiveStreamings = ({ liveStreamings }) => {
     const [showCount, setShowCount] = React.useState(5);
-
+    console.log('liveStreamings', liveStreamings)
     const handleShowMore = () => {
         setShowCount(prevCount => prevCount + 5);
     };
@@ -78,11 +78,12 @@ const LiveStreamings = ({ liveStreamings }) => {
     //     videoTags: ["TwitchOG", "Marathon"]
     // }
     // ]
+    console.log('process.env.NEXT_PUBLIC_S3_URL', process.env.NEXT_PUBLIC_S3_URL)
 
 
     return (
         <>
-            <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>
+            <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
                 <h2><Link href="#">Live channels</Link> we think you’ll like</h2>
                 <Grid sx={recommendedStyle} className='desktop5'>
                     {liveStreamings.slice(0, showCount).map((channel) => (
@@ -91,27 +92,33 @@ const LiveStreamings = ({ liveStreamings }) => {
                                 <div style={{ position: 'relative' }}>
                                     <CardMedia
                                         sx={{ height: 140 }}
-                                        image={channel.videoBanner}
+                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.videoPoster}`}
                                         title={channel.channelName}
                                     />
-                                    <div className='liveViewCount'>{channel.liveView} viewers</div>
+                                    <div className='liveViewCount'>{channel.viewers} viewers</div>
                                 </div>
                                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                     <Grid item>
-                                        <img src={channel.channelPicture} className='br100 listChannelIconSize' />
+                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' />
                                     </Grid>
                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                         <Typography gutterBottom variant="h5" component="div">
-                                            <Link href="#" color={'white'}>{channel.liveVideoTitle}</Link>
+                                            <Link href={`/channel/${channel.channelDetails[0]._id}`} color={'white'}>{channel.description}</Link>
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            <Link href="#" color={'#bdbdbd'}>{channel.channelName}</Link>
+                                        <Typography gutterBottom variant="p" component="div">
+                                            <Link href="#" color={'#999'}>{channel.title}</Link>
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            <Link href="#" color={'#bdbdbd'} className='mt5'><i>{channel.channelCategory}</i></Link>
+                                        <Typography gutterBottom variant="p" component="div">
+                                            <Link href={`/single-category/${channel.tattooCategoryDetails[0]._id}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                         </Typography>
-                                        {channel.videoTags && channel.videoTags ? <ul className='videoTags'>
-                                            {channel.videoTags && channel.videoTags.map((tag) => (
+                                        {/* <Typography variant="body2" color="text.secondary">
+                                            <Link href="#" color={'#bdbdbd'}>{channel.tags}</Link>
+                                        </Typography> */}
+                                        {/* <Typography variant="body2" color="text.secondary">
+                                            <Link href={`/single-category/${stream.tattooCategory}`} color={'#bdbdbd'} className='mt5'><i>{channel.channelCategory}</i></Link>
+                                        </Typography> */}
+                                        {channel.tags && channel.tags ? <ul className='videoTags'>
+                                            {channel.tags && channel.tags.map((tag) => (
                                                 <li key={tag}>
                                                     <Link href="#">{tag}</Link>
                                                 </li>
