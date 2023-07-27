@@ -24,6 +24,10 @@ export default function Category(props) {
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
   const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing);
   
+  // if (router.isFallback) {
+  //   <h1>Data is loading</h1>;
+  // }
+  
   const HeaderWrapper = styled(Card)(
     ({ theme }) => `
     width: 100%;
@@ -229,7 +233,7 @@ export async function getStaticPaths() {
   console.log('tattooData', tattooData)
   return {
     paths: tattooData,
-    fallback: true,
+    fallback: false,
   };
 
 
