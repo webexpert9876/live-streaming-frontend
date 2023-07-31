@@ -1,3 +1,4 @@
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import PageHeader from 'src/content/Dashboards/Tasks/PageHeader';
@@ -11,23 +12,37 @@ import {
   Button,
   styled,
   Grid,
-  Paper
+  Paper,
+  Divider
 } from '@mui/material';
 import Logo from 'src/components/LogoSign';
 import Link from 'src/components/Link';
 import Head from 'next/head';
 import { Transform } from '@mui/icons-material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export default function Category(props) {
-  console.log('props', JSON.parse(props.category))
+  // console.log('props', JSON.parse(props.category))
   const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategories);
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
   const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing);
-  
+
+  const [showFullContent, setShowFullContent] = React.useState(false);
+
+  const handleReadMore = () => {
+    setShowFullContent(true);
+  };
+
+  const content = tattooCategories[0].description;
+  const wordsToShow = 30;
+  const truncatedContent = content.split(' ').slice(0, wordsToShow).join(' ');
+
   // if (router.isFallback) {
   //   <h1>Data is loading</h1>;
   // }
-  
+
   const HeaderWrapper = styled(Card)(
     ({ theme }) => `
     width: 100%;
@@ -138,34 +153,55 @@ export default function Category(props) {
 
           {/* Right Text Section */}
           <Grid item xs={12} sm={10}>
-            <Paper elevation={3} style={{ padding: '16px' }}>
-              <Grid container direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
-                <Grid item>
-                  {tattooCategories[0].viewers}
+            <Paper elevation={3} style={{ padding: '16px' }} gap={"15px"}>
+              <Grid container gap={"15px"} direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                <Grid item gap={"15px"}>
+                  {tattooCategories[0].viewers} 69K Viewers
                 </Grid>
-                <Grid item>
-                  {countFollower.countFollower} Followers <br></br>
-                  {isCatFollowing[0].isFollowing? 'true': 'false'}55
-                  
+                <Grid item gap={"15px"}>
+                  {countFollower.countFollower} Followers
                 </Grid>
-                <Grid item>
+
+                <Grid item gap={"15px"}>
                   {tattooCategories[0].tags}
+                  {tattooCategories.tags && tattooCategories.tags ? <ul className='videoTags'>
+                    {tattooCategories.tags && tattooCategories.tags.map((tag) => (
+                      <li key={tag}>
+                        <Link href="#">{tag}</Link>
+                      </li>
+                    ))}
+                  </ul> : null
+                  }
                 </Grid>
+                <Divider />
+                <Typography variant="h2" style={{ width: "100%" }} >{tattooCategories[0].title}</Typography>
+
+                <Typography style={{ width: "620px" }}>
+                  {showFullContent ? content : truncatedContent}
+                  {!showFullContent && (
+                    <div onClick={handleReadMore}>
+                        <KeyboardArrowDownIcon style={{position: "relative", top: "7px"}} /> More
+                    </div>
+                  )}
+                </Typography>
 
 
+
+                <Typography item gap={"15px"} style={{ width: "100%" }}>
+                  {/* {isCatFollowing[0].isFollowing ? 'true' : 'test'} */}
+                  {/* <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>
+                  Follow
+                </Button> */}
+
+                  {isCatFollowing[0].isFollowing ? <Button Button variant="contained" startIcon={<FavoriteIcon />}>Follow</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Following</Button>}
+
+                </Typography>
               </Grid>
-
-              <Typography variant="h2" >{tattooCategories[0].title}</Typography>
-              <p>{tattooCategories[0].description}</p>
-              <Typography variant="h5"><span style={{ textTransform: "uppercase" }}>{router.query.category}</span></Typography>
-              <Typography variant="body1">
-
-              </Typography>
             </Paper>
           </Grid>
-        </Grid>
+        </Grid >
 
-      </Container>
+      </Container >
       <div>
         {tattooCategories[0]._id}
         {tattooCategories[0].profilePicture}
@@ -295,7 +331,7 @@ export async function getStaticProps({ params }) {
     });
   category = JSON.stringify(category);
   return {
-    props: { 
+    props: {
       category: category
     },
   }
