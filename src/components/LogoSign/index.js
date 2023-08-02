@@ -7,6 +7,8 @@ import {
   useTheme
 } from '@mui/material';
 import Link from 'src/components/Link';
+// import logo from '../../../pages/Assets/img/logo.png'
+import Image from 'next/image'
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `
@@ -76,53 +78,34 @@ const LogoSignInner = styled(Box)(
 `
 );
 
-const TooltipWrapper = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.colors.alpha.trueWhite[100],
-    color: theme.palette.getContrastText(theme.colors.alpha.trueWhite[100]),
-    fontSize: theme.typography.pxToRem(12),
-    fontWeight: 'bold',
-    borderRadius: theme.general.borderRadiusSm,
-    boxShadow:
-      '0 .2rem .8rem rgba(7,9,25,.18), 0 .08rem .15rem rgba(7,9,25,.15)'
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: theme.colors.alpha.trueWhite[100]
-  }
-}));
+const width = {
+  width:"100%",  
+};
 
 function Logo() {
   const theme = useTheme();
 
 
   return (
-    <TooltipWrapper
-      title="Tokyo Free Black Next.js Javascript Admin Dashboard"
-      arrow
-    >
-      <LogoWrapper href="/">
-        <Badge
-          sx={{
-            '.MuiBadge-badge': {
-              fontSize: theme.typography.pxToRem(11),
-              right: -2,
-              top: 8
-            }
-          }}
-          overlap="circular"
-          color="success"
-          badgeContent="1.0"
-        >
-          <LogoSignWrapper>
-            <LogoSign>
-              <LogoSignInner />
-            </LogoSign>
-          </LogoSignWrapper>
-        </Badge>
+
+      <LogoWrapper href="/" sx={width}>
+        {/* <Image
+      src="/pages/Assets/img/logo.png"
+      width={500}
+      height={500}
+      alt="Picture of the author"
+    /> */}
+        {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/pages/Assets/img/logo.png`} /> */}
+        {/* <img src={`http://localhost:3000/pages/Assets/img/logo.png`} /> */}
+        <Image
+          src='/logo.png'
+          alt="Picture of the author"
+          width="165px"
+          height="60px"
+          
+        />
       </LogoWrapper>
-    </TooltipWrapper>
+    
   );
 }
 

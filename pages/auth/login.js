@@ -82,6 +82,10 @@ const LoginForm = () => {
       });
   };
 
+  const mapStateToProps = (state) => ({
+    authUser: state.auth.authUser, // Replace 'auth' with the key where your authUser is stored in the Redux store
+  });
+
   return (
     <ThemeProvider>
       <Grid container component="main" sx={{ height: '100vh' }}>

@@ -1,6 +1,7 @@
 import styleFrontEnd from './Assets/styleFrontEnd.css'
 import style from "../src/content/Overview/Slider/style.css"
 import Head from 'next/head';
+import React, { useState } from 'react';
 import Router from 'next/router';
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -13,9 +14,20 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { Provider } from "react-redux";
 import { wrapper } from '../store/index';
+import {
+  Typography,
+  Box,
+  Card,
+  Container,
+  Button,
+  styled,
+  Link
+} from '@mui/material';
 // import TawkTo from 'tawkto-react';
 // import TawkTo from 'tawkto-react';
 // import { useEffect } from 'react';
+// import Logo from 'src/components/LogoSign';
+import Logo from 'src/components/LogoSign';
 
 
 
@@ -40,7 +52,7 @@ function TokyoApp({ Component, ...rest }) {
   Router.events.on('routeChangeError', nProgress.done);
   Router.events.on('routeChangeComplete', nProgress.done);
 
-  
+
 
   // useEffect(() => {
   //   const propertyId = "64be6d6f94cf5d49dc661220";
@@ -52,6 +64,18 @@ function TokyoApp({ Component, ...rest }) {
   //   })
 
   // }, [])
+
+  const HeaderWrapper = styled(Card)(
+    ({ theme }) => `
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: ${theme.spacing(10)};
+  margin-bottom: ${theme.spacing(10)};
+`
+  );
+
+  
 
   return (
 
@@ -66,6 +90,34 @@ function TokyoApp({ Component, ...rest }) {
           />
 
         </Head>
+
+        
+        <HeaderWrapper className='stickyHeader'>
+          <Container maxWidth="lg">
+            <Box display="flex" alignItems="center">
+              <Logo />
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                flex={1}
+              >
+                <Box />
+                <Box>
+                  <Button
+                    component={Link}
+                    href="/auth/login"
+                    variant="contained"
+                    sx={{ ml: 2 }}
+                  >
+                    Login
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Container>
+        </HeaderWrapper>
+        
 
         <SidebarProvider>
           <ThemeProvider>
