@@ -78,7 +78,7 @@ const LiveStreamings = ({ liveStreamings }) => {
     //     videoTags: ["TwitchOG", "Marathon"]
     // }
     // ]
-    console.log('process.env.NEXT_PUBLIC_S3_URL', process.env.NEXT_PUBLIC_S3_URL)
+    // console.log('process.env.NEXT_PUBLIC_S3_URL', process.env.NEXT_PUBLIC_S3_URL)
 
 
     return (
@@ -109,7 +109,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                                             <Link href="#" color={'#999'}>{channel.title}</Link>
                                         </Typography>
                                         <Typography gutterBottom variant="p" component="div">
-                                            <Link href={`/single-category/${channel.tattooCategoryDetails[0]._id}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
+                                            <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                         </Typography>
                                         {/* <Typography variant="body2" color="text.secondary">
                                             <Link href="#" color={'#bdbdbd'}>{channel.tags}</Link>

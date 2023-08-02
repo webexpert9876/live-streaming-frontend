@@ -34,7 +34,10 @@ body.lightVersion .css-p2k8gh-MuiPaper-root-MuiDrawer-paper {
 }
 
 .topmargin .MuiPaper-root.MuiPaper-elevation {
-    margin-top: 100px;
+    margin-top: 91px;
+}
+body .minHeightTitleMenu {
+    min-height: 48px;
 }
 
 [aria-label="open drawer"] {

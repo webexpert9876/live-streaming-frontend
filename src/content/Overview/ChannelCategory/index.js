@@ -30,6 +30,8 @@ const ChannelCategory = ({ tattooCategories }) => {
       setShowCount(prevCount => prevCount + 6);
     };
 
+    console.log("urlsssss", tattooCategories)
+
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>
@@ -47,7 +49,7 @@ const ChannelCategory = ({ tattooCategories }) => {
                                 </div>
                                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                     <Typography gutterBottom variant="h5" component="div" style={{ width: "100%" }}>
-                                        <Link href="#" color={'white'}>{channelCat.title.slice(0, 20)}</Link>
+                                        <Link href={`/single-category/${channelCat.urlSlug}`} color={'white'}>{channelCat.title.slice(0, 20)}</Link>
                                     </Typography>
                                     <div className='cateBadge'> New</div>
 

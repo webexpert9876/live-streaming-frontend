@@ -1,0 +1,122 @@
+import * as React from 'react';
+import { useState } from 'react';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { Container, Divider, Link } from '@mui/material';
+import { borders, Box } from '@mui/system';
+import { styled } from '@mui/system';
+
+
+const recommendedStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'auto auto auto auto auto',
+    gap: '15px',
+    marginTop: "40px"
+}
+const VideosList = ({ videosListInfo }) => {
+    const [showCount, setShowCount] = React.useState(2);
+    const [selectedTag, setSelectedTag] = useState(null);
+
+    const handleShowMore = () => {
+        setShowCount(prevCount => prevCount + 5);
+        setSelectedTag(null);
+    };
+    // const [showCount, setShowCount] = React.useState(5);
+    //console.log('liveVideosInfoLiveVideossssssssssssssssssssssss', liveVideosInfo)
+    // const handleShowMore = () => {
+    //     setShowCount(prevCount => prevCount + 5);
+    // };
+
+
+    if (!videosListInfo || !Array.isArray(videosListInfo)) {
+        // Handle cases where videosListInfo is not defined or not an array
+        return <p>No live videos available.</p>;
+    }
+
+
+
+    // Get all unique tags from video data to show in Autocomplete
+    const allTags = videosListInfo.reduce((tags, video) => {
+        if (video.tags) {
+            video.tags.forEach(tag => {
+                if (!tags.includes(tag)) {
+                    tags.push(tag);
+                }
+            });
+        }
+        return tags;
+    }, []);
+
+    return (
+        <>
+
+            <Box style={{ width: "100%", maxWidth: "100%", marginTop: "5px", padding: "0" }}>
+                <Grid style={{ width: "100%" }}>
+                    <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={allTags}
+                        value={selectedTag}
+                        onChange={(event, newValue) => setSelectedTag(newValue)} // Update selectedTag state on selection
+                        getOptionLabel={(option) => option}
+                        sx={{ width: 300 }}
+                        renderInput={(params) => <TextField {...params} label="Search by tag" />}
+                    />
+                </Grid>
+                <Grid sx={recommendedStyle} className='desktop5'>
+                    {videosListInfo.slice(0, showCount).map((channel) => (
+                            <Grid item xs={12} sm={6} md={4} key={channel._id} style={{ maxWidth: "100%" }}>
+                                <Card sx={{ maxWidth: 345 }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <CardMedia
+                                            sx={{ height: 140 }}
+                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.videoPoster}`}
+                                            title={channel.channelName}
+                                        />
+                                        <div className='liveViewCount'>{channel.viewers} viewers</div>
+                                    </div>
+                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                        <Grid item>
+                                            {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' /> */}
+                                        </Grid>
+                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                            <Typography gutterBottom variant="h5" component="div">
+                                                {/* <Link href={`/channel/${channel.channelDetails[0]._id}`} color={'white'}>{channel.description}</Link> */}
+                                            </Typography>
+                                            <Typography gutterBottom variant="p" component="div">
+                                                <Link href="#" color={'#999'}>{channel.title}</Link>
+                                            </Typography>
+                                            <Typography gutterBottom variant="p" component="div">
+                                                {/* <Link href={`/single-category/${channel.tattooCategoryDetails[0]._id}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link> */}
+                                            </Typography>
+                                            {channel.tags && channel.tags ? <ul className='videoTags'>
+                                                {channel.tags && channel.tags.map((tag) => (
+                                                    <li key={tag}>
+                                                        <Link href="#">{tag}</Link>
+                                                    </li>
+                                                ))}
+                                            </ul> : null}
+                                        </Grid>
+                                    </Grid>
+                                </Card>
+                            </Grid>
+                        ))}
+                </Grid>
+                {showCount < videosListInfo.length && (
+                    <div className='showAllItemHr'>
+                        <Button variant="contained" color="primary" onClick={handleShowMore}>Show More</Button>
+                    </div>
+                )}
+            </Box>
+        </>
+    );
+};
+
+export default VideosList;

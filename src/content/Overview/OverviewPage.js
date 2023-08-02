@@ -33,6 +33,7 @@ import { Container, Link } from '@mui/material';
 import { liveChannelViewersStyle, liveChannelStatus } from "./OverviewStyle"
 import client from '../../../graphql';
 import Tooltip from '@mui/material/Tooltip';
+import LeftMenu from './LeftMenu';
 
 const drawerWidth = 240;
 
@@ -175,6 +176,7 @@ export default function OverviewPage(props) {
               profilePicture
               tags
               title
+              urlSlug
             }
             liveStreamings {
               _id
@@ -193,6 +195,7 @@ export default function OverviewPage(props) {
               tattooCategoryDetails {
                 _id
                 title
+                urlSlug
               }
               
             }
@@ -323,69 +326,7 @@ export default function OverviewPage(props) {
           </IconButton>          
         </Toolbar>
       </AppBar> */}
-      <Drawer variant="permanent" open={open} className='topmargin'>
-        <DrawerHeader sx={{ mt: '1000', }}>
-          <IconButton onClick={handleDrawerClose}>
-            <div style={{ fontSize: "12px" }}>RECOMMENDED CHANNELS</div> {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}>
-            <ChevronRightIcon />
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List style={scrollBar} >
-          {liveStreamings.map((channelList) => (
-
-            <Grid container className="tooltip" direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
-              <Grid item>
-                <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelList.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' style={{ width: "30px" }} />
-              </Grid>
-
-              <Grid item ml={"15px"} style={{ width: "74%" }}>
-                <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
-                  
-                
-
-                  <div className='channelListChannelName'>
-                    <Link href="#" color={'white'}>
-                      {channelList.title.slice(0, 15)}
-                    </Link>
-                  </div>
-                    {channelList.tattooCategoryDetails[0].title.length > 20
-                      ? `${channelList.tattooCategoryDetails[0].title.slice(0, 15)}...`
-                      : channelList.tattooCategoryDetails[0].title}
-
-                    <span className="tooltiptext" style={{textAlign: "left", padding: "10px"}}>
-                      {channelList.title}<br/>
-                      {channelList.tattooCategoryDetails[0].title.length > 20
-                        ? `${channelList.tattooCategoryDetails[0].title}`
-                        : channelList.tattooCategoryDetails[0].title}
-                    </span>
-                  
-                  
-
-
-                  <div style={liveChannelViewersStyle}><div style={liveChannelStatus}></div>{channelList.viewers}</div>
-                </ListItemText>
-              </Grid>
-            </Grid>
-            
-          ))}
-        </List>
-        <Divider />
-
-
-
-
-      </Drawer>
+      <LeftMenu />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <SimpleSlider />
         {/* <Recommended channels = {channels} />         */}
