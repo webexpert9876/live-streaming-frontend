@@ -28,13 +28,7 @@ const LiveStreamingSkeletonItem = () => {
                     style={{ width: "299px", borderRadius: "10px" }}
                     height={140}
                 />
-            <Grid item>
-                <Skeleton
-                    className='br100 listChannelIconSize'
-                    style={{ width: "30px" }}
-                    height={30}
-                />
-            </Grid>
+  
             <Grid item ml={"15px"} style={{ width: "74%" }}>
                 <ListItemText sx={{ display: 'block' }} style={{ position: "relative" }}>
                     <div className='channelListChannelName'>

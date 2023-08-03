@@ -86,13 +86,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-export default function OverviewPage(props) {
+export default function OverviewPage({homeData}) {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-  const [channels, setChannels] = useState([]);
-  const [tattooCategories, setTattooCategories] = useState([]);
-  const [liveStreamings, setLiveStreamings] = useState([])
+  // const [channels, setChannels] = useState([]);
+  // const [tattooCategories, setTattooCategories] = useState([]);
+  // const [liveStreamings, setLiveStreamings] = useState([])
+
+  const [channels, setChannels] = useState(homeData.channels);
+  const [tattooCategories, setTattooCategories] = useState(homeData.tattooCategories);
+  const [liveStreamings, setLiveStreamings] = useState(homeData.liveStreamings)
   
   const handleDrawerOpen = () => {
     setOpen(true);

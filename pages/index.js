@@ -112,6 +112,9 @@ console.log('props', props)
   });
 
   /////// skeleton ///////
+
+    
+  
   
 
 
@@ -173,11 +176,7 @@ console.log('props', props)
       </HeaderWrapper>
       {/* <Hero /> */}
 
-      <OverviewPage />
-
-
-
-
+      {props.data? <OverviewPage homeData={props.data}/>:null}
 
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Typography textAlign="center" variant="subtitle1">
@@ -197,6 +196,58 @@ console.log('props', props)
 
 export default Overview;
 
+export async function getStaticProps() {
+  try {
+    const { data } = await client.query({
+      query: gql`
+        query Query {
+          channels {
+            _id
+            channelPicture
+            channelName
+          }
+          tattooCategories {
+            _id
+            profilePicture
+            tags
+            title
+            urlSlug
+          }
+          liveStreamings {
+            _id
+            title
+            tattooCategory
+            videoId
+            viewers
+            videoPoster
+            tags
+            channelDetails {
+              _id
+              channelPicture
+            }
+            description
+            _id
+            tattooCategoryDetails {
+              _id
+              title
+              urlSlug
+            }
+            
+          }
+        }
+      `,
+    });
+
+    return {
+      props: { data }, // No need to stringify the data
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return {
+      props: { data: null }, // Handle error case gracefully in your component
+    };
+  }
+}
 
 
 Overview.getLayout = function getLayout(page) {
@@ -319,3 +370,4 @@ Overview.getLayout = function getLayout(page) {
 //     props: { data },
 //   }
 // }
+
