@@ -240,3 +240,12 @@ body .css-1o8jgg6 {
 .css-ebdsus {
     width: 100%;
 }
+.react-loading-skeleton {
+    background-color: #222956 !important;
+    --base-color: #3e4781 !important;
+    --highlight-color: #222956 !important;
+}
+
+.react-loading-skeleton::after {
+    background-color: #0c1028 !important;   
+}
