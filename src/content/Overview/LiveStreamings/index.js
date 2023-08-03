@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import CardActions from '@mui/material/CardActions';
@@ -6,80 +7,74 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Container, Link } from '@mui/material';
+import { Container, Link, ListItemText } from '@mui/material';
 import { borders } from '@mui/system';
 import { styled } from '@mui/system';
 
-// const RecommendedStyle = styled(`Grid`)({
-//     display: 'grid',
-//     gridTemplateColumns: 'auto auto auto auto auto',
-//     gap: '15px'
-// })
 const recommendedStyle = {
     display: 'grid',
     gridTemplateColumns: 'auto auto auto auto auto',
-    gap: '15px'
-}
+    gap: '15px',
+};
+
+const liveChannelViewersStyle = {
+    display: 'flex',
+    alignItems: 'center',
+};
+
+const liveChannelStatus = {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    backgroundColor: 'red', // You can change this color as needed
+    marginRight: '4px',
+};
+
+
+const LiveStreamingSkeletonItem = ({isLoaded}) => {
+    return (
+        <Grid
+            container
+            className="tooltip"
+            direction="row"
+            alignItems="center"
+            mt={"0px"}
+            ml={"8px"}
+            pb={"15px"}
+            style={{ display: "flex", alignItems: "flex-start" }}
+        >
+            <Grid item>
+                <Skeleton
+                    className='br100 listChannelIconSize'
+                    style={{ width: "30px" }}
+                    height={30}
+                />
+            </Grid>
+            <Grid item ml={"15px"} style={{ width: "74%" }}>
+                <ListItemText sx={{ display: 'block' }} style={{ position: "relative" }}>
+                    <div className='channelListChannelName'>
+                        <Skeleton height={16} width={100} />
+                    </div>
+                    <Skeleton height={16} width={100} />
+                    <span className="tooltiptext" style={{ textAlign: "left", padding: "10px" }}>
+                        <Skeleton height={16} width={100} />
+                    </span>
+                    <div style={liveChannelViewersStyle}>
+                        <div style={liveChannelStatus}></div>
+                        <Skeleton height={16} width={50} />
+                    </div>
+                </ListItemText>
+            </Grid>
+        </Grid>
+    );
+};
+
 const LiveStreamings = ({ liveStreamings }) => {
     const [showCount, setShowCount] = React.useState(5);
-    console.log('liveStreamings', liveStreamings)
+
     const handleShowMore = () => {
-        setShowCount(prevCount => prevCount + 5);
+        setShowCount((prevCount) => prevCount + 5);
     };
-
-    // const staticChannelData = [{
-    //     channelName: "StreamerHouse",
-    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png",
-    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_streamerhouse-440x248.jpg',
-    //     liveView: "54",
-    //     subscribers: "15445",
-    //     channelCategory: "Sea of Thieves",
-    //     videoTags: ["TwitchOG", "AlwaysOn", "Marathon"]
-    // },
-    // {
-    //     channelName: "DannehTV",
-    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/f2ec9b7c-ccf3-440c-8dc1-7f4c1e0b6bb6-profile_image-50x50.png",
-    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_dannehtv-440x248.jpg',
-    //     liveView: "545",
-    //     subscribers: "15445",
-    //     channelCategory: "New World",
-    //     videoTags: ["TwitchOG", "Marathon"]
-    // },
-    // {
-    //     channelName: "VeliaInn",
-    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6eadc3b0-61dc-4d11-8e14-924bbfa35664-profile_image-50x50.png",
-    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_veliainn-440x248.jpg',
-    //     liveView: "96",
-    //     subscribers: "15445",
-    //     channelCategory: "New World",
-    //     videoTags: ["AlwaysOn", "Marathon"]
-    // },
-    // {
-    //     channelName: "BenedictG",
-    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/c71b60fc-4215-4c41-aaaa-17908502babf-profile_image-50x50.png",
-    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_benedictg-440x248.jpg',
-    //     liveView: "5454",
-    //     subscribers: "15445",
-    //     channelCategory: "New World",
-    //     videoTags: ["TwitchOG", "AlwaysOn"]
-    // },
-    // {
-    //     channelName: "zackrawrr",
-    //     liveVideoTitle: "24/7 !DROPS | The Azoth must Flow - Follow @StreamerHouse Always Live Since 2013",
-    //     channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6a3f6d25-96c3-403e-8b3c-e30544344bab-profile_image-50x50.png",
-    //     videoBanner: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_mikars-440x248.jpg',
-    //     liveView: "3 viewers",
-    //     subscribers: "15445",
-    //     channelCategory: "New World",
-    //     videoTags: ["TwitchOG", "Marathon"]
-    // }
-    // ]
-    // console.log('process.env.NEXT_PUBLIC_S3_URL', process.env.NEXT_PUBLIC_S3_URL)
-
 
     return (
         <>
@@ -97,7 +92,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                                     />
                                     <div className='liveViewCount'>{channel.viewers} viewers</div>
                                 </div>
-                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
+                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                     <Grid item>
                                         <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' />
                                     </Grid>
@@ -111,12 +106,6 @@ const LiveStreamings = ({ liveStreamings }) => {
                                         <Typography gutterBottom variant="p" component="div">
                                             <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                         </Typography>
-                                        {/* <Typography variant="body2" color="text.secondary">
-                                            <Link href="#" color={'#bdbdbd'}>{channel.tags}</Link>
-                                        </Typography> */}
-                                        {/* <Typography variant="body2" color="text.secondary">
-                                            <Link href={`/single-category/${stream.tattooCategory}`} color={'#bdbdbd'} className='mt5'><i>{channel.channelCategory}</i></Link>
-                                        </Typography> */}
                                         {channel.tags && channel.tags ? <ul className='videoTags'>
                                             {channel.tags && channel.tags.map((tag) => (
                                                 <li key={tag}>
@@ -129,6 +118,10 @@ const LiveStreamings = ({ liveStreamings }) => {
                                 </Grid>
                             </Card>
                         </Grid>
+                    ))}
+                    {/* Skeleton loading animation */}
+                    {Array.from({ length: 5 }).map((_, index) => (
+                        <LiveStreamingSkeletonItem key={index} />
                     ))}
                 </Grid>
                 {showCount < liveStreamings.length && (

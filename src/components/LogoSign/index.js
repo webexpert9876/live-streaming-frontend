@@ -79,7 +79,7 @@ const LogoSignInner = styled(Box)(
 );
 
 const width = {
-  width:"100%",  
+  width:"170px",  
 };
 
 function Logo() {

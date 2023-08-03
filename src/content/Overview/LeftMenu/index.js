@@ -284,14 +284,14 @@ export default function LeftMenu(props) {
                     mt={"0px"}
                     ml={"8px"}
                     pb={"15px"}
-                    style={{ display: "flex", alignItems: "flex-start" }}
+                    style={{ display: "flex", alignItems: "flex-start", alignContent: "center", alignItems: "center" }}
                   >
                     <Grid item>
                       <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelList.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' style={{ width: "30px" }} />
                     </Grid>
                     <Grid item ml={"15px"} style={{ width: "74%" }}>
                       <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
-                        <div className='channelListChannelName'>
+                        <div className='channelListChannelName' style={{marginBottom: "-6px"}}>
                           <Link href="#" style={{ color: 'white', textDecoration:"none" }}>
                             {channelList.title.slice(0, 15)}
                           </Link>
