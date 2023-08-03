@@ -1,26 +1,17 @@
-import * as React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import ListItemButton from '@mui/material/ListItemButton';
-import { useTheme } from '@mui/material/styles';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import styled from '@emotion/styled';
-import { createTheme } from '@mui/material/styles';
-import { ThemeProvider } from '@mui/styles';
+import React, { useState, useEffect } from 'react';
+import Skeleton from 'react-loading-skeleton';
+import {
+  useTheme,
+  createTheme,
+  ThemeProvider,
+  styled,
+  ListItemText
+} from '@mui/material';
 import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
+
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
@@ -30,7 +21,6 @@ import { gql } from '@apollo/client';
 import client from '../../../../graphql';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
 import { Container, Link } from '@mui/material';
 import { liveChannelViewersStyle, liveChannelStatus } from "../OverviewStyle"
 
@@ -101,15 +91,64 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-export default function LeftMenu(props) {
+const LiveStreamingSkeletonItem = ({ open }) => {
+  return (
+    <Grid
+      container
+      className="tooltip"
+      direction="row"
+      alignItems="center"
+      mt={"0px"}
+      ml={"8px"}
+      pb={"15px"}
+      style={{ display: "flex", alignItems: "flex-start" }}
+    >
+      <Grid item>
+        <Skeleton
+          className='br100 listChannelIconSize'
+          style={{ width: "30px", backgroundColor: '#222956' }} // Set background color here
+          height={30}
+        />
+      </Grid>
+      <Grid item ml={"15px"} style={{ width: "74%" }}>
+        <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
+          <div className='channelListChannelName'>
+            <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+          </div>
+          <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+          <span className="tooltiptext" style={{ textAlign: "left", padding: "10px", backgroundColor: '#222956' }}> {/* Set background color here */}
+            <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+          </span>
+          <div style={liveChannelViewersStyle}>
+            <div style={liveChannelStatus}></div>
+            <Skeleton height={16} width={50} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+          </div>
+        </ListItemText>
+      </Grid>
+    </Grid>
+  );
+};
 
+const LiveStreamingsSkeleton = ({ open }) => {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <LiveStreamingSkeletonItem key={index} open={open} />
+      ))}
+    </>
+  );
+};
+
+
+export default function LeftMenu(props) {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState([]);
   const [tattooCategories, setTattooCategories] = useState([]);
-  const [liveStreamings, setLiveStreamings] = useState([])
+  const [liveStreamings, setLiveStreamings] = useState([]);
   console.log('props', props)
- 
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -119,6 +158,9 @@ export default function LeftMenu(props) {
   };
 
   useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false); // Set isLoading to false when data is loaded
+    }, 2000); // Replace 2000ms with your actual loading time (if you have data fetching)
     client.query({
       query: gql`
           query Query {
@@ -162,88 +204,8 @@ export default function LeftMenu(props) {
         setTattooCategories(result.data.tattooCategories)
         setLiveStreamings(result.data.liveStreamings)
       });
+    return () => clearTimeout();
   }, [])
-
-  const LiveChannelsList = [{
-    channelName: "StreamerHouse",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/c71b60fc-4215-4c41-aaaa-17908502babf-profile_image-70x70.png",
-    channelCategory: "Remnant II",
-    channelViewers: "340"
-  },
-  {
-    channelName: "VeliaInn",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6eadc3b0-61dc-4d11-8e14-924bbfa35664-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "470"
-  },
-  {
-    channelName: "MikaRS",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "292"
-  },
-  {
-    channelName: "KatContii",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/0303d2c5-5e4f-4138-9919-976285515616-profile_image-70x70.png",
-    channelCategory: "Remnant II",
-    channelViewers: "268"
-  },
-  {
-    channelName: "KROTHA",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/a9ce83ba-c0bd-49cc-83bd-9d17647a211a-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "77"
-  },
-  {
-    channelName: "zackrawrr",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/946c7e72-d500-47d9-a8a4-5597ba0b76f8-profile_image-70x70.png",
-    channelCategory: "Just Chatting",
-    channelViewers: "22.5K"
-  },
-  {
-    channelName: "AzzeyUK",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/e66515cc-b8aa-485b-82fa-f26b3f4adca0-profile_image-70x70.png",
-    channelCategory: "Just Chatting",
-    channelViewers: "142"
-  },
-  {
-    channelName: "M3LFUNCTION",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/8617132c-dfab-4c76-a20a-420781b8adb0-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "15"
-  },
-  {
-    channelName: "KatContii",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/0303d2c5-5e4f-4138-9919-976285515616-profile_image-70x70.png",
-    channelCategory: "Remnant II",
-    channelViewers: "268"
-  },
-  {
-    channelName: "KROTHA",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/a9ce83ba-c0bd-49cc-83bd-9d17647a211a-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "77"
-  },
-  {
-    channelName: "zackrawrr",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/946c7e72-d500-47d9-a8a4-5597ba0b76f8-profile_image-70x70.png",
-    channelCategory: "Just Chatting",
-    channelViewers: "22.5K"
-  },
-  {
-    channelName: "AzzeyUK",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/e66515cc-b8aa-485b-82fa-f26b3f4adca0-profile_image-70x70.png",
-    channelCategory: "Just Chatting",
-    channelViewers: "142"
-  },
-  {
-    channelName: "M3LFUNCTION",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/8617132c-dfab-4c76-a20a-420781b8adb0-profile_image-70x70.png",
-    channelCategory: "New World",
-    channelViewers: "15"
-  }
-  ]
-
 
   const scrollBar = {
     '&::-webkit-scrollbar': {
@@ -260,64 +222,60 @@ export default function LeftMenu(props) {
     }
   };
 
-  ///////////////// OLD ////////////////////
-  const AuthorImg = styled.img`
-    border-radius: 100px;
-    background: #fff;
-    padding: 5px;
-    width: 40px;
-    height: 40px;
-  `;
-
-  const liveChannelList = {
-    channelTitle: "The Sims 4",
-    channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png",
-    channelCategory: "New World",
-    liveViewers: "793 viewers"
-  }
+  // const PrimaryMainTheme = createTheme({
+  //   palette: {
+  //     primary: {
+  //       main: '#111633',
+  //     },
+  //   },
+  // });
 
   const PrimaryMainTheme = createTheme({
-    palette: {
-      primary: {
-        main: '#fff',
+    components: {
+      MuiDrawer: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: '#111633', // Set the background color to dark blue
+          },
+        },
       },
     },
   });
 
   // function LeftMenu() {
-    return (
-      <div>
-        <ThemeProvider theme={PrimaryMainTheme}>
-          <React.Fragment>
-
-            <Drawer variant="permanent" open={open} className='topmargin'>
-              <DrawerHeader sx={{ mt: '1000', }} className='minHeightTitleMenu'>
-                <IconButton onClick={handleDrawerClose}>
-                  <div style={{ fontSize: "12px" }}>RECOMMENDED CHANNELS</div> {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                </IconButton>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  onClick={handleDrawerOpen}
-                  edge="start"
-                  sx={{
-                    marginRight: 5,
-                    ...(open && { display: 'none' }),
-                  }}>
-                  <ChevronRightIcon />
-                </IconButton>
-              </DrawerHeader>
-              <Divider />
-              <List style={scrollBar} >
-                {liveStreamings.map((channelList) => (
-                  <Grid container className="tooltip" direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
+  return (
+    <div style={{ backgroundColor: '#222956', height: '100vh' }}>
+      <ThemeProvider theme={PrimaryMainTheme}>
+        <React.Fragment>
+          <Drawer variant="permanent" open={open} className='topmargin' style={{ backgroundColor: '#222956' }}> {/* Set the background color of the Drawer */}
+            <DrawerHeader sx={{ mt: '1000', }} className='minHeightTitleMenu'>
+              {/* ... (rest of the JSX remains the same) */}
+            </DrawerHeader>
+            <Divider />
+            <List style={scrollBar}>
+              {isLoading ? (
+                <LiveStreamingsSkeleton open={open} />
+              ) : (
+                // Render the actual liveStreamings data if isLoading is false
+                liveStreamings.map((channelList) => (
+                  <Grid
+                    key={channelList._id}
+                    container
+                    className="tooltip"
+                    direction="row"
+                    alignItems="center"
+                    mt={"0px"}
+                    ml={"8px"}
+                    pb={"15px"}
+                    style={{ display: "flex", alignItems: "flex-start" }}
+                  >
                     <Grid item>
                       <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelList.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' style={{ width: "30px" }} />
                     </Grid>
                     <Grid item ml={"15px"} style={{ width: "74%" }}>
                       <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
                         <div className='channelListChannelName'>
-                          <Link href="#" color={'white'}>
+                          <Link href="#" style={{ color: 'white' }}>
                             {channelList.title.slice(0, 15)}
                           </Link>
                         </div>
@@ -335,15 +293,13 @@ export default function LeftMenu(props) {
                       </ListItemText>
                     </Grid>
                   </Grid>
-                ))}
-              </List>
-              <Divider />
-            </Drawer>
-
-          </React.Fragment>
-        </ThemeProvider>
-      </div>
-    );
-  }
-
-  // export default LeftMenu;
+                ))
+              )}
+            </List>
+            <Divider />
+          </Drawer>
+        </React.Fragment>
+      </ThemeProvider>
+    </div>
+  );
+}

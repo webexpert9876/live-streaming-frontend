@@ -111,6 +111,9 @@ console.log('props', props)
     document.body.classList.add("lightVersion0");
   });
 
+  /////// skeleton ///////
+  
+
 
   return (
     <OverviewWrapper>
