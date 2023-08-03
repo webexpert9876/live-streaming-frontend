@@ -22,7 +22,12 @@ const LiveStreamingSkeletonItem = () => {
             ml={"8px"}
             pb={"15px"}
             style={{ display: "flex", alignItems: "flex-start" }}
-        >
+        >   
+            <Skeleton
+                    className='br100 listChannelIconSize'
+                    style={{ width: "299px", borderRadius: "10px" }}
+                    height={140}
+                />
             <Grid item>
                 <Skeleton
                     className='br100 listChannelIconSize'
@@ -40,7 +45,7 @@ const LiveStreamingSkeletonItem = () => {
                         <Skeleton height={16} width={100} />
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'red', marginRight: '4px' }} />
+                        
                         <Skeleton height={16} width={50} />
                     </div>
                 </ListItemText>
