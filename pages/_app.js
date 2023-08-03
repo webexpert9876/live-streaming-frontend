@@ -28,7 +28,7 @@ import {
 // import { useEffect } from 'react';
 // import Logo from 'src/components/LogoSign';
 import Logo from 'src/components/LogoSign';
-
+import Layout from "../src/components/Layout/Layout"
 
 
 // import authReducer from '../slices/authSlice';
@@ -41,7 +41,7 @@ const clientSideEmotionCache = createEmotionCache();
 //   },
 // });
 
-function TokyoApp({ Component, ...rest }) {
+function TokyoApp({ Component, ...rest  }) {
   const { emotionCache = clientSideEmotionCache } = rest;
   const { store, props } = wrapper.useWrappedStore(rest);
   const { pageProps } = props;
@@ -75,7 +75,7 @@ function TokyoApp({ Component, ...rest }) {
 `
   );
 
-  
+
 
   return (
 
@@ -92,7 +92,8 @@ function TokyoApp({ Component, ...rest }) {
         </Head>
 
         
-        <HeaderWrapper className='stickyHeader'>
+        
+        {/* <HeaderWrapper className='stickyHeader'>
           <Container maxWidth="lg">
             <Box display="flex" alignItems="center">
               <Logo />
@@ -116,14 +117,16 @@ function TokyoApp({ Component, ...rest }) {
               </Box>
             </Box>
           </Container>
-        </HeaderWrapper>
-        
+        </HeaderWrapper> */}
+
 
         <SidebarProvider>
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CssBaseline />
-              {getLayout(<Component {...pageProps} />)}
+              {getLayout(<Layout>
+                  <Component {...pageProps} />
+                </Layout>)}
             </LocalizationProvider>
           </ThemeProvider>
         </SidebarProvider>

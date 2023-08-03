@@ -176,7 +176,7 @@ ul.videoTags {
 
 .stickyHeader {
     position: fixed;
-    z-index: 999;
+    z-index: 99999;
     border-radius: 0;
 }
 

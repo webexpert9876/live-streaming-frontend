@@ -31,6 +31,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { gql } from '@apollo/client';
 import client from '../graphql';
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 function Overview(props) {
   const drawerWidth = 240;
@@ -115,7 +117,7 @@ console.log('props', props)
       <Head>
         <title>Tattoo Streaming</title>
       </Head>
-      <HeaderWrapper className='stickyHeader'>
+      {/* <HeaderWrapper className='stickyHeader'>
           <Container maxWidth="lg">
             <Box display="flex" alignItems="center">
               <Logo />
@@ -139,7 +141,7 @@ console.log('props', props)
               </Box>
             </Box>
           </Container>
-        </HeaderWrapper>
+        </HeaderWrapper> */}
         
       <HeaderWrapper className='stickyHeader'>
         <Container maxWidth="false">
