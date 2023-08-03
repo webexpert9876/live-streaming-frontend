@@ -93,12 +93,36 @@ function TokyoApp({ Component, ...rest  }) {
 
         
         
-
+        {/* <HeaderWrapper className='stickyHeader'>
+          <Container maxWidth="lg">
+            <Box display="flex" alignItems="center">
+              <Logo />
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                flex={1}
+              >
+                <Box />
+                <Box>
+                  <Button
+                    component={Link}
+                    href="/auth/login"
+                    variant="contained"
+                    sx={{ ml: 2 }}
+                  >
+                    Login
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Container>
+        </HeaderWrapper> */}
 
 
         <SidebarProvider>
-          <ThemeProvider style={{width: "100%"}}>
-            <LocalizationProvider dateAdapter={AdapterDateFns} >
+          <ThemeProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CssBaseline />
               {getLayout(
                   <Component {...pageProps} />

@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { Container, Link, ListItemText, CardMedia } from '@mui/material';
+import { Container, Link, ListItemText, CardMedia, Divider, Box } from '@mui/material';
 
 const recommendedStyle = {
     display: 'grid',
@@ -13,6 +13,7 @@ const recommendedStyle = {
 
 const LiveStreamingSkeletonItem = () => {
     return (
+
         <Grid
             container
             className="tooltip"
@@ -22,15 +23,20 @@ const LiveStreamingSkeletonItem = () => {
             ml={"8px"}
             pb={"15px"}
             style={{ display: "flex", alignItems: "flex-start" }}
-        >   
+            sx={{ maxWidth: 345 }}
+        >
             <Skeleton
-                    className='br100 listChannelIconSize'
-                    style={{ width: "299px", borderRadius: "10px" }}
-                    height={140}
-                />
-  
-            <Grid item ml={"15px"} style={{ width: "74%" }}>
-                <ListItemText sx={{ display: 'block' }} style={{ position: "relative" }}>
+                className='br100 listChannelIconSize'
+                style={{ width: "299px", borderRadius: "10px" }}
+                height={140}
+            />
+            <Divider /><br />
+            <Grid item ml={"15px"} style={{ width: "100%", paddingTop: "10px" }}>
+                <Box style={{ float: "left", paddingRight: "15px" }}>
+                    <Skeleton height={45} width={45} style={{ borderRadius: "100px" }} />
+                </Box>
+                <ListItemText sx={{ display: 'block' }} style={{ position: "relative", float: "left" }}>
+
                     <div className='channelListChannelName'>
                         <Skeleton height={16} width={100} />
                     </div>
@@ -39,17 +45,18 @@ const LiveStreamingSkeletonItem = () => {
                         <Skeleton height={16} width={100} />
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        
+
                         <Skeleton height={16} width={50} />
                     </div>
                 </ListItemText>
             </Grid>
         </Grid>
+
     );
 };
 
 const LiveStreamings = ({ liveStreamings }) => {
-    const [showCount, setShowCount] = useState(5);
+    const [showCount, setShowCount] = useState(6);
     const [isLoading, setIsLoading] = useState(true);
 
     const handleShowMore = () => {
@@ -63,17 +70,22 @@ const LiveStreamings = ({ liveStreamings }) => {
         }, 2000);
     }, []);
 
+
+    console.log("liveStreamings", liveStreamings)
+
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
                 <h2><Link href="#">Live channels</Link> we think you’ll like</h2>
                 {isLoading ? (
+
                     <Grid sx={recommendedStyle} className='desktop5'>
                         {/* Skeleton loading animation */}
                         {Array.from({ length: 5 }).map((_, index) => (
                             <LiveStreamingSkeletonItem key={index} />
                         ))}
                     </Grid>
+
                 ) : (
                     <Grid sx={recommendedStyle} className='desktop5'>
                         {liveStreamings.slice(0, showCount).map((channel) => (
@@ -125,6 +137,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                     </div>
                 )}
             </Container>
+            {/* <LiveStreamingSkeletonItem /> */}
         </>
     );
 };
