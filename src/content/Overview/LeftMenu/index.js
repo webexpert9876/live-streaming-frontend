@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import {
   useTheme,
   createTheme,
@@ -93,6 +93,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const LiveStreamingSkeletonItem = ({ open }) => {
   return (
+    <SkeletonTheme color="#222956" highlightColor="#222956" style={{background:"#222956"}}> {/* Set background color to #f00 */}
+      
     <Grid
       container
       className="tooltip"
@@ -106,26 +108,27 @@ const LiveStreamingSkeletonItem = ({ open }) => {
       <Grid item>
         <Skeleton
           className='br100 listChannelIconSize'
-          style={{ width: "30px", backgroundColor: '#222956' }} // Set background color here
+          style={{ width: "30px", color:"#000", backgroundColor: '#0c1028' }} // Set background color here
           height={30}
         />
       </Grid>
       <Grid item ml={"15px"} style={{ width: "74%" }}>
         <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
           <div className='channelListChannelName'>
-            <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+            <Skeleton height={16} width={100} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
           </div>
-          <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
-          <span className="tooltiptext" style={{ textAlign: "left", padding: "10px", backgroundColor: '#222956' }}> {/* Set background color here */}
-            <Skeleton height={16} width={100} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+          <Skeleton height={16} width={100}  highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
+          <span className="tooltiptext"  style={{ textAlign: "left", padding: "10px", backgroundColor: '#0c1028' }}> {/* Set background color here */}
+            <Skeleton height={16} width={100} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
           </span>
           <div style={liveChannelViewersStyle}>
             <div style={liveChannelStatus}></div>
-            <Skeleton height={16} width={50} style={{ backgroundColor: '#222956' }} /> {/* Set background color here */}
+            <Skeleton height={16} width={50} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
           </div>
         </ListItemText>
       </Grid>
     </Grid>
+    </SkeletonTheme>
   );
 };
 
@@ -244,12 +247,26 @@ export default function LeftMenu(props) {
 
   // function LeftMenu() {
   return (
-    <div style={{ backgroundColor: '#222956', height: '100vh' }}>
+    <div>
       <ThemeProvider theme={PrimaryMainTheme}>
         <React.Fragment>
-          <Drawer variant="permanent" open={open} className='topmargin' style={{ backgroundColor: '#222956' }}> {/* Set the background color of the Drawer */}
+          <Drawer variant="permanent" open={open} className='topmargin' style={{ backgroundColor: '#0c1028' }}> {/* Set the background color of the Drawer */}
             <DrawerHeader sx={{ mt: '1000', }} className='minHeightTitleMenu'>
-              {/* ... (rest of the JSX remains the same) */}
+              <IconButton onClick={handleDrawerClose}>
+                <div style={{ fontSize: "12px", color:"#fff" }}>RECOMMENDED CHANNELS</div> {theme.direction === 'rtl' ? <ChevronRightIcon style={{color:"#fff"}} /> : <ChevronLeftIcon style={{color:"#fff"}} />}
+              </IconButton>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{
+                  marginRight: 5,
+                  ...(open && { display: 'none' }),
+                }}
+                style={{color:"#fff"}}>
+                <ChevronRightIcon />
+              </IconButton>
             </DrawerHeader>
             <Divider />
             <List style={scrollBar}>
@@ -275,21 +292,23 @@ export default function LeftMenu(props) {
                     <Grid item ml={"15px"} style={{ width: "74%" }}>
                       <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
                         <div className='channelListChannelName'>
-                          <Link href="#" style={{ color: 'white' }}>
+                          <Link href="#" style={{ color: 'white', textDecoration:"none" }}>
                             {channelList.title.slice(0, 15)}
                           </Link>
                         </div>
+                        <Link href="#" style={{ color: 'white', fontSize:"12px", textDecoration:"none" }}>
                         {channelList.tattooCategoryDetails[0].title.length > 20
                           ? `${channelList.tattooCategoryDetails[0].title.slice(0, 15)}...`
                           : channelList.tattooCategoryDetails[0].title}
+                        </Link>
 
-                        <span className="tooltiptext" style={{ textAlign: "left", padding: "10px" }}>
+                        <span className="tooltiptext" style={{ textAlign: "left", padding: "10px"}}>
                           {channelList.title}<br />
                           {channelList.tattooCategoryDetails[0].title.length > 20
                             ? `${channelList.tattooCategoryDetails[0].title}`
                             : channelList.tattooCategoryDetails[0].title}
                         </span>
-                        <div style={liveChannelViewersStyle}><div style={liveChannelStatus}></div>{channelList.viewers}</div>
+                        <div style={liveChannelViewersStyle}><div style={liveChannelStatus}></div><span style={{color:"#fff"}}>{channelList.viewers}</span></div>
                       </ListItemText>
                     </Grid>
                   </Grid>
