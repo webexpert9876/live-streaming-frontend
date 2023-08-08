@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { Container, Link, ListItemText, CardMedia, Divider, Box } from '@mui/material';
+import { Container, Link, ListItemText, CardMedia, Divider, Box, Button } from '@mui/material';
 
 const recommendedStyle = {
     display: 'grid',
@@ -23,11 +23,11 @@ const LiveStreamingSkeletonItem = () => {
             ml={"8px"}
             pb={"15px"}
             style={{ display: "flex", alignItems: "flex-start" }}
-            sx={{ maxWidth: 345 }}
+            sx={{ maxWidth: 325 }}
         >
             <Skeleton
                 className='br100 listChannelIconSize'
-                style={{ width: "299px", borderRadius: "10px" }}
+                style={{ width: "280px", borderRadius: "10px" }}
                 height={140}
             />
             <Divider /><br />
@@ -56,7 +56,7 @@ const LiveStreamingSkeletonItem = () => {
 };
 
 const LiveStreamings = ({ liveStreamings }) => {
-    const [showCount, setShowCount] = useState(6);
+    const [showCount, setShowCount] = useState(5);
     const [isLoading, setIsLoading] = useState(true);
 
     const handleShowMore = () => {
@@ -76,7 +76,7 @@ const LiveStreamings = ({ liveStreamings }) => {
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
-                <h2><Link href="#">Live channels</Link> we think you’ll like</h2>
+                <h2><Link href="#">Live channels</Link> we think you’ll like</h2>        
                 {isLoading ? (
 
                     <Grid sx={recommendedStyle} className='desktop5'>
