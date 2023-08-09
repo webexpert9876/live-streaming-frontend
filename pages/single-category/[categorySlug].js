@@ -160,7 +160,7 @@ export default function Category(props) {
             </Grid >
           </Box>
           <Box sx={singCatMenu}>
-            <Box sx={{ width: '100%', typography: 'body1' }}>
+            <Box sx={{ width: '100%', typography: 'body1' }} style={{paddingBottom:"15px"}}>
               <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                   <TabList onChange={handleChange} aria-label="lab API tabs example">
