@@ -149,7 +149,7 @@ console.log('props', props)
           </Container>
         </HeaderWrapper> */}
         
-      <HeaderWrapper className='stickyHeader'>
+      {/* <HeaderWrapper className='stickyHeader'>
         <Container maxWidth="false">
           <Box display="flex" alignItems="center">
             <Logo />
@@ -173,12 +173,12 @@ console.log('props', props)
             </Box>
           </Box>
         </Container>
-      </HeaderWrapper>
+      </HeaderWrapper> */}
       {/* <Hero /> */}
 
       {props.data? <OverviewPage homeData={props.data}/>:null}
 
-      <Container maxWidth="lg" sx={{ mt: 8 }}>
+      {/* <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Typography textAlign="center" variant="subtitle1">
           Crafted by{' '}
           <Link
@@ -189,7 +189,7 @@ console.log('props', props)
             Tatto
           </Link>
         </Typography>
-      </Container>
+      </Container> */}
     </OverviewWrapper>
   );
 }

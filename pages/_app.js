@@ -124,9 +124,11 @@ function TokyoApp({ Component, ...rest  }) {
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CssBaseline />
-              {getLayout(<Layout>
-                  <Component {...pageProps} />
-                  </Layout>)}
+                <Layout>
+                  {getLayout(
+                      <Component {...pageProps} />
+                  )}
+                </Layout>
             </LocalizationProvider>
           </ThemeProvider>
         </SidebarProvider>

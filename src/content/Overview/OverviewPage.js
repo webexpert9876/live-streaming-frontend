@@ -34,6 +34,9 @@ import { liveChannelViewersStyle, liveChannelStatus } from "./OverviewStyle"
 import client from '../../../graphql';
 import Tooltip from '@mui/material/Tooltip';
 import LeftMenu from './LeftMenu';
+import { useRouter } from 'next/router';
+import { setCurrentRoute } from '../../../store/slices/routeSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 
@@ -89,6 +92,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export default function OverviewPage({homeData}) {
 
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(true);
   // const [channels, setChannels] = useState([]);
   // const [tattooCategories, setTattooCategories] = useState([]);
@@ -97,7 +101,8 @@ export default function OverviewPage({homeData}) {
   const [channels, setChannels] = useState(homeData.channels);
   const [tattooCategories, setTattooCategories] = useState(homeData.tattooCategories);
   const [liveStreamings, setLiveStreamings] = useState(homeData.liveStreamings)
-  
+  const router = useRouter()
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -107,51 +112,52 @@ export default function OverviewPage({homeData}) {
   };
 
   useEffect(() => {
-    client.query({
-      query: gql`
-          query Query {
-            channels {
-              _id
-              channelPicture
-              channelName
-            }
-            tattooCategories {
-              _id
-              profilePicture
-              tags
-              title
-              urlSlug
-            }
-            liveStreamings {
-              _id
-              title
-              tattooCategory
-              videoId
-              viewers
-              videoPoster
-              tags
-              channelDetails {
-                _id
-                channelPicture
-              }
-              description
-              _id
-              tattooCategoryDetails {
-                _id
-                title
-                urlSlug
-              }
+    // client.query({
+    //   query: gql`
+    //       query Query {
+    //         channels {
+    //           _id
+    //           channelPicture
+    //           channelName
+    //         }
+    //         tattooCategories {
+    //           _id
+    //           profilePicture
+    //           tags
+    //           title
+    //           urlSlug
+    //         }
+    //         liveStreamings {
+    //           _id
+    //           title
+    //           tattooCategory
+    //           videoId
+    //           viewers
+    //           videoPoster
+    //           tags
+    //           channelDetails {
+    //             _id
+    //             channelPicture
+    //           }
+    //           description
+    //           _id
+    //           tattooCategoryDetails {
+    //             _id
+    //             title
+    //             urlSlug
+    //           }
               
-            }
-          }
-      `,
-    })
-      .then((result) => {
-        console.log('result.data', result.data)
-        setChannels(result.data.channels)
-        setTattooCategories(result.data.tattooCategories)
-        setLiveStreamings(result.data.liveStreamings)
-      });
+    //         }
+    //       }
+    //   `,
+    // })
+    //   .then((result) => {
+    //     console.log('result.data', result.data)
+    //     setChannels(result.data.channels)
+    //     setTattooCategories(result.data.tattooCategories)
+    //     setLiveStreamings(result.data.liveStreamings)
+    //   });
+    dispatch(setCurrentRoute(router.pathname));
   }, [])
 
 
@@ -175,7 +181,7 @@ export default function OverviewPage({homeData}) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />    
+      <CssBaseline />
       <LeftMenu />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <SimpleSlider />

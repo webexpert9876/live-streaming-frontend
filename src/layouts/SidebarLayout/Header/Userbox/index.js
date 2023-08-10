@@ -122,6 +122,8 @@ function HeaderUserbox() {
     // After logout, you can redirect the user to the login page or any other desired page
     // For example, redirecting to the login page:
     dispatch(logout());
+    dispatch(setAuthUser(null));
+    dispatch(setAuthState(false));
     router.push('/auth/login');
     console.log("Click to logout")
 

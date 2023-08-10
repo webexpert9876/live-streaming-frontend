@@ -3,7 +3,7 @@ import React from "react";
 export default function Footer() {
     return (
         <>
-        Footer txt
+        Footer txtd d sd dfg fd gsd gsd
         </>
     )
 }

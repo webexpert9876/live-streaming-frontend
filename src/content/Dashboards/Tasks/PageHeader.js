@@ -53,7 +53,7 @@ function PageHeader() {
         </AvatarPageTitle>
         <Box>
           <Typography variant="h3" component="h3" gutterBottom>
-            Welcome, {user.name}!
+            Welcome, ravi {user.name}!
           </Typography>
           <Typography variant="subtitle2">
             Manage your day to day tasks with style! Enjoy a well built UI

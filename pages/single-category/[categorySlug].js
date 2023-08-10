@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import PageHeader from 'src/content/Dashboards/Tasks/PageHeader';
 import { gql, useQuery, ApolloClient, InMemoryCache } from '@apollo/client';
@@ -32,6 +32,10 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import Header from '../../src/components/Layout/Header';
+import { useRouter } from 'next/router';
+import { setCurrentRoute } from '../../store/slices/routeSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function Category(props) {
   console.log("sdfjslfj",JSON.parse(props.category))
@@ -41,6 +45,9 @@ export default function Category(props) {
   const [liveVideosInfo, setLiveVideosInfo] = useState(JSON.parse(props.category).liveStreamings);
   const [videosListInfo, setVideosListInfo] = useState(JSON.parse(props.category).videos);
   const [value, setValue] = React.useState('1');
+  const dispatch = useDispatch();
+  const router = useRouter();
+  dispatch(setCurrentRoute(router.pathname));
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -85,13 +92,14 @@ export default function Category(props) {
   const widthBox = {
     maxWidth: "1100px"
   }
-  const router = useRouter()
+  // const router = useRouter()
   
 
 
 
   return (
     <>
+      <Header />
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <LeftMenu />
