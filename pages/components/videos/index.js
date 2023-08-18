@@ -213,7 +213,7 @@ const Video = ({ cryptoOrders }) => {
         }
     ];
 
-    console.log(video)
+    // console.log(video)
 
     return (
         <>

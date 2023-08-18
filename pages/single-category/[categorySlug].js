@@ -35,29 +35,35 @@ import TabPanel from '@mui/lab/TabPanel';
 import Header from '../../src/components/Layout/Header';
 import { useRouter } from 'next/router';
 import { setCurrentRoute } from '../../store/slices/routeSlice';
+import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function Category(props) {
-  console.log("sdfjslfj",JSON.parse(props.category))
   const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategories);
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
   const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing);
   const [liveVideosInfo, setLiveVideosInfo] = useState(JSON.parse(props.category).liveStreamings);
   const [videosListInfo, setVideosListInfo] = useState(JSON.parse(props.category).videos);
   const [value, setValue] = React.useState('1');
+  let userDetails = useSelector(selectAuthUser);
+  let userIsLogedIn = useSelector(selectAuthState);
+  console.log('authUser userDetails', userDetails);
+  const [userDetail, setUserDetail] = useState(userDetails);
+  const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
+
   const dispatch = useDispatch();
-  const router = useRouter();
-  dispatch(setCurrentRoute(router.pathname));
+  // const router = useRouter();
+  // dispatch(setCurrentRoute(router.pathname));
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const [showFullContent, setShowFullContent] = React.useState(false);
-  console.log("videosListInfo", videosListInfo);
   const handleReadMore = () => {
     setShowFullContent(true);
   };
+  const [isFollowing, setIsFollowing] = useState(false); // Example state, you can replace this with your state logic
 
   const content = tattooCategories[0].description;
   const wordsToShow = 30;
@@ -93,14 +99,27 @@ export default function Category(props) {
     maxWidth: "1100px"
   }
   // const router = useRouter()
-  
+
+  const handleFollow = () => {
+    // console.log("is following click", handleFollow)
+    let authUser = JSON.parse(localStorage.getItem('authUser'))
+    let authState = JSON.parse(localStorage.getItem('authState'))
+    // let userDetail = useSelector(selectAuthUser);
+    // let userIsLogedIn = useSelector(selectAuthState);
+
+    console.log('authUser', authUser);
+    console.log('authState', authState);
+    console.log('userDetail', userDetail);
+    console.log('userAuthState', userAuthState);
+
+  }
 
 
 
   return (
     <>
       <Header />
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex' }} style={{ padding: "90px 0 0 0" }}>
         <CssBaseline />
         <LeftMenu />
         <Box component="main" sx={{ flexGrow: 1, p: 3, padding: "40px" }} className='teeeeest' >
@@ -118,7 +137,7 @@ export default function Category(props) {
               {/* Right Text Section */}
               <Grid item xs={12} sm={10}>
                 <Paper elevation={3} style={{ padding: '16px' }} gap={"15px"}>
-                  <Typography variant="h2" style={{ width: "100%", paddingBottom: "15px", textTransform: 'uppercase' }} >{tattooCategories[0].title}</Typography>
+                  <Typography variant="h2" style={{ width: "100%", paddingBottom: "15px", textTransform: 'uppercase', paddingLeft: "7px" }} >{tattooCategories[0].title}</Typography>
                   <Grid container gap={"15px"} direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
 
                     <Grid item gap={"15px"}>
@@ -159,7 +178,14 @@ export default function Category(props) {
                   Follow
                 </Button> */}
 
-                      {isCatFollowing[0].isFollowing ? <Button Button variant="contained" startIcon={<FavoriteIcon />}>Follow</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Following</Button>}
+                      {/* {isCatFollowing[0].isFollowing ? <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={handleFollow}>Follow</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Following</Button>} */}
+                      <Button
+                        variant="contained"
+                        startIcon={isFollowing ? <FavoriteBorderIcon /> : <FavoriteIcon />}
+                        onClick={handleFollow}
+                      >
+                        {isFollowing ? 'Following' : 'Follow'}
+                      </Button>
 
                     </Typography>
                   </Grid>
@@ -168,9 +194,9 @@ export default function Category(props) {
             </Grid >
           </Box>
           <Box sx={singCatMenu}>
-            <Box sx={{ width: '100%', typography: 'body1' }} style={{paddingBottom:"15px"}}>
+            <Box sx={{ width: '100%', typography: 'body1' }} style={{ paddingBottom: "15px" }}>
               <TabContext value={value}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', paddingBottom: "12px" }}>
                   <TabList onChange={handleChange} aria-label="lab API tabs example">
                     <Tab label="Live Videos" value="1" />
                     <Tab label="Videos" value="2" />
@@ -235,10 +261,10 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  console.log('params', params)
+  // console.log('params', params)
   let category = await client.query({
     query: gql`
-        query Query ($urlSlug: String, $catAllVideos: String, $tattooCategoryId: String!, $isTattooCategoryFollowingTattooCategoryId2: String!, $userId: String!, $liveStreamingsTattooCategoryId2: String) {
+        query Query ($urlSlug: String, $tattooCategoryId: String!, $isTattooCategoryFollowingTattooCategoryId2: String!, $userId: String!, $liveStreamingsTattooCategoryId2: String, $catAllVideos: String) {
           tattooCategories(urlSlug: $urlSlug) {
             _id
             description
@@ -263,18 +289,32 @@ export async function getStaticProps({ params }) {
             channelDetails {
               _id
               channelPicture
+              urlSlug
             }
             description
             _id
             tattooCategoryDetails {
               _id
               title
+              urlSlug
             }
           }
           videos(tattooCategoryId: $catAllVideos) {
+            videoPreviewImage
             _id
             title
+            tags
+            channelDetails {
+              _id
+              channelPicture
+              urlSlug
+              channelName
+            }
+            description
+            channelId
+            views           
           }
+          
         }
       `,
     variables: {
@@ -288,11 +328,11 @@ export async function getStaticProps({ params }) {
     }
   })
     .then((result) => {
-      
+
       return result.data
-      
+
     });
-  console.log("videos", category)
+  // console.log("videos", category)
   category = JSON.stringify(category);
   return {
     props: {

@@ -150,7 +150,7 @@ export default function LeftMenu(props) {
   const [channels, setChannels] = useState([]);
   const [tattooCategories, setTattooCategories] = useState([]);
   const [liveStreamings, setLiveStreamings] = useState([]);
-  console.log('props', props)
+  // console.log('props', props)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -202,7 +202,7 @@ export default function LeftMenu(props) {
       `,
     })
       .then((result) => {
-        console.log('result.data', result.data)
+        // console.log('result.data', result.data)
         setChannels(result.data.channels)
         setTattooCategories(result.data.tattooCategories)
         setLiveStreamings(result.data.liveStreamings)
@@ -211,16 +211,16 @@ export default function LeftMenu(props) {
   }, [])
 
   const scrollBar = {
-    '&::-webkit-scrollbar': {
+    '&::-webkitScrollbar': {
       width: '1px'
     },
-    '&::-webkit-scrollbar-track': {
+    '&::-webkitScrollbarTrack': {
       background: '#f00'
     },
-    '&::-webkit-scrollbar-thumb': {
+    '&::-webkitScrollbarThumb': {
       background: '#f00'
     },
-    '&::-webkit-scrollbar-thumb:hover': {
+    '&::-webkitScrollbarThumb:hover': {
       background: '#f000'
     }
   };

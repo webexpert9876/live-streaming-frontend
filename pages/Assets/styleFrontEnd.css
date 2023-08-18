@@ -16,7 +16,9 @@ body.lightVersion,
 body.lightVersion .css-1q4pwzv {
     background: #fff;
 }
-
+.css-1q4pwzv {
+    background: #070C27;
+}
 body.lightVersion .css-umajub-MuiPaper-root-MuiCard-root {
     margin-bottom: 0;
     background-color: #fff;
@@ -172,9 +174,9 @@ ul.videoTags {
     border-radius: 0;
 }
 
-.MuiBox-root.css-k008qs {
-    padding-top: 100px;
-}
+/* .MuiBox-root.css-k008qs {
+    padding-top: 90px;
+} */
 
 body .css-1o8jgg6 {
     min-height: 46px;

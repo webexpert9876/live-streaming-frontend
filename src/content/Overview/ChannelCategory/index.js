@@ -81,7 +81,7 @@ const ChannelCategory = ({ tattooCategories }) => {
         }, 2000);
     }, []);
 
-    console.log("tattooCategories", tattooCategories)
+    // console.log("tattooCategories", tattooCategories)
 
     return (
         <>

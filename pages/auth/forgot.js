@@ -75,8 +75,8 @@ export default function SignInSide() {
     })
       .then((response) => {
         // Handle the response from the API      
-        console.log(response.data);
-        console.log("Email send sucsess!")
+        // console.log(response.data);
+        // console.log("Email send sucsess!")
         setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
         setLoading(false);
       })

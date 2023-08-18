@@ -85,8 +85,8 @@ export default function SignInSide() {
 
       .then((response) => {
         // Handle the response from the API
-        console.log(response.data);
-        console.log("Password send sucsess!")
+        // console.log(response.data);
+        // console.log("Password send sucsess!")
         setResponseMessage(`Password changed successfully 1`);
         setLoading(false);
       })

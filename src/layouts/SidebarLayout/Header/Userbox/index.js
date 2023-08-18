@@ -70,20 +70,7 @@ function HeaderUserbox() {
 
   const nextRouter = useRouter();
 
-  // const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); 
-
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     nextRouter.push('/auth/login');
-  //   }
-  // }, [isAuthenticated, nextRouter]);
-
-  // if (!isAuthenticated) {
-  //   return null; // Optional: Show a loading state or message here
-  // }
-
-
-  
+ 
   useEffect(() => {
     let authUser = JSON.parse(localStorage.getItem('authUser'))
     let authState = JSON.parse(localStorage.getItem('authState'))
@@ -101,7 +88,7 @@ function HeaderUserbox() {
     avatar: '/static/images/avatars/1.jpg',
     jobtitle: 'Project Manager'
   };
-  console.log(authState)
+  // console.log(authState)
 
   const ref = useRef(null);
   const [isOpen, setOpen] = useState(false);
@@ -118,14 +105,11 @@ function HeaderUserbox() {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Perform logout logic here, such as clearing user session or JWT token
-    // After logout, you can redirect the user to the login page or any other desired page
-    // For example, redirecting to the login page:
     dispatch(logout());
     dispatch(setAuthUser(null));
     dispatch(setAuthState(false));
     router.push('/auth/login');
-    console.log("Click to logout")
+    // console.log("Click to logout")
 
   };
 
@@ -136,8 +120,7 @@ function HeaderUserbox() {
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
         <Avatar variant="rounded" alt={user.name} src={user.avatar} />
         <Hidden mdDown>
-          <UserBoxText>
-            {/* <UserBoxLabel variant="body1">{user.name}</UserBoxLabel> */}
+          <UserBoxText>            
             <UserBoxLabel variant="body1">{authState?.firstName} {authState?.lastName}</UserBoxLabel>
             <UserBoxDescription variant="body2">
               {user.jobtitle}
@@ -192,11 +175,7 @@ function HeaderUserbox() {
           </NextLink>
         </List>
         <Divider />
-        <Box sx={{ m: 1 }}>
-          {/* <Button color="primary" fullWidth onClick={() => dispatch(logout())}>
-            <LockOpenTwoToneIcon sx={{ mr: 1 }} />
-            Sign out           
-          </Button> */}
+        <Box sx={{ m: 1 }}>          
           <Button color="primary" fullWidth onClick={handleLogout}>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out

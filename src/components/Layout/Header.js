@@ -1,22 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
-// import { useDispatch } from 'react-redux';
-// import { useRouter } from 'next/router';
-// import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
 import {
-  Typography,
-  Box,
-  Card,
-  Container,
-  Button,
-  styled,
-  Link,
-  alpha,
-  Stack,
-  lighten,
-  Divider,
-  IconButton,
-  Tooltip,
-  useTheme
+    Typography,
+    Box,
+    Card,
+    Container,
+    Button,
+    styled,
+    Link,
+    alpha,
+    Stack,
+    lighten,
+    Divider,
+    IconButton,
+    Tooltip,
+    useTheme
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,11 +28,10 @@ import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import HeaderButtons from '../../layouts/SidebarLayout/Header/Buttons';
 import HeaderUserbox from '../../layouts/SidebarLayout/Header/Userbox';
 import HeaderMenu from '../../layouts/SidebarLayout/Header/Menu';
-import { selectAuthState } from '../../../store/slices/authSlice';
-import { selectAuthUser } from '../../../store/slices/authSlice';
+import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../store/slices/authSlice';
 
 const HeaderWrapperLogin = styled(Box)(
-  ({ theme }) => `
+    ({ theme }) => `
         height: ${theme.header.height};
         color: ${theme.header.textColor};
         padding: ${theme.spacing(0, 2)};
@@ -62,41 +58,48 @@ const HeaderWrapper = styled(Card)(
   margin-bottom: ${theme.spacing(10)};
 `);
 
-const Header = ()=> {
-      const authState = useSelector(selectAuthState);
+const Header = () => {
+    const authState = useSelector(selectAuthState);
     const [isLoggedIn, setIsLoggedIn] = useState(authState);
     const router = useRouter()
     const routeInfo = useSelector(selectRouteInfo);
     const [currentRouteInfo, setCurrentRouteInfo] = useState(routeInfo)
-    console.log('routeInfo', routeInfo);
+    // console.log('routeInfo', routeInfo);
     const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
-  const theme = useTheme();
-  const authStateUser = useSelector(selectAuthUser);
-  console.log('authState', authState);
-  console.log('authStateUser',authStateUser);
-  console.log('Header is running');
-  
+    const theme = useTheme();
+    const authStateUser = useSelector(selectAuthUser);
+    // console.log('authState', authState);
+    // console.log('authStateUser', authStateUser);
+    // console.log('Header is running');
+    const dispatch = useDispatch();
 
-    useEffect(()=>{
-        console.log('authState', localStorage.getItem("authState"))
+    useEffect(() => {
+        // console.log('authState', localStorage.getItem("authState"))
         let check = localStorage.getItem("authState")
-        console.log('authState',check)
-        if(JSON.parse(check) == true){
+        // console.log('authState', check)
+        let authUser = JSON.parse(localStorage.getItem('authUser'))
+        let authState = JSON.parse(localStorage.getItem('authState'))    
+        if (authUser) {
+            dispatch(setAuthUser(authUser));
+            dispatch(setAuthState(authState));
+        }
+        if (JSON.parse(check) == true) {
             setIsLoggedIn(true)
         }
-    },[])
-    useEffect(()=>{
-        if(authState == true){
+    }, [])
+    useEffect(() => {
+        if (authState == true) {
             setIsLoggedIn(true)
         } else {
             setIsLoggedIn(false)
         }
-    },[authState])
+    }, [authState])
     return (
         <>
-            {router.pathname.includes('/auth') ?null:(isLoggedIn? (<HeaderWrapperLogin
+            {router.pathname.includes('/auth') ? null : (isLoggedIn ? (<HeaderWrapperLogin
                 display="flex"
                 alignItems="center"
+                style={{left:"0"}}
                 sx={{
                     boxShadow:
                         theme.palette.mode === 'dark'
@@ -170,7 +173,7 @@ const Header = ()=> {
                 </Container>
             </HeaderWrapper>))}
 
-            
+
         </>
     )
 }

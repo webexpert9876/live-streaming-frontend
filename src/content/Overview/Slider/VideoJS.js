@@ -1,8 +1,10 @@
 import React from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+// import './videoPlayer.css';
 
 export const VideoJS = (props) => {
+  const [isOffline, setIsOffline] = React.useState(props.options.className == 'offline-video'? true: false)
   const videoRef = React.useRef(null);
   const playerRef = React.useRef(null);
   const {options, onReady} = props;
@@ -15,6 +17,18 @@ export const VideoJS = (props) => {
       const videoElement = document.createElement("video-js");
 
       videoElement.classList.add('vjs-big-play-centered');
+      // videoElement.classList.add('vjs-big-play-centered');
+      console.log('options', options)
+      if(options.className == 'offline-video'){
+        
+        videoElement.classList.add('offline-video-player');
+
+      } else if(options.className == 'online-video'){
+        
+        videoElement.classList.add('online-video-player');
+      }
+      // videoElement.classList.add('dummy-class');
+      
       videoRef.current.appendChild(videoElement);
 
       const player = playerRef.current = videojs(videoElement, options, () => {
@@ -46,7 +60,9 @@ export const VideoJS = (props) => {
 
   return (
     // <div data-vjs-player>
-      <div ref={videoRef} />
+    <>
+      {isOffline ? <div className='offline-player-main-div' ref={videoRef}> </div> :<div ref={videoRef} />}
+    </>
     // </div>
   );
 }

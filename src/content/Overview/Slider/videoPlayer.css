@@ -1,0 +1,12 @@
+/* .offline-video-player {
+    padding-top: 20.25% !important;
+    width: 30% !important;
+}
+
+.offline-video-player > video{
+    object-fit: fill;
+} */
+
+.offline-player-main-div {
+    width: 30%;
+}

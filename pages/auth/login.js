@@ -65,7 +65,7 @@ const LoginForm = () => {
     })
       .then((response) => {
         // Handle the response from the API      
-        console.log(response.data);
+        // console.log(response.data);
         localStorage.setItem('authUser', JSON.stringify(response.data.user))
         localStorage.setItem('authState', true)
         dispatch(setAuthState(true));

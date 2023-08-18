@@ -93,13 +93,13 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                         </Grid>
                                         <Grid item ml={"15px"} style={{ width: "75%" }}>
                                             <Typography gutterBottom variant="h5" component="div">
-                                                <Link href={`/channel/${channel.channelDetails[0]._id}`} color={'white'}>{channel.description}</Link>
+                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'white'}>{channel.description}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
-                                                <Link href="#" color={'#999'}>{channel.title}</Link>
+                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'#999'}>{channel.title}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
-                                                <Link href={`/single-category/${channel.tattooCategoryDetails[0]._id}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
+                                                <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                             </Typography>
                                             {channel.tags && channel.tags ? <ul className='videoTags'>
                                                 {channel.tags && channel.tags.map((tag) => (

@@ -23,6 +23,7 @@ import {
   styled,
   Link
 } from '@mui/material';
+import "../src/content/Overview/Slider/videoPlayer.css";
 // import TawkTo from 'tawkto-react';
 // import TawkTo from 'tawkto-react';
 // import { useEffect } from 'react';
@@ -75,6 +76,9 @@ function TokyoApp({ Component, ...rest  }) {
 `
   );
 
+  const bodyColor = {    
+    background: "#000"
+  }
 
 
   return (
@@ -124,7 +128,7 @@ function TokyoApp({ Component, ...rest  }) {
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <CssBaseline />
-                <Layout>
+                <Layout style={bodyColor}>
                   {getLayout(
                       <Component {...pageProps} />
                   )}

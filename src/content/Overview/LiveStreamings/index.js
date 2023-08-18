@@ -71,7 +71,7 @@ const LiveStreamings = ({ liveStreamings }) => {
     }, []);
 
 
-    console.log("liveStreamings", liveStreamings)
+    // console.log("liveStreamings", liveStreamings)
 
     return (
         <>
