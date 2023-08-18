@@ -349,8 +349,8 @@ export default function ChannelName(props) {
                                                     {/* <Grid className='desktop5'> */}
                                                     {showAllRecentBroadcast ?
                                                         <Carousel swipeable={false} responsive={responsive}>
-                                                            {recentLiveStreamVideos.slice(0, 10).map((streamsInfo) => (
-                                                                <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%" }}>
+                                                            {recentLiveStreamVideos.slice(0, 10).map((streamsInfo, index) => (
+                                                                <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
                                                                     <Card sx={{ maxWidth: 345 }}>
                                                                         <div style={{ position: 'relative' }}>
                                                                             <CardMedia
@@ -391,8 +391,8 @@ export default function ChannelName(props) {
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
-                                                                {recentLiveStreamVideos.map((streamsInfo) => (
-                                                                    <Grid item xs={2} sm={4} md={4} lg={6}>
+                                                                {recentLiveStreamVideos.map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={6} key={index}>
                                                                         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                             <div style={{ position: 'relative' }}>
                                                                                 <CardMedia
@@ -485,8 +485,8 @@ export default function ChannelName(props) {
                                                 <Box sx={{ paddingTop: '5px' }}>
                                                     {showAllVideos ?
                                                         <Carousel swipeable={false} responsive={responsive}>
-                                                            {allVideos.slice(0, 10).map((streamsInfo) => (
-                                                                <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%" }}>
+                                                            {allVideos.slice(0, 10).map((streamsInfo, index) => (
+                                                                <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
                                                                     <Card sx={{ maxWidth: 345 }}>
                                                                         <div style={{ position: 'relative' }}>
                                                                             <CardMedia
@@ -525,8 +525,8 @@ export default function ChannelName(props) {
                                                         </Carousel> :
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
-                                                                {allVideos.map((streamsInfo) => (
-                                                                    <Grid item xs={2} sm={4} md={4} lg={6}>
+                                                                {allVideos.map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={6} key={index}>
                                                                         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                             <div style={{ position: 'relative' }}>
                                                                                 <CardMedia
