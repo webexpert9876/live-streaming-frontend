@@ -243,8 +243,8 @@ export default function ChannelName(props) {
                                         <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '5px' }}>
                                             <Typography variant="h5" component="h5" sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Typography>
                                             {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
-                                            {currentBroadcast.tags.map((tag)=>{
-                                                return (<Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>{tag}</Button>)
+                                            {currentBroadcast.tags.map((tag, index)=>{
+                                                return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>{tag}</Button>)
                                             })}
                                         </Typography>
                                     </Typography>:
@@ -375,8 +375,8 @@ export default function ChannelName(props) {
                                                                                     <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
                                                                                 </Typography>
                                                                                 {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                    {streamsInfo.tags.map((tag) => (
-                                                                                        <li key={tag}>
+                                                                                    {streamsInfo.tags.map((tag, index) => (
+                                                                                        <li key={index}>
                                                                                             <Link href="#">{tag}</Link>
                                                                                         </li>
                                                                                     ))}
@@ -418,8 +418,8 @@ export default function ChannelName(props) {
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
                                                                                     </Typography>
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                        {streamsInfo.tags.map((tag) => (
-                                                                                            <li key={tag}>
+                                                                                        {streamsInfo.tags.map((tag, index) => (
+                                                                                            <li key={index}>
                                                                                                 <Link href="#">{tag}</Link>
                                                                                             </li>
                                                                                         ))}
@@ -511,8 +511,8 @@ export default function ChannelName(props) {
                                                                                     <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
                                                                                 </Typography>
                                                                                 {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                    {streamsInfo.tags.map((tag) => (
-                                                                                        <li key={tag}>
+                                                                                    {streamsInfo.tags.map((tag, index) => (
+                                                                                        <li key={index}>
                                                                                             <Link href="#">{tag}</Link>
                                                                                         </li>
                                                                                     ))}
@@ -552,8 +552,8 @@ export default function ChannelName(props) {
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
                                                                                     </Typography>
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                        {streamsInfo.tags.map((tag) => (
-                                                                                            <li key={tag}>
+                                                                                        {streamsInfo.tags.map((tag, index) => (
+                                                                                            <li key={index}>
                                                                                                 <Link href="#">{tag}</Link>
                                                                                             </li>
                                                                                         ))}
