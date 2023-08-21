@@ -6,13 +6,17 @@ import LeftMenu from "src/content/Overview/LeftMenu";
 
 
 export default function Layout({ children }) {
+    const stickyMT = {
+        marginTop: "100px"
+    }
+
     return (
         <>
         <Header />
-            <Box >
+            <Box>
                 <Box sx={{ display: 'flex' }}>                    
                     <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{padding: "0"}}>
-                        <main>{children}</main>                        
+                        <main style={stickyMT}>{children}</main>                        
                     </Box>
                 </Box>                
             </Box>            
