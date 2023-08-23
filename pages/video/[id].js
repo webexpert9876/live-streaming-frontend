@@ -31,7 +31,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function Videos(props){
     const videoPageInfo = JSON.parse(props.videoInfo);
-    console.log('channelInfo video', videoPageInfo)
+    // console.log('channelInfo video', videoPageInfo)
     const [channelDetails, setChannelDetails] = useState(...videoPageInfo.singleVideo.channelDetails);
     const [videoDetails, setVideoDetails] = useState(videoPageInfo.singleVideo);
     const [lastBroadcastVideo, setLastBroadcastVideo] = useState(...videoPageInfo.getLastLiveStreamVideo);
@@ -93,8 +93,8 @@ export default function Videos(props){
     const getHoursDiffBetweenDates = (dateFinal) => {
         const videoTime = new Date(parseInt(dateFinal));
         const currentTime = new Date();
-        console.log('videoTime', videoTime);
-        console.log('currentTime', currentTime);
+        // console.log('videoTime', videoTime);
+        // console.log('currentTime', currentTime);
         const hours = parseInt((currentTime - videoTime) / (1000 * 3600));
         if(hours == 0){
             return `Last live few minutes ago`
@@ -126,6 +126,18 @@ export default function Videos(props){
           items: 1
         }
     };
+
+    const countLiveViewing = (viewers) => {
+        if(viewers > 999 && viewers < 1000000){
+          const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+          return viewing
+        } else if(viewers > 999999){
+          const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+          return viewing
+        } else {
+          return `${viewers}`
+        } 
+    }
 
     return (
         <>
@@ -162,9 +174,9 @@ export default function Videos(props){
                         </Typography>
                         <Typography variant="h4" component={"h4"} sx={{fontSize: '20px'}}>{videoDetails.description}</Typography>
                         <Box sx={{display: 'flex', marginTop: '5px'}}>
-                            <Typography sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(167 157 233)'}}>{videoDetails.tattooCategoryDetails[0].title}</Typography>
+                            <Link href={`/single-category/${videoDetails.tattooCategoryDetails[0].urlSlug}`} sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(167 157 233)'}}>{videoDetails.tattooCategoryDetails[0].title}</Link>
                             {/* <Typography sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(112, 99, 192)'}}>{videoDetails.tattooCategoryDetails[0].title}</Typography> */}
-                            <Typography>- {videoDetails.views} Views</Typography>
+                            <Typography>- {countLiveViewing(videoDetails.views)} Views</Typography>
                         </Box>
                     </Box>
                     <Divider></Divider>
@@ -291,6 +303,7 @@ export async function getStaticProps({ params }) {
                     createdAt
                     tattooCategoryDetails {
                         title
+                        urlSlug
                     }
                 }
             }
@@ -300,7 +313,7 @@ export async function getStaticProps({ params }) {
             "videoId": params.id,
         }
     }).then((result) => {
-        console.log('single video details', result.data)
+        // console.log('single video details', result.data)
         return result.data
     });
 
@@ -343,6 +356,7 @@ export async function getStaticProps({ params }) {
                 streamUrl
                 tattooCategoryDetails {
                   title
+                  urlSlug
                 }
             }
             recentUploadedVideos(userId: $recentUploadedVideosUserId2) {
@@ -399,8 +413,8 @@ export async function getStaticProps({ params }) {
             "chatVideoId": videoInfo.videos[0]._id
         }
     }).then((result) => {
-        console.log('channelInfo.channels[0].userId', videoInfo.videos[0].userId)
-        console.log('channelInfo.channels[0].userId result', result.data)
+        // console.log('channelInfo.channels[0].userId', videoInfo.videos[0].userId)
+        // console.log('channelInfo.channels[0].userId result', result.data)
         return result.data
     });
 

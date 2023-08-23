@@ -167,17 +167,6 @@ export default function LeftMenu(props) {
     client.query({
       query: gql`
           query Query {
-            channels {
-              _id
-              channelPicture
-              channelName
-            }
-            tattooCategories {
-              _id
-              profilePicture
-              tags
-              title
-            }
             liveStreamings {
               _id
               title
@@ -188,13 +177,16 @@ export default function LeftMenu(props) {
               tags
               channelDetails {
                 _id
+                channelName
                 channelPicture
+                urlSlug
               }
               description
               _id
               tattooCategoryDetails {
                 _id
                 title
+                urlSlug
               }
               
             }
@@ -203,9 +195,8 @@ export default function LeftMenu(props) {
     })
       .then((result) => {
         // console.log('result.data', result.data)
-        setChannels(result.data.channels)
-        setTattooCategories(result.data.tattooCategories)
         setLiveStreamings(result.data.liveStreamings)
+        // console.log('result.data left menu', result.data)
       });
     return () => clearTimeout();
   }, [])
@@ -244,6 +235,18 @@ export default function LeftMenu(props) {
       },
     },
   });
+
+  const countLiveViewing = (viewers) => {
+    if(viewers > 999 && viewers < 1000000){
+      const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+      return viewing
+    } else if(viewers > 999999){
+      const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+      return viewing
+    } else {
+      return `${viewers}`
+    } 
+  }
 
   // function LeftMenu() {
   return (
@@ -292,23 +295,31 @@ export default function LeftMenu(props) {
                     <Grid item ml={"15px"} style={{ width: "74%" }}>
                       <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
                         <div className='channelListChannelName' style={{marginBottom: "-6px"}}>
-                          <Link href="#" style={{ color: 'white', textDecoration:"none" }}>
-                            {channelList.title.slice(0, 15)}
+                          <Link href={`/channel/${channelList.channelDetails[0].urlSlug}`} style={{ color: 'white', textDecoration:"none" }}>
+                            {channelList.channelDetails[0].channelName.slice(0, 15)}
                           </Link>
                         </div>
-                        <Link href="#" style={{ color: 'white', fontSize:"12px", textDecoration:"none" }}>
+                        <Link href={`/single-category/${channelList.tattooCategoryDetails[0].urlSlug}`} style={{ color: 'white', fontSize:"12px", textDecoration:"none" }}>
                         {channelList.tattooCategoryDetails[0].title.length > 20
                           ? `${channelList.tattooCategoryDetails[0].title.slice(0, 15)}...`
                           : channelList.tattooCategoryDetails[0].title}
                         </Link>
 
                         <span className="tooltiptext" style={{ textAlign: "left", padding: "10px"}}>
-                          {channelList.title}<br />
+                          {channelList.channelDetails[0].channelName}<br />
                           {channelList.tattooCategoryDetails[0].title.length > 20
                             ? `${channelList.tattooCategoryDetails[0].title}`
                             : channelList.tattooCategoryDetails[0].title}
                         </span>
-                        <div style={liveChannelViewersStyle}><div style={liveChannelStatus}></div><span style={{color:"#fff"}}>{channelList.viewers}</span></div>
+                        <div style={liveChannelViewersStyle}>
+                          <div style={liveChannelStatus}>
+                          </div>
+                          <span style={{color:"#fff"}}>
+                            {/* {channelList.viewers.length >= 4 && channelList.viewers.length <= 6 ? `${channelList.viewers}K`:} */}
+                            {channelList.viewers? countLiveViewing(channelList.viewers): 0}
+                            {/* {channelList.viewers} */}
+                          </span>
+                        </div>
                       </ListItemText>
                     </Grid>
                   </Grid>

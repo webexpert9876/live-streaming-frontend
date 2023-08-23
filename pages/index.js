@@ -205,6 +205,7 @@ export async function getStaticProps() {
             _id
             channelPicture
             channelName
+            urlSlug
           }
           tattooCategories {
             _id
@@ -223,7 +224,9 @@ export async function getStaticProps() {
             tags
             channelDetails {
               _id
+              channelName
               channelPicture
+              urlSlug
             }
             description
             _id
@@ -231,8 +234,7 @@ export async function getStaticProps() {
               _id
               title
               urlSlug
-            }
-            
+            } 
           }
         }
       `,

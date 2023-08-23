@@ -18,12 +18,19 @@ const recommendedStyle = {
     gap: '15px',
     marginTop: "40px"
 }
-const VideosList = ({ videosListInfo }) => {
+const VideosList = (props) => {
     const [showCount, setShowCount] = React.useState(2);
     const [selectedTag, setSelectedTag] = useState(null);
-    console.log('videosListInfo', videosListInfo);
+    const [videosListInfo, setVideosListInfo] = useState(props.videosListInfo)
+    // console.log('videosListInfo', videosListInfo);
     const handleShowMore = () => {
-        setShowCount(prevCount => prevCount + 5);
+        setShowCount(prevCount => {
+            if((prevCount + 5) > videosListInfo.length){
+                return videosListInfo.length - 1
+            } else {
+                return prevCount + 5
+            }
+        });
         setSelectedTag(null);
     };
 
@@ -43,6 +50,18 @@ const VideosList = ({ videosListInfo }) => {
         }
         return tags;
     }, []);
+
+    const countLiveViewing = (viewers) => {
+        if(viewers > 999 && viewers < 1000000){
+          const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+          return viewing
+        } else if(viewers > 999999){
+          const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+          return viewing
+        } else {
+          return `${viewers}`
+        } 
+      }
 
     return (
         <>
@@ -70,7 +89,7 @@ const VideosList = ({ videosListInfo }) => {
                                         image={channel.videoPreviewImage ? `${process.env.NEXT_PUBLIC_S3_URL}/${channel.videoPreviewImage}` : 'https://placehold.co/600x400/'}
                                         title={channel.channelDetails[0].channelName}
                                     />
-                                    <div className='liveViewCount'>{channel.views} viewers</div>
+                                    <div className='liveViewCount'>{countLiveViewing(channel.views)} viewers</div>
                                 </div>
                                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                     <Grid item>
@@ -78,10 +97,10 @@ const VideosList = ({ videosListInfo }) => {
                                     </Grid>
                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                         <Typography gutterBottom variant="h5" component="div">
-                                            <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'white'}>{channel.description}</Link>
+                                            <Link href={`/video/${channel._id}`} color={'white'}>{channel.description}</Link>
                                         </Typography>
                                         <Typography gutterBottom variant="p" component="div">
-                                            <Link href="" color={'#999'}>{channel.title}</Link>
+                                            <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'#999'}>{channel.channelDetails[0].channelName}</Link>
                                         </Typography>
                                         <Typography gutterBottom variant="p" component="div">
                                             {/* <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link> */}
@@ -89,7 +108,7 @@ const VideosList = ({ videosListInfo }) => {
                                         {channel.tags && channel.tags ? <ul className='videoTags'>
                                             {channel.tags && channel.tags.map((tag) => (
                                                 <li key={tag}>
-                                                    <Link href="#">{tag}</Link>
+                                                    <Link href="/tags/">{tag}</Link>
                                                 </li>
                                             ))} </ul> : null
                                         }

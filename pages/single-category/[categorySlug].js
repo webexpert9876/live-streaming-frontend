@@ -32,94 +32,131 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import Header from '../../src/components/Layout/Header';
+// import Header from '../../src/components/Layout/Header';
 import { useRouter } from 'next/router';
 import { setCurrentRoute } from '../../store/slices/routeSlice';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
+
+const HeaderWrapper = styled(Card)(
+  ({ theme }) => `
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: ${theme.spacing(10)};
+  margin-bottom: ${theme.spacing(10)};
+  border-radius:0;
+`
+);
+const singCatMenu = {
+  // marginLeft: "20px",
+  marginTop: "30px",
+  marginBottom: "36px",
+  fontSize: "16px",
+}
+const whiteColor = {
+  color: "#fff",
+  padding: "15px"
+}
+const activeManu = {
+  color: "#8C7CF0",
+  borderBottom: "solid 1px #8C7CF0",
+  paddingBottom: "7px"
+}
+
+const widthBox = {
+  maxWidth: "1100px"
+}
+
+
 export default function Category(props) {
-  const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategories);
+  console.log('category', JSON.parse(props.category));
+  const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategoryDetails);
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
-  const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing);
+  // const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing[0]);
+  const [isCatFollowing, setIsCatFollowing] = useState(null);
   const [liveVideosInfo, setLiveVideosInfo] = useState(JSON.parse(props.category).liveStreamings);
   const [videosListInfo, setVideosListInfo] = useState(JSON.parse(props.category).videos);
   const [value, setValue] = React.useState('1');
   let userDetails = useSelector(selectAuthUser);
   let userIsLogedIn = useSelector(selectAuthState);
-  console.log('authUser userDetails', userDetails);
+  // console.log('authUser userDetails', userDetails);
   const [userDetail, setUserDetail] = useState(userDetails);
   const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
+  const [showFullContent, setShowFullContent] = React.useState(false);
 
   const dispatch = useDispatch();
   // const router = useRouter();
   // dispatch(setCurrentRoute(router.pathname));
 
+
+  useEffect( ()=>{
+    if(userDetails && userIsLogedIn){
+      console.log('userAuthState 2 running in' );
+      client.query({
+        query: gql`
+          query Query ($isTattooCategoryFollowingTattooCategoryId2: String!, $userId: String!,) {
+            isTattooCategoryFollowing(tattooCategoryId: $isTattooCategoryFollowingTattooCategoryId2, userId: $userId) {
+              isFollowing
+            }
+          }
+        `,
+        variables: {
+          "isTattooCategoryFollowingTattooCategoryId2": tattooCategories._id,
+          "userId": userDetails._id
+        }
+      }).then((result) => {
+        console.log('result.data 4554', result.data)
+        setIsCatFollowing(result.data.isTattooCategoryFollowing[0])
+        return result.data
+      });
+    }
+  }, [userDetails])
+
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const [showFullContent, setShowFullContent] = React.useState(false);
   const handleReadMore = () => {
     setShowFullContent(true);
   };
-  const [isFollowing, setIsFollowing] = useState(false); // Example state, you can replace this with your state logic
 
-  const content = tattooCategories[0].description;
+  const content = tattooCategories.description;
   const wordsToShow = 30;
   const truncatedContent = content.split(' ').slice(0, wordsToShow).join(' ');
 
-  const HeaderWrapper = styled(Card)(
-    ({ theme }) => `
-    width: 100%;
-    display: flex;
-    align-items: center;
-    height: ${theme.spacing(10)};
-    margin-bottom: ${theme.spacing(10)};
-    border-radius:0;
-  `
-  );
-  const singCatMenu = {
-    // marginLeft: "20px",
-    marginTop: "30px",
-    marginBottom: "36px",
-    fontSize: "16px",
-  }
-  const whiteColor = {
-    color: "#fff",
-    padding: "15px"
-  }
-  const activeManu = {
-    color: "#8C7CF0",
-    borderBottom: "solid 1px #8C7CF0",
-    paddingBottom: "7px"
-  }
-
-  const widthBox = {
-    maxWidth: "1100px"
-  }
   // const router = useRouter()
 
   const handleFollow = () => {
-    // console.log("is following click", handleFollow)
-    let authUser = JSON.parse(localStorage.getItem('authUser'))
-    let authState = JSON.parse(localStorage.getItem('authState'))
+    
     // let userDetail = useSelector(selectAuthUser);
     // let userIsLogedIn = useSelector(selectAuthState);
 
-    console.log('authUser', authUser);
-    console.log('authState', authState);
-    console.log('userDetail', userDetail);
-    console.log('userAuthState', userAuthState);
+    // console.log('authUser', authUser);
+    // console.log('authState', authState);
+    // console.log('userDetail', userDetail);
+    // console.log('userAuthState', userAuthState);
 
   }
 
+  const countLiveViewing = (viewers) => {
+    if(viewers > 999 && viewers < 1000000){
+      const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+      return viewing
+    } else if(viewers > 999999){
+      const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+      return viewing
+    } else {
+      return `${viewers}`
+    } 
+  }
 
 
   return (
     <>
-      <Header />
-      <Box sx={{ display: 'flex' }} style={{ padding: "90px 0 0 0" }}>
+      <Box sx={{ display: 'flex' }} >
         <CssBaseline />
         <LeftMenu />
         <Box component="main" sx={{ flexGrow: 1, p: 3, padding: "40px" }} className='teeeeest' >
@@ -128,8 +165,8 @@ export default function Category(props) {
               {/* Left Image Section */}
               <Grid item xs={12} sm={2}>
                 <img
-                  src="https://static-cdn.jtvnw.net/ttv-boxart/493597_IGDB.jpg"
-                  alt="Left Image"
+                  src={`${process.env.NEXT_PUBLIC_S3_URL}/${tattooCategories.profilePicture}`}
+                  alt={`${tattooCategories.title}`}
                   style={{ width: '100%', height: '100%' }}
                 />
               </Grid>
@@ -137,26 +174,26 @@ export default function Category(props) {
               {/* Right Text Section */}
               <Grid item xs={12} sm={10}>
                 <Paper elevation={3} style={{ padding: '16px' }} gap={"15px"}>
-                  <Typography variant="h2" style={{ width: "100%", paddingBottom: "15px", textTransform: 'uppercase', paddingLeft: "7px" }} >{tattooCategories[0].title}</Typography>
+                  <Typography variant="h2" style={{ width: "100%", paddingBottom: "15px", textTransform: 'uppercase', paddingLeft: "7px" }} >{tattooCategories.title}</Typography>
                   <Grid container gap={"15px"} direction="row" alignItems="center" mt={"0px"} ml={"8px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
 
                     <Grid item gap={"15px"}>
-                      {tattooCategories[0].viewers} 69K Viewers
+                      {tattooCategories.viewers} 69K Viewers
                     </Grid>
                     <Grid item gap={"15px"}>
                       {countFollower.countFollower} Followers
                     </Grid>
 
                     <Grid item gap={"15px"}>
-                      {tattooCategories[0].tags}
-                      {tattooCategories.tags && tattooCategories.tags ? <ul className='videoTags'>
+                      {tattooCategories.tags}
+                      {/* {tattooCategories.tags && tattooCategories.tags ? <ul className='videoTags'>
                         {tattooCategories.tags && tattooCategories.tags.map((tag) => (
                           <li key={tag}>
                             <Link href="#">{tag}</Link>
                           </li>
                         ))}
                       </ul> : null
-                      }
+                      } */}
                     </Grid>
                     <Divider />
 
@@ -175,17 +212,17 @@ export default function Category(props) {
                     <Typography item gap={"15px"} style={{ width: "100%" }}>
                       {/* {isCatFollowing[0].isFollowing ? 'true' : 'test'} */}
                       {/* <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>
-                  Follow
-                </Button> */}
+                          Follow
+                        </Button> */}
 
-                      {/* {isCatFollowing[0].isFollowing ? <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={handleFollow}>Follow</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Following</Button>} */}
-                      <Button
+                      {/* {isCatFollowing?(isCatFollowing.isFollowing == true? <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={handleFollow}>{isCatFollowing.isFollowing }</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>{isCatFollowing.isFollowing}Following</Button>):null} */}
+                      {isCatFollowing? (<Button
                         variant="contained"
-                        startIcon={isFollowing ? <FavoriteBorderIcon /> : <FavoriteIcon />}
+                        startIcon={isCatFollowing ? <FavoriteBorderIcon /> : <FavoriteIcon />}
                         onClick={handleFollow}
                       >
-                        {isFollowing ? 'Following' : 'Follow'}
-                      </Button>
+                        {isCatFollowing ? 'Following' : 'Follow'}
+                      </Button>): null}
 
                     </Typography>
                   </Grid>
@@ -215,10 +252,8 @@ export default function Category(props) {
               </TabContext>
             </Box>
           </Box>
-
         </Box>
       </Box >
-
 
     </>
   )
@@ -264,7 +299,7 @@ export async function getStaticProps({ params }) {
   // console.log('params', params)
   let category = await client.query({
     query: gql`
-        query Query ($urlSlug: String, $tattooCategoryId: String!, $isTattooCategoryFollowingTattooCategoryId2: String!, $userId: String!, $liveStreamingsTattooCategoryId2: String, $catAllVideos: String) {
+        query Query ($urlSlug: String) {
           tattooCategories(urlSlug: $urlSlug) {
             _id
             description
@@ -272,71 +307,83 @@ export async function getStaticProps({ params }) {
             tags
             title
           }
-          countTattooCategoryFollower(tattooCategoryId: $tattooCategoryId) {
-            countFollower
-          }
-          isTattooCategoryFollowing(tattooCategoryId: $isTattooCategoryFollowingTattooCategoryId2, userId: $userId) {
-            isFollowing
-          }
-          liveStreamings(tattooCategoryId: $liveStreamingsTattooCategoryId2) {
-            _id
-            title
-            tattooCategory
-            videoId
-            viewers
-            videoPoster
-            tags
-            channelDetails {
-              _id
-              channelPicture
-              urlSlug
-            }
-            description
-            _id
-            tattooCategoryDetails {
-              _id
-              title
-              urlSlug
-            }
-          }
-          videos(tattooCategoryId: $catAllVideos) {
-            videoPreviewImage
-            _id
-            title
-            tags
-            channelDetails {
-              _id
-              channelPicture
-              urlSlug
-              channelName
-            }
-            description
-            channelId
-            views           
-          }
-          
         }
       `,
     variables: {
-
-      "isTattooCategoryFollowingTattooCategoryId2": "6482ce27e8085a86e70e04bc",
-      "tattooCategoryId": "6482ce27e8085a86e70e04bc",
-      "liveStreamingsTattooCategoryId2": "6482ce27e8085a86e70e04bc",
-      "userId": "64808a8239f7e8f7f68643d1",
-      "catAllVideos": "6482ce27e8085a86e70e04bc",
       "urlSlug": params.categorySlug
     }
-  })
-    .then((result) => {
-
-      return result.data
-
+  }).then((result) => {
+      return result.data.tattooCategories[0]
     });
-  // console.log("videos", category)
-  category = JSON.stringify(category);
+
+  let categoryInfo = await client.query({
+    query: gql`
+      query Query ($tattooCategoryId: String!, $liveStreamingsTattooCategoryId2: String, $catAllVideos: String) {
+        countTattooCategoryFollower(tattooCategoryId: $tattooCategoryId) {
+          countFollower
+        }
+        liveStreamings(tattooCategoryId: $liveStreamingsTattooCategoryId2) {
+          _id
+          title
+          tattooCategory
+          videoId
+          viewers
+          videoPoster
+          tags
+          channelDetails {
+            _id
+            channelPicture
+            channelName
+            urlSlug
+          }
+          description
+          _id
+          tattooCategoryDetails {
+            _id
+            title
+            urlSlug
+          }
+        }
+        videos(tattooCategoryId: $catAllVideos) {
+          videoPreviewImage
+          _id
+          title
+          tags
+          channelDetails {
+            _id
+            channelPicture
+            urlSlug
+            channelName
+          }
+          description
+          channelId
+          views           
+        }
+        
+      }
+    `,
+    variables: {
+      // "isTattooCategoryFollowingTattooCategoryId2": "6482ce27e8085a86e70e04bc",
+      // "tattooCategoryId": "6482ce27e8085a86e70e04bc",
+      // "liveStreamingsTattooCategoryId2": "6482ce27e8085a86e70e04bc",
+      // "userId": "64808a8239f7e8f7f68643d1",
+      // "catAllVideos": "6482ce27e8085a86e70e04bc",
+      "tattooCategoryId": category._id,
+      "liveStreamingsTattooCategoryId2": category._id,
+      "catAllVideos": category._id,
+    }
+  }).then((result) => {
+      console.log('category.channels[0].userId', category)
+      console.log('category.channels[0].userId result', result.data)
+      return result.data
+  });
+
+  let allData = { tattooCategoryDetails: category, ...categoryInfo };
+  categoryInfo = JSON.stringify(allData);
+
   return {
     props: {
-      category: category
+      category: categoryInfo
     },
   }
 }

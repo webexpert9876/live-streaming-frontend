@@ -70,6 +70,17 @@ const LiveStreamings = ({ liveStreamings }) => {
         }, 2000);
     }, []);
 
+    const countLiveViewing = (viewers) => {
+        if(viewers > 999 && viewers < 1000000){
+          const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+          return viewing
+        } else if(viewers > 999999){
+          const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+          return viewing
+        } else {
+          return `${viewers}`
+        } 
+    }
 
     // console.log("liveStreamings", liveStreamings)
 
@@ -95,9 +106,12 @@ const LiveStreamings = ({ liveStreamings }) => {
                                         <CardMedia
                                             sx={{ height: 140 }}
                                             image={`${process.env.NEXT_PUBLIC_S3_URL}/${channel.videoPoster}`}
-                                            title={channel.channelName}
+                                            title={channel.channelDetails[0].channelName}
                                         />
-                                        <div className='liveViewCount'>{channel.viewers} viewers</div>
+                                        <div className='liveViewCount'>
+                                            {/* {channel.viewers} viewers */}
+                                            {channel.viewers? countLiveViewing(channel.viewers): 0} viewers
+                                        </div>
                                     </div>
                                     <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                         <Grid item>
@@ -105,10 +119,10 @@ const LiveStreamings = ({ liveStreamings }) => {
                                         </Grid>
                                         <Grid item ml={"15px"} style={{ width: "75%" }}>
                                             <Typography gutterBottom variant="h5" component="div">
-                                                <Link href={`/channel/${channel.channelDetails[0]._id}`} color={'white'}>{channel.description}</Link>
+                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'white'}>{channel.description}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
-                                                <Link href="#" color={'#999'}>{channel.title}</Link>
+                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'#999'}>{channel.channelDetails[0].channelName}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
                                                 <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
@@ -116,7 +130,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                                             {channel.tags && channel.tags ? <ul className='videoTags'>
                                                 {channel.tags && channel.tags.map((tag) => (
                                                     <li key={tag}>
-                                                        <Link href="#">{tag}</Link>
+                                                        <Link href={`/tags/`}>{tag}</Link>
                                                     </li>
                                                 ))} </ul> : null
                                             }

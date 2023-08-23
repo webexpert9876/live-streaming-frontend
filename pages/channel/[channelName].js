@@ -51,12 +51,12 @@ export default function ChannelName(props) {
     const [isClickOnChannel, setIsClickOnChannel] = useState(false);
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
-    
+    // console.log('currentBroadcast', currentBroadcast)
     React.useEffect(()=>{
         client.query({
             variables: {
                 // videoId: '649e6a81509b35397cc26534', use this not found
-                videoId: '649e6a81509b35397cc26533',
+                videoId: currentBroadcast.videoId,
             },
             query: gql`
                 query Query($videoId: String!) {
@@ -76,7 +76,7 @@ export default function ChannelName(props) {
             `,
         })
         .then((result) => {
-            console.log('result', result)
+            // console.log('result', result)
             setOldReceivedMessages(result.data.chatMessages)
         });
     }, [])
@@ -85,13 +85,13 @@ export default function ChannelName(props) {
         setValue(newValue);
     };
 
-    console.log('main channel', channelInfo);
-    console.log('main channelDetails', channelDetails);
-    console.log('main recentLiveStreamVideos', recentLiveStreamVideos);
-    console.log('main recentUploadedVideos', recentUploadedVideos);
-    console.log('streams', streams);
-    console.log('currentBroadcast', currentBroadcast);
-    console.log('countChannelTotalFollowers', channelInfo.countChannelTotalFollowers);
+    // console.log('main channel', channelInfo);
+    // console.log('main channelDetails', channelDetails);
+    // console.log('main recentLiveStreamVideos', recentLiveStreamVideos);
+    // console.log('main recentUploadedVideos', recentUploadedVideos);
+    // console.log('streams', streams);
+    // console.log('currentBroadcast', currentBroadcast);
+    // console.log('countChannelTotalFollowers', channelInfo.countChannelTotalFollowers);
 
     // useEffect(()=>{
     //     if(recentLiveStreamVideos.length == 0 && recentUploadedVideos.length == 0){
@@ -169,6 +169,18 @@ export default function ChannelName(props) {
         textAlign: "center"
     }
 
+    const countLiveViewing = (viewers) => {
+        if(viewers > 999 && viewers < 1000000){
+          const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+          return viewing
+        } else if(viewers > 999999){
+          const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+          return viewing
+        } else {
+          return `${viewers}`
+        } 
+    }
+
     return (
         <>
             <Box sx={{ display: 'flex', paddingTop: '100px' }}>
@@ -241,15 +253,17 @@ export default function ChannelName(props) {
                                     {currentBroadcast?<Typography variant="body1" component={'div'} sx={{}}>
                                         <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '15px', marginTop:'8px' }} align="left">{currentBroadcast.description}</Typography>
                                         <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '5px' }}>
-                                            <Typography variant="h5" component="h5" sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Typography>
+                                            <Link href={`/single-category/${currentBroadcast.tattooCategoryDetails[0].urlSlug}`} sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Link>
                                             {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
                                             {currentBroadcast.tags.map((tag, index)=>{
-                                                return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>{tag}</Button>)
+                                                return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>
+                                                        <Link href={`/tags/`} sx={{color: '#fff'}}>{tag}</Link>
+                                                    </Button>)
                                             })}
                                         </Typography>
                                     </Typography>:
                                         <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', marginTop:'8px' }}>
-                                        {channelTotalFollower.countFollower} followers
+                                        {countLiveViewing(channelTotalFollower.countFollower)} followers
                                     </Typography>
                                     }
                                 </Typography>
@@ -305,7 +319,7 @@ export default function ChannelName(props) {
                                                             About {channelDetails.channelName}
                                                         </Typography>
                                                         <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', marginTop:'8px' }}>
-                                                            {channelTotalFollower.countFollower} followers
+                                                            {countLiveViewing(channelTotalFollower.countFollower)} followers
                                                         </Typography>
                                                         <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', marginTop:'8px'}}>
                                                             {channelDetails.description}
@@ -359,7 +373,7 @@ export default function ChannelName(props) {
                                                                             >
                                                                             </CardMedia>
                                                                             <Typography variant="body1" component="div" sx={{}}>
-                                                                                <div className=''>{streamsInfo.views} viewers</div>
+                                                                                <div className=''>{countLiveViewing(streamsInfo.views)} viewers</div>
                                                                                 <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
                                                                             </Typography>
                                                                         </div>
@@ -377,7 +391,7 @@ export default function ChannelName(props) {
                                                                                 {streamsInfo.tags ? <ul className='videoTags'>
                                                                                     {streamsInfo.tags.map((tag, index) => (
                                                                                         <li key={index}>
-                                                                                            <Link href="#">{tag}</Link>
+                                                                                            <Link href="/tags/">{tag}</Link>
                                                                                         </li>
                                                                                     ))}
                                                                                 </ul> : null}
@@ -402,7 +416,7 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                    <div className=''>{streamsInfo.views} viewers</div>
+                                                                                    <div className=''>{countLiveViewing(streamsInfo.views)} viewers</div>
                                                                                     <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
                                                                                 </Typography>
                                                                             </div>
@@ -420,7 +434,7 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="#">{tag}</Link>
+                                                                                                <Link href="/tags/">{tag}</Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
@@ -495,7 +509,7 @@ export default function ChannelName(props) {
                                                                             >
                                                                             </CardMedia>
                                                                             <Typography variant="body1" component="div" sx={{}}>
-                                                                                <div className=''>{streamsInfo.views} viewers</div>
+                                                                                <div className=''>{countLiveViewing(streamsInfo.views)} viewers</div>
                                                                                 <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
                                                                             </Typography>
                                                                         </div>
@@ -513,7 +527,7 @@ export default function ChannelName(props) {
                                                                                 {streamsInfo.tags ? <ul className='videoTags'>
                                                                                     {streamsInfo.tags.map((tag, index) => (
                                                                                         <li key={index}>
-                                                                                            <Link href="#">{tag}</Link>
+                                                                                            <Link href="/tags/">{tag}</Link>
                                                                                         </li>
                                                                                     ))}
                                                                                 </ul> : null}
@@ -536,7 +550,7 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                    <div className=''>{streamsInfo.views} viewers</div>
+                                                                                    <div className=''>{countLiveViewing(streamsInfo.views)} viewers</div>
                                                                                     <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
                                                                                 </Typography>
                                                                             </div>
@@ -554,7 +568,7 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="#">{tag}</Link>
+                                                                                                <Link href="/tags/">{tag}</Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
@@ -688,6 +702,7 @@ export async function getStaticProps({ params }) {
                 streamUrl
                 tattooCategoryDetails {
                   title
+                  urlSlug
                 }
             }
             countChannelTotalFollowers(channelId: $channelId2) {
@@ -723,8 +738,8 @@ export async function getStaticProps({ params }) {
             "userIdForVideo": channelInfo.channels[0].userId
         }
     }).then((result) => {
-        console.log('channelInfo.channels[0].userId', channelInfo.channels[0].userId)
-        console.log('channelInfo.channels[0].userId result', result.data)
+        // console.log('channelInfo.channels[0].userId', channelInfo.channels[0].userId)
+        // console.log('channelInfo.channels[0].userId result', result.data)
         return result.data
     });
 
