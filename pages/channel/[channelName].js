@@ -21,6 +21,11 @@ import 'react-multi-carousel/lib/styles.css';
 // import '../../src/content/Overview/Slider/videoPlayer.css'
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from "axios";
 // import BiLogoDiscord from 'react-icons/fa';
 // import { FaBeer } from "@react-icons/fa";
 
@@ -51,6 +56,13 @@ export default function ChannelName(props) {
     const [isClickOnChannel, setIsClickOnChannel] = useState(false);
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
+    const [isChannelFollowing, setIsChannelFollowing] = useState({});
+    let userDetails = useSelector(selectAuthUser);
+    let userIsLogedIn = useSelector(selectAuthState);
+    // console.log('authUser userDetails', userDetails);
+    const [userDetail, setUserDetail] = useState(userDetails);
+    const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
+    
     // console.log('currentBroadcast', currentBroadcast)
     React.useEffect(()=>{
         client.query({
@@ -80,6 +92,31 @@ export default function ChannelName(props) {
             setOldReceivedMessages(result.data.chatMessages)
         });
     }, [])
+
+    useEffect( ()=>{
+        if(userDetails && userIsLogedIn){
+          client.query({
+            query: gql`
+                query Query ($channelId: String!, $userId: String!) {
+                    isChannelFollowing(channelId: $channelId, userId: $userId) {
+                    isFollowing
+                    channelId
+                    userId
+                    _id
+                    }
+                }
+            `,
+            variables: {
+              "channelId": channelDetails._id,
+              "userId": userDetails._id
+            }
+          }).then((result) => {
+            setIsChannelFollowing(result.data.isChannelFollowing[0])
+            setUserDetail(userDetails);
+            return result.data
+          });
+        }
+      }, [userDetails])
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -181,6 +218,33 @@ export default function ChannelName(props) {
         } 
     }
 
+
+    const handleFollow = async(checkFollow) => {
+        
+        if(checkFollow){
+            try{
+                const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/follower`, {userId: userDetail._id, channelId: channelDetails._id, isFollowing: true}, {headers: {'x-access-token': userDetail.jwtToken}});
+                if(result){
+                    setIsChannelFollowing(result.data.followingDetails)
+                }
+            } catch( error){
+                console.log('error', error)
+            }
+        } else {
+            try{
+                const result = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/follower/${isChannelFollowing._id}`, {headers: {'x-access-token': userDetail.jwtToken}});
+                
+                if(result){
+                    setIsChannelFollowing(result.data.followingDetails)
+                }
+            } catch( error){
+                console.log('error', error)
+            }
+        }
+    
+      }
+
+
     return (
         <>
             <Box sx={{ display: 'flex', paddingTop: '100px' }}>
@@ -245,7 +309,7 @@ export default function ChannelName(props) {
                                         height={500}
                                         alt="Picture of the author"
                                     /> */}
-                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px' }} alt="Girl in a jacket" width="500" height="600"></img>
+                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px' }} width="500" height="600"></img>
                                 </Typography>
 
                                 <Typography variant="body1" component={'div'} sx={{  }}>
@@ -272,7 +336,20 @@ export default function ChannelName(props) {
 
                         <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                             <Typography variant="body1" component={'div'} sx={{ gap: "15px", display: "flex" }}>
-                                <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                {/* <Button variant="contained" startIcon={<FavoriteBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button> */}
+                                {isChannelFollowing?
+                                    (isChannelFollowing.isFollowing?
+                                        <Button variant="contained" startIcon={<FavoriteIcon />} onClick={()=>handleFollow(false)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Following</Button>
+                                        :
+                                        ( Object.keys(userDetail).length === 0? 
+                                            <Tooltip title={<React.Fragment>Please <Link href={`/auth/login`}>login</Link> to follow channel</React.Fragment>} placement="right-start">
+                                                <Button variant="contained" startIcon={<FavoriteBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                            </Tooltip>
+                                        : 
+                                            <Button variant="contained" startIcon={<FavoriteBorderIcon />} onClick={()=>handleFollow(true)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                        )
+                                    )
+                                : null}
                                 <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                             </Typography>
                             <Typography variant="body1" component={'div'} sx={{ gap: "50px", display: "flex", margin: '10px 40px'}}>
@@ -604,14 +681,7 @@ export async function getStaticPaths() {
             query Query {
                 channels {
                     _id
-                    channelName
-                    channelPicture
-                    description
-                    subscribers
                     urlSlug
-                    location
-                    createdAt
-                    userId
                 }
             }
         `

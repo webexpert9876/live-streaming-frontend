@@ -73,7 +73,7 @@ const widthBox = {
 
 
 export default function Category(props) {
-  console.log('category', JSON.parse(props.category));
+  // console.log('category', JSON.parse(props.category));
   const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategoryDetails);
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
   // const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing[0]);
@@ -134,21 +134,25 @@ export default function Category(props) {
   // const router = useRouter()
 
   const handleFollow = async(checkFollow) => {
-    if(Object.keys(userDetail).length === 0){
-      router.push('/auth/login');
-    } else {
-      if(checkFollow){
+    
+    if(checkFollow){
+      try{
         const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/follow/tattoo/category`, {userId: userDetail._id, tattooCategoryId: tattooCategories._id}, {headers: {'x-access-token': userDetail.jwtToken}});
         if(result){
           setIsCatFollowing(result.data.followingDetails)
         }
-      } else {
+      } catch( error){
+        console.log('error', error)
+      }
+    } else {
+      try{
         const result = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/unfollow/tattoo/category/${isCatFollowing._id}`, {headers: {'x-access-token': userDetail.jwtToken}});
         if(result){
           setIsCatFollowing(result.data.followingDetails)
         }
+      } catch( error){
+        console.log('error', error)
       }
-
     }
     // let userDetail = useSelector(selectAuthUser);
     // let userIsLogedIn = useSelector(selectAuthState);
@@ -234,7 +238,7 @@ export default function Category(props) {
                           <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={()=>handleFollow(false)}>Following</Button> 
                           : 
                           ( Object.keys(userDetail).length === 0? 
-                            <Tooltip title="Please login to follow this tattoo category" placement="right-start">
+                            <Tooltip title={<React.Fragment>Please <Link href={`/auth/login`}>login</Link> to follow this tattoo category</React.Fragment>} placement="right-start">
                               <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Follow</Button>
                             </Tooltip>
                           : 
