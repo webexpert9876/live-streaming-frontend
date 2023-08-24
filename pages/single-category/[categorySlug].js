@@ -37,6 +37,8 @@ import { useRouter } from 'next/router';
 import { setCurrentRoute } from '../../store/slices/routeSlice';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import Tooltip from '@mui/material/Tooltip';
 
 
 const HeaderWrapper = styled(Card)(
@@ -75,7 +77,7 @@ export default function Category(props) {
   const [tattooCategories, setTattooCategories] = useState(JSON.parse(props.category).tattooCategoryDetails);
   const [countFollower, setCountFollower] = useState(JSON.parse(props.category).countTattooCategoryFollower[0]);
   // const [isCatFollowing, setIsCatFollowing] = useState(JSON.parse(props.category).isTattooCategoryFollowing[0]);
-  const [isCatFollowing, setIsCatFollowing] = useState(null);
+  const [isCatFollowing, setIsCatFollowing] = useState({});
   const [liveVideosInfo, setLiveVideosInfo] = useState(JSON.parse(props.category).liveStreamings);
   const [videosListInfo, setVideosListInfo] = useState(JSON.parse(props.category).videos);
   const [value, setValue] = React.useState('1');
@@ -85,6 +87,7 @@ export default function Category(props) {
   const [userDetail, setUserDetail] = useState(userDetails);
   const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
   const [showFullContent, setShowFullContent] = React.useState(false);
+  const router = useRouter();
 
   const dispatch = useDispatch();
   // const router = useRouter();
@@ -93,11 +96,11 @@ export default function Category(props) {
 
   useEffect( ()=>{
     if(userDetails && userIsLogedIn){
-      console.log('userAuthState 2 running in' );
       client.query({
         query: gql`
           query Query ($isTattooCategoryFollowingTattooCategoryId2: String!, $userId: String!,) {
             isTattooCategoryFollowing(tattooCategoryId: $isTattooCategoryFollowingTattooCategoryId2, userId: $userId) {
+              _id
               isFollowing
             }
           }
@@ -107,8 +110,9 @@ export default function Category(props) {
           "userId": userDetails._id
         }
       }).then((result) => {
-        console.log('result.data 4554', result.data)
+        // console.log('result.data 4554', result.data)
         setIsCatFollowing(result.data.isTattooCategoryFollowing[0])
+        setUserDetail(userDetails);
         return result.data
       });
     }
@@ -129,8 +133,23 @@ export default function Category(props) {
 
   // const router = useRouter()
 
-  const handleFollow = () => {
-    
+  const handleFollow = async(checkFollow) => {
+    if(Object.keys(userDetail).length === 0){
+      router.push('/auth/login');
+    } else {
+      if(checkFollow){
+        const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/follow/tattoo/category`, {userId: userDetail._id, tattooCategoryId: tattooCategories._id}, {headers: {'x-access-token': userDetail.jwtToken}});
+        if(result){
+          setIsCatFollowing(result.data.followingDetails)
+        }
+      } else {
+        const result = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/unfollow/tattoo/category/${isCatFollowing._id}`, {headers: {'x-access-token': userDetail.jwtToken}});
+        if(result){
+          setIsCatFollowing(result.data.followingDetails)
+        }
+      }
+
+    }
     // let userDetail = useSelector(selectAuthUser);
     // let userIsLogedIn = useSelector(selectAuthState);
 
@@ -208,21 +227,21 @@ export default function Category(props) {
                     </Typography>
 
 
-
                     <Typography item gap={"15px"} style={{ width: "100%" }}>
-                      {/* {isCatFollowing[0].isFollowing ? 'true' : 'test'} */}
-                      {/* <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>
-                          Follow
-                        </Button> */}
-
-                      {/* {isCatFollowing?(isCatFollowing.isFollowing == true? <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={handleFollow}>{isCatFollowing.isFollowing }</Button> : <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>{isCatFollowing.isFollowing}Following</Button>):null} */}
-                      {isCatFollowing? (<Button
-                        variant="contained"
-                        startIcon={isCatFollowing ? <FavoriteBorderIcon /> : <FavoriteIcon />}
-                        onClick={handleFollow}
-                      >
-                        {isCatFollowing ? 'Following' : 'Follow'}
-                      </Button>): null}
+                      
+                      {isCatFollowing?
+                        (isCatFollowing.isFollowing?
+                          <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={()=>handleFollow(false)}>Following</Button> 
+                          : 
+                          ( Object.keys(userDetail).length === 0? 
+                            <Tooltip title="Please login to follow this tattoo category" placement="right-start">
+                              <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Follow</Button>
+                            </Tooltip>
+                          : 
+                            <Button Button variant="contained" startIcon={<FavoriteBorderIcon />} onClick={()=>handleFollow(true)}>Follow</Button>
+                          )
+                        )
+                      : null}
 
                     </Typography>
                   </Grid>
@@ -373,8 +392,8 @@ export async function getStaticProps({ params }) {
       "catAllVideos": category._id,
     }
   }).then((result) => {
-      console.log('category.channels[0].userId', category)
-      console.log('category.channels[0].userId result', result.data)
+      // console.log('category.channels[0].userId', category)
+      // console.log('category.channels[0].userId result', result.data)
       return result.data
   });
 
