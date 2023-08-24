@@ -146,11 +146,11 @@ export default function Videos(props){
                 <Box component="main" sx={{ flexGrow: 1, marginTop: '-8px', width: '100%'  }}>
                     <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
                         <VideoJS  options={{
-                            autoplay: true,
+                            autoplay: false,
                             controls: true,
                             responsive: true,
                             fluid: true,
-                            poster: `${videoDetails.videoPreviewImage}`,
+                            poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
                             className: 'video-page-player',
                             sources: [{
                                 // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
