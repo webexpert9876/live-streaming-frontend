@@ -106,7 +106,7 @@ export default function OverviewPage({homeData}) {
 
 
   return (
-    <Box sx={{ display: 'flex' }} style={{padding: "90px 0 0 0"}}>
+    <Box sx={{ display: 'flex' }} style={{padding: "90px 0 0 0", background: "#0c1028", marginTop:"90px"}}>
       <CssBaseline />
       <LeftMenu />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>

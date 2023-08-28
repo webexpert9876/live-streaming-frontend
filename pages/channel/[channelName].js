@@ -247,9 +247,9 @@ export default function ChannelName(props) {
 
     return (
         <>
-            <Box sx={{ display: 'flex', paddingTop: '100px' }}>
+            <Box sx={{ display: 'flex', marginTop:"90px" }}>
                 <LeftMenu />
-                <Box component="main" sx={{ flexGrow: 1, marginTop: '-8px', width: '100%'  }}>
+                <Box component="main" sx={{ flexGrow: 1, width: '100%'  }}>
                     {currentBroadcast?
                         <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
                             <VideoJS  options={{
