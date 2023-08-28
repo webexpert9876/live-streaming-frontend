@@ -179,7 +179,7 @@ export default function Category(props) {
 
   return (
     <>
-      <Box sx={{ display: 'flex' }} >
+      <Box sx={{ display: 'flex', marginTop:"90px" }} >
         <CssBaseline />
         <LeftMenu />
         <Box component="main" sx={{ flexGrow: 1, p: 3, padding: "40px" }} className='teeeeest' >
