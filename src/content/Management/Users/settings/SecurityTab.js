@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -8,6 +8,11 @@ import {
   List,
   ListItemText,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Button,
   ListItemAvatar,
   Avatar,
@@ -22,6 +27,7 @@ import {
   TablePagination,
   TableRow,
   TableContainer,
+  TextField,
   useTheme,
   styled
 } from '@mui/material';
@@ -29,6 +35,9 @@ import {
 import DoneTwoToneIcon from '@mui/icons-material/DoneTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { format, subHours, subWeeks, subDays } from 'date-fns';
+import axios from 'axios';
+import { setAuthUser, selectAuthUser, selectAuthState } from '../../../../../store/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ButtonError = styled(Button)(
   ({ theme }) => `
@@ -56,11 +65,86 @@ const AvatarWrapper = styled(Avatar)(
 `
 );
 
-function SecurityTab() {
+function SecurityTab({userData}) {
   const theme = useTheme();
-
+  const dispatch = useDispatch();
   const [page, setPage] = useState(2);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [userInfo, setUserInfo] = useState(...userData)
+  
+  const [passwordInputs, setPasswordInputs] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [isPasswordChange, setIsPasswordChange] = useState(false);
+
+  useEffect(()=>{
+    if(isPasswordChange){
+      
+      if(passwordInputs.newPassword != passwordInputs.confirmPassword){
+        setErrorMessage('New password and confirm password is not same');
+        setLoading(false);
+        setIsPasswordChange(false);
+      } else {
+        console.log('userInfo', userInfo._id)
+
+        let passwordData = {
+          id: userInfo._id,
+          oldPassword: passwordInputs.oldPassword,
+          newPassword: passwordInputs.newPassword,
+          confirmPassword: passwordInputs.confirmPassword
+        }
+
+        axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/password/user`, passwordData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
+          
+          console.log('data', data.data);
+          dispatch(setAuthUser(data.data.user));
+          localStorage.setItem('authUser', JSON.stringify(data.data.user))
+          setSuccessMessage('Your password has been changed');
+          setLoading(false);
+          setIsPasswordChange(false)
+          handleClose();
+          
+        }).catch((error)=>{
+          console.log('error', error);
+          const errorMessage = error.response.data.message;
+          setSuccessMessage('');
+          setErrorMessage(errorMessage);
+          setIsPasswordChange(false)
+          setLoading(false);
+        });
+
+      }
+    }
+  }, [isPasswordChange])
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  
+  const handleChangePassSubmit = () => {
+    // setOpen(false);
+    setIsPasswordChange(true);
+    setLoading(true)
+  };
+
+  const handleFormChange = (e)=>{
+    setPasswordInputs((prevState)=>({
+      ...prevState,
+      [e.target.name]: e.target.value
+    }))
+    setErrorMessage('')
+    setSuccessMessage('')
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -204,10 +288,57 @@ function SecurityTab() {
                 primary="Change Password"
                 secondary="You can change your password here"
               />
-              <Button size="large" variant="outlined">
+              <Button size="large" variant="outlined" onClick={handleClickOpen}>
                 Change password
               </Button>
             </ListItem>
+            <Dialog open={open} onClose={handleClose}>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Please Enter your new password below
+                </DialogContentText>
+                {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
+                {successMessage && <p style={{ color: "#008000" }}>{successMessage}</p>}
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="old-password"
+                  label="Enter Old Password"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  name='oldPassword'
+                  onChange={handleFormChange}
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="n-password"
+                  label="Enter New Password"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  name='newPassword'
+                  onChange={handleFormChange}
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="c-password"
+                  label="Enter Confirm Password"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  name='confirmPassword'
+                  onChange={handleFormChange}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleChangePassSubmit} disabled={loading}>{loading? 'Changing...': 'Change'}</Button>
+              </DialogActions>
+            </Dialog>
             <Divider component="li" />
             <ListItem sx={{ p: 3 }}>
               <ListItemText

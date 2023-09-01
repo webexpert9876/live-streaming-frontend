@@ -126,13 +126,11 @@ function EditProfileTab(props) {
     //   }).then((result) => {
     //       console.log('result', result.data.users)
 
-          console.log('props.userData', props)
+          // console.log('props.userData', props)
           // User already selected tattoo category list
           if(props.userData.length > 0){
 
-            console.log('props.userData', props)
             let interestedStyleList = props.userData[0].interestedStyleDetail
-            console.log('interestedStyleList', interestedStyleList)
             
             let selectedStyle = []; 
             for(let interestedStyle of interestedStyleList){
@@ -184,39 +182,27 @@ function EditProfileTab(props) {
   // },[])
 
   useEffect(()=>{
-    console.log('userSelectedStyle in use effect', userSelectedStyle)
+    // console.log('userSelectedStyle in use effect', userSelectedStyle)
     setUserEditedStyle(userSelectedStyle);
   }, [userSelectedStyle]);
-  useEffect(()=>{
-    console.log('userSelectedProfilePic ', userSelectedProfilePic)
-  }, [userSelectedProfilePic]);
 
   useEffect(()=>{
 
     if(profileSubmit){
 
-      console.log('userProfileInput', userProfileInput)
-      console.log('userSelectedStyle userTattooInterest', userTattooInterest)
-      console.log('userUploadedImage', userSelectedProfilePic);
-      console.log('userInfo', userInfo);
-
       const tattooCategoryObj = tattooCategoryList.filter(obj => userSelectedStyle.includes(obj.title));
-      console.log('foundObjects tattooCategoryObj', tattooCategoryObj)
 
       let selectedTitle = [];
       for(let selectedTattoo of tattooCategoryObj) {
         selectedTitle.push(selectedTattoo._id)
       }
 
-      console.log('foundObjects selectedTitle', selectedTitle)
-
       // setUserTattooInterest(selectedTitle)
 
       const formData = new FormData();
       formData.append('id', userInfo._id);
       formData.append('firstName', userProfileInput.firstName);
-      formData.append('lastName', userProfileInput.lastName);      
-      console.log('userSelectedProfilePic', userSelectedProfilePic)
+      formData.append('lastName', userProfileInput.lastName);
       formData.append('file', userSelectedProfilePic);
       // formData.append('interestStyles', selectedTitle);
 
@@ -224,10 +210,8 @@ function EditProfileTab(props) {
         formData.append('interestStyles', value); 
       });
 
-      console.log('formData', formData);
-
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        console.log('data', data.data.user);
+        // console.log('data', data.data.user);
         setProfileSubmit(false)
         let userData = data.data.user
         userData.interestedStyleDetail = []
@@ -238,8 +222,11 @@ function EditProfileTab(props) {
         });
         setUserInfo(userData);
         setUserProfilePic(data.data.user.profilePicture)
-      }).catch((err)=>{
-        console.log('err', err);
+      }).catch((error)=>{
+        console.log('error', error);
+        const errorMessage = error.response.data.message;
+        
+        setErrorMessage(errorMessage);
         setProfileSubmit(false)
         setLoading(false);
       });
@@ -250,14 +237,12 @@ function EditProfileTab(props) {
 
     if(userNewEmailSubmitted){
 
-      console.log('userProfileInput', userProfileInput)
-
       const formData = new FormData();
       formData.append('id', userInfo._id);
       formData.append('email', userNewEmail);
       
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
-        console.log('data', data.data.user);
+        // console.log('data', data.data.user);
 
         setUserEmail(data.data.user.email);
         setUserNewEmailSubmitted(false);
@@ -364,10 +349,7 @@ function EditProfileTab(props) {
 
       const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
 
-      
-      console.log('picture.croppedImg', croppedImg)
       let imageUniqueName = `${uuidv4()}.png`
-      console.log('imageUniqueName', imageUniqueName)
       
       let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
 
@@ -392,11 +374,8 @@ function EditProfileTab(props) {
 
   const handleFileChange = (e) => {
     setHideAvatarImage(true);
-    console.log('e.target.files', e.target.files)
     let url = URL.createObjectURL(e.target.files[0]);
-    // console.log('picture.croppedImg', picture.croppedImg)
     // setUserUploadedImage(url);
-    console.log(url);
     setPicture({
       ...picture,
       img: url,
@@ -453,6 +432,7 @@ function EditProfileTab(props) {
             </Button>
             <Dialog open={openEditProfile} onClose={()=>{handleClose('profile')}}>
               <DialogTitle>Edit Profile</DialogTitle>
+              {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
               <DialogContent>
                 {/* <DialogContentText>
                   To subscribe to this website, please enter your email address here. We
@@ -469,6 +449,7 @@ function EditProfileTab(props) {
                   name='firstName'
                   value={userProfileInput.firstName}
                   onChange={handleFormChange}
+                  required
                 />
                 <TextField
                   autoFocus
@@ -481,6 +462,7 @@ function EditProfileTab(props) {
                   name='lastName'
                   value={userProfileInput.lastName}
                   onChange={handleFormChange}
+                  required
                 />
 
                 <Typography variant='body1' component={'div'}>

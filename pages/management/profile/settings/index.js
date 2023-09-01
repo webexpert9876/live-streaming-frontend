@@ -116,12 +116,21 @@ function ManagementUserSettings() {
               ))}
             </TabsWrapper>
           </Grid>
-          {tattooCategoryList.length > 0 && userData.length > 0 ?<Grid item xs={12}>
+          <Grid item xs={12}>
             {/* {currentTab === 'activity' && <ActivityTab />} */}
-            {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
+            {tattooCategoryList.length > 0 && userData.length > 0 ?
+              <>
+                {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
+              </>
+            : null }
             {currentTab === 'notifications' && <NotificationsTab />}
-            {currentTab === 'security' && <SecurityTab />}
-          </Grid>: null}
+            {userData.length > 0?
+              <>
+                {currentTab === 'security' && <SecurityTab userData={userData}/>}
+              </>
+              : null
+            }
+          </Grid>
         </Grid>
       </Container>
       <Footer />
