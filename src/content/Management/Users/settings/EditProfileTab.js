@@ -34,6 +34,9 @@ import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../../../../graphql";
 import { gql } from "@apollo/client";
 import AvatarEditor from 'react-avatar-editor'
+import MultiSelectComponent from './MultiSelectComponent';
+import axios from 'axios';
+import {v4 as uuidv4} from 'uuid';
 
 
 const ITEM_HEIGHT = 48;
@@ -47,29 +50,39 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
 
-function EditProfileTab({userData}) {  
+function EditProfileTab(props) {  
   const authState = useSelector(selectAuthUser)
   const [authUserDetail, setAuthUserDetail] = useState(useSelector(selectAuthUser));
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [openEmailEdit, setOpenEmailEdit] = useState(false);
-  const [userTattooInterest, setUserTattooInterest] = useState([]);
+  const [userTattooInterest, setUserTattooInterest] = useState([])
   // const [userInfo, setUserInfo] = useState(userData);
   const [userInfo, setUserInfo]= useState({});
+  // console.log('props.tattooCategoryList', props.tattooCategoryList)
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
+  const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
+  // console.log('props.tattooCategoryList 2', tattooCategoryList)
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
+  const [userProfilePic, setUserProfilePic] = useState(props.userData[0].profilePicture);
+  const [userSelectedProfilePic, setUserSelectedProfilePic] = useState([]);
+  const [userUploadedImage, setUserUploadedImage] = useState('');
+  const [userSelectedStyle, setUserSelectedStyle]= useState([]);
+  const [userEditedStyle, setUserEditedStyle]= useState([]);
+  const [userProfileInput, setUserProfileInput] = useState({
+    firstName: props.userData[0].firstName,
+    lastName: props.userData[0].lastName
+  })
+  const [profileSubmit, setProfileSubmit]= useState(false);
+
+  // Email state management
+  const [userEmail, setUserEmail] = useState(props.userData[0].email);
+  const [userNewEmail, setUserNewEmail] = useState(props.userData[0].email);
+  const [userNewEmailSubmitted, setUserNewEmailSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  
+
   var editor = "";
   const [picture, setPicture] = useState({
     cropperOpen: false,
@@ -79,84 +92,216 @@ function EditProfileTab({userData}) {
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
 
-  console.log('userInfo userInfo', userInfo);
+  // console.log('userInfo userInfo', userInfo);
 
   useEffect(()=>{
-    console.log('authUserDetail', authUserDetail);
-    console.log('authState', authState);
-    if(userInfo.length == 0){
-      setUserInfo(authState);
-    }
-    if(userInfo.length != 0 ){
-      client.query({
-        variables: {
-            usersId: authState._id,
-        },
-        query: gql`
-            query Query($usersId: ID) {
-                users(id: $usersId) {
-                  _id
-                  firstName
-                  lastName
-                  username
-                  email
-                  password
-                  profilePicture
-                  urlSlug
-                  interestedStyleDetail {
-                    title
-                    _id
-                  }
-                }
-                tattooCategories {
-                  title
-                  _id
-                }
+    // console.log('authUserDetail', authUserDetail);
+    // console.log('authState', authState);
+    // if(userInfo.length == 0){
+    //   setUserInfo(authState);
+    // }
+    // if(userInfo.length != 0 ){
+    //   client.query({
+    //     variables: {
+    //         usersId: authState._id,
+    //     },
+    //     query: gql`
+    //         query Query($usersId: ID) {
+    //             users(id: $usersId) {
+    //               _id
+    //               firstName
+    //               lastName
+    //               username
+    //               email
+    //               password
+    //               profilePicture
+    //               urlSlug
+    //               interestedStyleDetail {
+    //                 title
+    //                 _id
+    //               }
+    //             }
+    //         }
+    //     `,
+    //   }).then((result) => {
+    //       console.log('result', result.data.users)
+
+          console.log('props.userData', props)
+          // User already selected tattoo category list
+          if(props.userData.length > 0){
+
+            console.log('props.userData', props)
+            let interestedStyleList = props.userData[0].interestedStyleDetail
+            console.log('interestedStyleList', interestedStyleList)
+            
+            let selectedStyle = []; 
+            for(let interestedStyle of interestedStyleList){
+              selectedStyle.push(interestedStyle.title);
             }
-        `,
-      }).then((result) => {
-          console.log('result', result.data.users)
-          // setOldReceivedMessages(result.data.chatMessages)
-          setUserInfo(...result.data.users);
-          setTattooCategoryList(...result.data.tattooCategories);
-      });
-    }
-  }, [userInfo])
+            setUserSelectedStyle([...selectedStyle])
+            setUserInfo(...props.userData);
+          }
+
+          if(props.tattooCategoryList.length > 0){
+
+            // Tattoo category list came from parent component
+            let tattooList = [...props.tattooCategoryList]
+            setTattooCategoryList(tattooList)
+  
+  
+            // Tattoo Category list for multiple select dropdown
+            let tattooCategoryMenu = [];
+            for(let tattoo of tattooList){
+              tattooCategoryMenu.push(tattoo.title)
+            }
+            setTattooCategoryMenuList(tattooCategoryMenu);
+          }
+
+      // });
+    // }
+  // }, [userInfo])
+  }, [])
+
+  // console.log('userTattooInterest', userTattooInterest);
+
+  // useEffect(()=>{
+  //   function getTattooCategoryList(){
+  //     client.query({
+  //       query: gql`
+  //           query Query {
+  //               tattooCategories {
+  //                 title
+  //                 _id
+  //               }
+  //           }
+  //       `,
+  //     }).then((result) => {
+  //         console.log('result tattoo', result.data)
+  //         setTattooCategoryList(...result.data.tattooCategories);
+  //     });
+  //   }
+  //   getTattooCategoryList();
+  // },[])
 
   useEffect(()=>{
-    function getTattooCategoryList(){
-      client.query({
-        query: gql`
-            query Query {
-                tattooCategories {
-                  title
-                  _id
-                }
-            }
-        `,
-      }).then((result) => {
-          console.log('result tattoo', result.data)
-          setTattooCategoryList(...result.data.tattooCategories);
+    console.log('userSelectedStyle in use effect', userSelectedStyle)
+    setUserEditedStyle(userSelectedStyle);
+  }, [userSelectedStyle]);
+  useEffect(()=>{
+    console.log('userSelectedProfilePic ', userSelectedProfilePic)
+  }, [userSelectedProfilePic]);
+
+  useEffect(()=>{
+
+    if(profileSubmit){
+
+      console.log('userProfileInput', userProfileInput)
+      console.log('userSelectedStyle userTattooInterest', userTattooInterest)
+      console.log('userUploadedImage', userSelectedProfilePic);
+      console.log('userInfo', userInfo);
+
+      const tattooCategoryObj = tattooCategoryList.filter(obj => userSelectedStyle.includes(obj.title));
+      console.log('foundObjects tattooCategoryObj', tattooCategoryObj)
+
+      let selectedTitle = [];
+      for(let selectedTattoo of tattooCategoryObj) {
+        selectedTitle.push(selectedTattoo._id)
+      }
+
+      console.log('foundObjects selectedTitle', selectedTitle)
+
+      // setUserTattooInterest(selectedTitle)
+
+      const formData = new FormData();
+      formData.append('id', userInfo._id);
+      formData.append('firstName', userProfileInput.firstName);
+      formData.append('lastName', userProfileInput.lastName);      
+      console.log('userSelectedProfilePic', userSelectedProfilePic)
+      formData.append('file', userSelectedProfilePic);
+      // formData.append('interestStyles', selectedTitle);
+
+      selectedTitle.forEach((value) => { 
+        formData.append('interestStyles', value); 
+      });
+
+      console.log('formData', formData);
+
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+        console.log('data', data.data.user);
+        setProfileSubmit(false)
+        let userData = data.data.user
+        userData.interestedStyleDetail = []
+        userSelectedStyle.forEach(element => {
+          userData.interestedStyleDetail.push({title: element})
+          setLoading(false);
+          handleClose('profile');
+        });
+        setUserInfo(userData);
+        setUserProfilePic(data.data.user.profilePicture)
+      }).catch((err)=>{
+        console.log('err', err);
+        setProfileSubmit(false)
+        setLoading(false);
       });
     }
-    getTattooCategoryList();
-  },[])
+  },[profileSubmit])
+  
+  useEffect(()=>{
 
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setUserTattooInterest(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
+    if(userNewEmailSubmitted){
+
+      console.log('userProfileInput', userProfileInput)
+
+      const formData = new FormData();
+      formData.append('id', userInfo._id);
+      formData.append('email', userNewEmail);
+      
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
+        console.log('data', data.data.user);
+
+        setUserEmail(data.data.user.email);
+        setUserNewEmailSubmitted(false);
+        setLoading(false);
+        handleClose('email')
+      }).catch((error)=>{
+        console.log('error', error);
+        const errorMessage = error.response.data.message;
+        
+        if('Validation failed: email: Please Enter a valid Email' == errorMessage){
+          setErrorMessage('Please Enter a valid Email');
+        } else {
+          setErrorMessage(errorMessage);
+        }
+
+        setLoading(false);
+        setUserNewEmailSubmitted(false)
+      });
+    }
+  },[userNewEmailSubmitted])
+
+  const handleChange = (event, value) => {
+    // const {
+    //   target: { value },
+    // } = event;
+    
+    // const tattooCategoryObj = tattooCategoryList.filter(obj => value.includes(obj.title));
+    // console.log('foundObjects tattooCategoryObj', tattooCategoryObj)
+
+    // let selectedTitle = [];
+    // for(let selectedTattoo of tattooCategoryObj) {
+    //   selectedTitle.push(selectedTattoo._id)
+    // }
+    // setUserSelectedStyle([...selectedTitle]);
+
+    // console.log('selectedValues', userSelectedStyle)
+
+    // setUserTattooInterest(
+    //   typeof value === 'string' ? value.split(',') : value,
+    // );
+    setUserSelectedStyle(value)
   };
 
   const handleClickOpen = (dialogInfo) => {
-    
-    // if(dialogInfo == 'profile'){
-    //   setOpenEditProfile(true);
-    // } else if()
 
     switch(dialogInfo) {
       case 'profile':
@@ -196,31 +341,61 @@ function EditProfileTab({userData}) {
       ...picture,
       cropperOpen: false
     });
+    setHideAvatarImage(false)
   };
 
   const setEditorRef = (ed) => {
     editor = ed;
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     if (setEditorRef) {
       const canvasScaled = editor.getImageScaledToCanvas();
       const croppedImg = canvasScaled.toDataURL();
-
+      
       setPicture({
         ...picture,
         img: null,
         cropperOpen: false,
         croppedImg: croppedImg
       });
-      setHideAvatarImage(true);
+      setHideAvatarImage(false);
+      setUserUploadedImage(croppedImg);
+
+      const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
+
+      
+      console.log('picture.croppedImg', croppedImg)
+      let imageUniqueName = `${uuidv4()}.png`
+      console.log('imageUniqueName', imageUniqueName)
+      
+      let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
+
+      // croppedImageBlob.name = imageUniqueName
+      // // croppedImageBlob.originalname = imageUniqueName
+      // croppedImageBlob.lastModified = Date.now()
+      // console.log('picture.croppedImageBlob', croppedImageBlob)
+      // setUserSelectedProfilePic(croppedImageBlob);
+      setUserSelectedProfilePic(newFile);
+
+      // const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
+      // console.log('picture.croppedImg', croppedImg)
+      // let imageUniqueName = `${uuidv4()}.png`
+      // console.log('imageUniqueName', imageUniqueName)
+      // croppedImageBlob.name = imageUniqueName
+      // croppedImageBlob.originalname = imageUniqueName
+      // croppedImageBlob.lastModified = Date.now()
+      // console.log('picture.croppedImageBlob', croppedImageBlob)
+      // setUserSelectedProfilePic(croppedImageBlob);
     }
   };
 
   const handleFileChange = (e) => {
-    setHideAvatarImage(false);
+    setHideAvatarImage(true);
     console.log('e.target.files', e.target.files)
     let url = URL.createObjectURL(e.target.files[0]);
+    // console.log('picture.croppedImg', picture.croppedImg)
+    // setUserUploadedImage(url);
     console.log(url);
     setPicture({
       ...picture,
@@ -228,6 +403,32 @@ function EditProfileTab({userData}) {
       cropperOpen: true
     });
   };
+
+  const handleFormChange = (e)=>{
+    setUserProfileInput((prevState)=>({
+      ...prevState,
+      [e.target.name]: e.target.value
+    }))
+    setErrorMessage('')
+  }
+  
+  const handleEmailChange = (e)=>{
+    setUserNewEmail(e.target.value);
+    setErrorMessage('')
+  }
+  
+  const handleEmailSubmit = ()=>{
+    setUserNewEmailSubmitted(true);
+    setLoading(true)
+    // handleClose('email');
+  }
+
+  const handleFormSubmit = (e)=>{
+    e.preventDefault();
+    setProfileSubmit(true);
+    setLoading(true)
+    // handleClose('profile');
+  }
 
   return (
     <Grid container spacing={3}>
@@ -265,6 +466,9 @@ function EditProfileTab({userData}) {
                   type="text"
                   fullWidth
                   variant="standard"
+                  name='firstName'
+                  value={userProfileInput.firstName}
+                  onChange={handleFormChange}
                 />
                 <TextField
                   autoFocus
@@ -274,7 +478,74 @@ function EditProfileTab({userData}) {
                   type="text"
                   fullWidth
                   variant="standard"
+                  name='lastName'
+                  value={userProfileInput.lastName}
+                  onChange={handleFormChange}
                 />
+
+                <Typography variant='body1' component={'div'}>
+                  <Typography variant='p' component={'p'} sx={{marginTop: '15px', color: 'rgba(203, 204, 210, 0.7)'}}>Upload profile picture</Typography>
+                  <Box>
+                    {hideAvatarImage?
+                      null
+                    :
+                      <Typography sx={{marginTop: '10px'}}>
+                        {userUploadedImage?
+                          <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={userUploadedImage}/> 
+                        :
+                          userProfilePic? 
+                            <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                          : 
+                            <Avatar
+                            src={picture.croppedImg}
+                            sx={{ width: 150, height: 150, padding: "5" }}
+                          />
+                        }
+                      </Typography>
+                    }
+                    {/* {hideAvatarImage?<Avatar
+                      src={picture.croppedImg}
+                      style={{ width: "100%", height: "auto", padding: "5" }}
+                    />: null} */}
+                    {picture.cropperOpen && (
+                      <Box display="block">
+                        <AvatarEditor
+                          ref={setEditorRef}
+                          image={picture.img}
+                          width={200}
+                          height={200}
+                          border={50}
+                          color={[255, 255, 255, 0.6]} // RGBA
+                          rotate={0}
+                          scale={picture.zoom}
+                        />
+                        <Slider
+                          aria-label="raceSlider"
+                          value={picture.zoom}
+                          min={1}
+                          max={10}
+                          step={0.1}
+                          onChange={handleSlider}
+                        ></Slider>
+                        <Box>
+                          <Button variant="contained" onClick={handleCancel}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSave}> Save</Button>
+                        </Box>
+                      </Box>
+                    )}
+                    <Button
+                      variant="contained"
+                      width="100%"
+                      sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
+                    >
+                      <input type="file" accept="image/*" onChange={handleFileChange} />
+                    </Button>
+                  </Box>
+                </Typography>
+
+
                 {/* <FormControl sx={{ m: 1, width: 300 }}>
                   <InputLabel id="demo-multiple-checkbox-label">Select Tattoo Interested Style</InputLabel>
                   <Select
@@ -284,62 +555,40 @@ function EditProfileTab({userData}) {
                     value={userTattooInterest}
                     onChange={handleChange}
                     input={<OutlinedInput label="Tag" />}
+                    // renderValue={(selected) => selected.join(', ')}
                     renderValue={(selected) => selected.join(', ')}
                     MenuProps={MenuProps}
                   >
                     {tattooCategoryList.length > 0?
+                    
                       tattooCategoryList.map((tattooCategory) => (
-                        <MenuItem key={tattooCategory._id} value={tattooCategory._id}>
-                          <Checkbox checked={userTattooInterest.indexOf(tattooCategory) > -1} />
-                          <ListItemText primary={tattooCategory._id} />
+                        <MenuItem key={tattooCategory._id} value={tattooCategory.title}>
+                          
+                          <Checkbox checked={
+                              userTattooInterest.find(item => item === tattooCategory.title) ? true : false
+                            }/>
+                          <ListItemText primary={tattooCategory.title} />
                         </MenuItem>
                       )): null
                     }
                   </Select>
                 </FormControl> */}
-                {hideAvatarImage?<Avatar
-                  src={picture.croppedImg}
-                  style={{ width: "100%", height: "auto", padding: "5" }}
-                />: null}
-                {picture.cropperOpen && (
-                  <Box display="block">
-                    <AvatarEditor
-                      ref={setEditorRef}
-                      image={picture.img}
-                      width={200}
-                      height={200}
-                      border={50}
-                      color={[255, 255, 255, 0.6]} // RGBA
-                      rotate={0}
-                      scale={picture.zoom}
-                    />
-                    <Slider
-                      aria-label="raceSlider"
-                      value={picture.zoom}
-                      min={1}
-                      max={10}
-                      step={0.1}
-                      onChange={handleSlider}
-                    ></Slider>
-                    <Box>
-                      <Button variant="contained" onClick={handleCancel}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSave}>Save</Button>
-                    </Box>
-                  </Box>
-                )}
-                <Button
-                  variant="contained"
-                  width="100%"
-                  sx={{marginTop: '20px', padding: '10px 0px 10px 20px'}}
-                >
-                  <input type="file" accept="image/*" onChange={handleFileChange} />
-                </Button>
+                <Typography sx={{marginTop: '30px'}}>
+                  <MultiSelectComponent
+                    getOptionLabel={(options) => options}
+                    label="Select your tattoo category"
+                    value={userSelectedStyle}
+                    options={tattooCategoryMenuList}
+                    onChange={handleChange}
+                    limitTags={3} // limits number of chip to render while out of focus, useful for responsiveness
+                    getLimitTagsText={(count) => `+${count}📦`} // modify the limit tag text, useful for translation too
+                    // filterOptions={}
+                  />
+                </Typography>
               </DialogContent>
               <DialogActions>
                 <Button onClick={()=>{handleClose('profile')}}>Cancel</Button>
-                <Button onClick={()=>{handleClose('profile')}}>Update</Button>
+                <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
               </DialogActions>
             </Dialog>
           </Box>
@@ -352,11 +601,19 @@ function EditProfileTab({userData}) {
                     Profile Picture:
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={8} md={9}>
+                <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
                   {/* <Text color="black">
                     <b> {authState && `${authState.firstName} ${authState.lastName}`}</b>
                   </Text> */}
-                  {authState.profilePicture?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState.profilePicture}`}></img>: <img src={`https://picsum.photos/seed/picsum/200/300`}></img>}
+                  {/* {authState.profilePicture?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState.profilePicture}`}></img>: <img src={`https://picsum.photos/seed/picsum/200/300`}></img>} */}
+                  {/* {userProfilePic?<img  src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}></img>: <img src={`https://picsum.photos/seed/picsum/200/300`}></img>} */}
+                  {userProfilePic? 
+                    <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                    : <Avatar
+                      src={picture.croppedImg}
+                      sx={{ width: 150, height: 150, padding: "5" }}
+                    />
+                  }
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                   <Box pr={3} pb={2}>
@@ -365,7 +622,8 @@ function EditProfileTab({userData}) {
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b> {authState && `${authState.firstName} ${authState.lastName}`}</b>
+                    {/* <b> {authState && `${authState.firstName} ${authState.lastName}`}</b> */}
+                    <b> {userInfo && `${userInfo.firstName} ${userInfo.lastName}`}</b>
                   </Text>
                 </Grid>
                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
@@ -440,11 +698,16 @@ function EditProfileTab({userData}) {
                   type="email"
                   fullWidth
                   variant="standard"
+                  name='email'
+                  onChange={handleEmailChange}
+                  value={userNewEmail}
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 />
+                {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
               </DialogContent>
               <DialogActions>
                 <Button onClick={()=>{handleClose('email')}}>Cancel</Button>
-                <Button onClick={()=>{handleClose('email')}}>Update</Button>
+                <Button onClick={handleEmailSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
               </DialogActions>
             </Dialog>
           </Box>
@@ -459,7 +722,11 @@ function EditProfileTab({userData}) {
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    <b>{authState && authState.email}</b>
+                    {userEmail? 
+                      <b>{userEmail}</b>
+                    :
+                      <b>No email found</b>
+                    }
                   </Text>
                   <Box pl={1} component="span">
                     <Label color="success">Primary</Label>

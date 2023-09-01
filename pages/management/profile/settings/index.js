@@ -9,6 +9,8 @@ import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
+import client from "../../../../graphql";
+import { gql } from "@apollo/client";
 
 // import ActivityTab from 'src/content/Management/Users/settings/ActivityTab';
 import EditProfileTab from 'src/content/Management/Users/settings/EditProfileTab';
@@ -25,7 +27,53 @@ const TabsWrapper = styled(Tabs)(
 
 function ManagementUserSettings() {
   const [currentTab, setCurrentTab] = useState('edit_profile');
+  const [tattooCategoryList, setTattooCategoryList]= useState([]);
+  const [userData, setUserData] = useState([]);
+  const [userInfo, setUserInfo]= useState({});
+  const authState = useSelector(selectAuthUser)
   const router = useRouter();
+
+  useEffect(()=>{
+    // if(userInfo.length == 0){
+    //   setUserInfo(authState);
+    // }
+    let userId = JSON.parse(localStorage.getItem('authUser'));
+    function getTattooCategoryList(){
+      client.query({
+        variables: {
+          usersId: userId._id,
+        },
+        query: gql`
+            query Query($usersId: ID) {
+              users(id: $usersId) {
+                _id
+                firstName
+                lastName
+                username
+                email
+                password
+                profilePicture
+                urlSlug
+                jwtToken
+                interestedStyleDetail {
+                  title
+                  _id
+                }
+              }
+              tattooCategories {
+                title
+                _id
+              }
+            }
+        `,
+      }).then((result) => {
+          console.log('result tattoo user', result.data)
+          setUserData(result.data.users);
+          setTattooCategoryList(result.data.tattooCategories);
+      });
+    }
+    getTattooCategoryList();
+  },[])
 
   const tabs = [
     // { value: 'activity', label: 'Activity' },
@@ -68,12 +116,12 @@ function ManagementUserSettings() {
               ))}
             </TabsWrapper>
           </Grid>
-          <Grid item xs={12}>
+          {tattooCategoryList.length > 0 && userData.length > 0 ?<Grid item xs={12}>
             {/* {currentTab === 'activity' && <ActivityTab />} */}
-            {currentTab === 'edit_profile' && <EditProfileTab />}
+            {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
             {currentTab === 'notifications' && <NotificationsTab />}
             {currentTab === 'security' && <SecurityTab />}
-          </Grid>
+          </Grid>: null}
         </Grid>
       </Container>
       <Footer />
