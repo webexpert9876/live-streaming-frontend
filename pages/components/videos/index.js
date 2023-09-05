@@ -34,6 +34,11 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import Footer from 'src/components/Footer';
 import { subDays } from 'date-fns';
+import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthUser } from 'store/slices/authSlice';
+import client from "../../../graphql";
+import { gql } from "@apollo/client";
 
 const getStatusLabel = (cryptoOrderStatus) => {
     const map = {        
@@ -217,165 +222,167 @@ const Video = ({ cryptoOrders }) => {
 
     return (
         <>
-            <Head>
-                <title>All Videos</title>
-            </Head>
-            <PageTitleWrapper>
-                <PageHeader />
-            </PageTitleWrapper>
-            <Container maxWidth="lg">
-                <Grid
-                    container
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="stretch"
-                    spacing={3}
-                >
-                    <Grid item xs={12}></Grid>
-                    <Card  style={{width: "97%"}}>
-                        <CardHeader
-                            action={
-                                <Box width={150}>
-                                    <FormControl fullWidth variant="outlined">
-                                        <InputLabel>Status</InputLabel>
-                                        <Select
-                                            value={filters.status || 'all'}
-                                            onChange={handleStatusChange}
-                                            label="Status"
-                                            autoWidth
-                                        >
-                                            {statusOptions.map((statusOption) => (
-                                                <MenuItem key={statusOption.id} value={statusOption.id}>
-                                                    {statusOption.name}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-                            }
-                            title="Recent Orders"
-                        />
-                        <Divider />
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Video Title</TableCell>
-                                        <TableCell>Video ID</TableCell>
-                                        <TableCell>Style</TableCell>
-                                        <TableCell align="right">Views</TableCell>
-                                        <TableCell align="right">Status</TableCell>
-                                        <TableCell align="right">Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {video.map((video) => {
-                                        return (
-                                            <TableRow hover key={video.id}>
-                                                <TableCell>
-                                                    <Typography
-                                                        variant="body1"
-                                                        fontWeight="bold"
-                                                        color="text.primary"
-                                                        gutterBottom
-                                                        noWrap
-                                                    >
-                                                        {video.orderDetails}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary" noWrap>
-                                                        {format(video.orderDate, 'MMMM dd yyyy')}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography
-                                                        variant="body1"
-                                                        fontWeight="bold"
-                                                        color="text.primary"
-                                                        gutterBottom
-                                                        noWrap
-                                                    >
-                                                        {video.orderID}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography
-                                                        variant="body1"
-                                                        fontWeight="bold"
-                                                        color="text.primary"
-                                                        gutterBottom
-                                                        noWrap
-                                                    >
-                                                        {video.styleName}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary" noWrap>
-                                                        {video.sourceDesc}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    <Typography
-                                                        variant="body1"
-                                                        fontWeight="bold"
-                                                        color="text.primary"
-                                                        gutterBottom
-                                                        noWrap
-                                                    >
-                                                        {video.videoView}
-                                                        {video.cryptoCurrency}
-                                                    </Typography>
-                                        
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    {getStatusLabel(video.status)}
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    <Tooltip title="Edit Order" arrow>
-                                                        <IconButton
-                                                            sx={{
-                                                                '&:hover': {
-                                                                    background: theme.colors.primary.lighter
-                                                                },
-                                                                color: theme.palette.primary.main
-                                                            }}
-                                                            color="inherit"
-                                                            size="small"
-                                                        >
-                                                            <EditTwoToneIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Order" arrow>
-                                                        <IconButton
-                                                            sx={{
-                                                                '&:hover': { background: theme.colors.error.lighter },
-                                                                color: theme.palette.error.main
-                                                            }}
-                                                            color="inherit"
-                                                            size="small"
-                                                        >
-                                                            <DeleteTwoToneIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <Box p={2}>
-                            <TablePagination
-                                component="div"
-                                count={filteredVideo.length}
-                                onPageChange={handlePageChange}
-                                onRowsPerPageChange={handleLimitChange}
-                                page={page}
-                                rowsPerPage={limit}
-                                rowsPerPageOptions={[5, 10, 25, 30]}
+            <SidebarLayout userData={[{role: '647f15e20d8b7330ed890da4'}]}>
+                <Head>
+                    <title>All Videos</title>
+                </Head>
+                <PageTitleWrapper>
+                    <PageHeader />
+                </PageTitleWrapper>
+                <Container maxWidth="lg">
+                    <Grid
+                        container
+                        direction="row"
+                        justifyContent="center"
+                        alignItems="stretch"
+                        spacing={3}
+                    >
+                        <Grid item xs={12}></Grid>
+                        <Card  style={{width: "97%"}}>
+                            <CardHeader
+                                action={
+                                    <Box width={150}>
+                                        <FormControl fullWidth variant="outlined">
+                                            <InputLabel>Status</InputLabel>
+                                            <Select
+                                                value={filters.status || 'all'}
+                                                onChange={handleStatusChange}
+                                                label="Status"
+                                                autoWidth
+                                            >
+                                                {statusOptions.map((statusOption) => (
+                                                    <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                        {statusOption.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Box>
+                                }
+                                title="Recent Orders"
                             />
-                        </Box>
-                    </Card>
-                </Grid>
-            </Container >
-            <Footer />
+                            <Divider />
+                            <TableContainer>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Video Title</TableCell>
+                                            <TableCell>Video ID</TableCell>
+                                            <TableCell>Style</TableCell>
+                                            <TableCell align="right">Views</TableCell>
+                                            <TableCell align="right">Status</TableCell>
+                                            <TableCell align="right">Actions</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {video.map((video) => {
+                                            return (
+                                                <TableRow hover key={video.id}>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {video.orderDetails}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary" noWrap>
+                                                            {format(video.orderDate, 'MMMM dd yyyy')}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {video.orderID}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {video.styleName}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary" noWrap>
+                                                            {video.sourceDesc}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <Typography
+                                                            variant="body1"
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            gutterBottom
+                                                            noWrap
+                                                        >
+                                                            {video.videoView}
+                                                            {video.cryptoCurrency}
+                                                        </Typography>
+                                            
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        {getStatusLabel(video.status)}
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <Tooltip title="Edit Order" arrow>
+                                                            <IconButton
+                                                                sx={{
+                                                                    '&:hover': {
+                                                                        background: theme.colors.primary.lighter
+                                                                    },
+                                                                    color: theme.palette.primary.main
+                                                                }}
+                                                                color="inherit"
+                                                                size="small"
+                                                            >
+                                                                <EditTwoToneIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete Order" arrow>
+                                                            <IconButton
+                                                                sx={{
+                                                                    '&:hover': { background: theme.colors.error.lighter },
+                                                                    color: theme.palette.error.main
+                                                                }}
+                                                                color="inherit"
+                                                                size="small"
+                                                            >
+                                                                <DeleteTwoToneIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Box p={2}>
+                                <TablePagination
+                                    component="div"
+                                    count={filteredVideo.length}
+                                    onPageChange={handlePageChange}
+                                    onRowsPerPageChange={handleLimitChange}
+                                    page={page}
+                                    rowsPerPage={limit}
+                                    rowsPerPageOptions={[5, 10, 25, 30]}
+                                />
+                            </Box>
+                        </Card>
+                    </Grid>
+                </Container >
+                <Footer />
+            </SidebarLayout>
 
         </>
     );
@@ -388,7 +395,7 @@ Video.propTypes = {
 Video.defaultProps = {
     cryptoOrders: []
 };
-Video.getLayout = (page) => (
-    <SidebarLayout>{page}</SidebarLayout>
-);
+// Video.getLayout = (page) => (
+//     <SidebarLayout>{page}</SidebarLayout>
+// );
 export default Video;

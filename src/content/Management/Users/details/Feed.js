@@ -10,8 +10,11 @@ import {
 } from '@mui/material';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { useState } from 'react';
 
-function Feed() {
+function Feed(props) {
+  console.log('channelFollowerDetails', props);
+  const [channelFollowerDetails, setChannelFollowerDetails] = useState(props.channelFollower? props.channelFollower: []);
   const feed = [
     {
       name: 'Munroe Dacks',
@@ -53,22 +56,22 @@ function Feed() {
 
   return (
     <Card>
-      <CardHeader title="Followers Feed" />
+      <CardHeader title="Your Followers" />
       <Divider />
       <Box p={2}>
         <Grid container spacing={0}>
-          {feed.map((_feed) => (
-            <Grid key={_feed.name} item xs={12} sm={6} lg={4}>
+          {channelFollowerDetails.map((follower, index) => (
+            <Grid key={index} item xs={12} sm={6} lg={4}>
               <Box p={3} display="flex" alignItems="flex-start">
-                <Avatar src={_feed.avatar} />
+                {follower.userDetails[0].profilePicture?<Avatar src={`${process.env.NEXT_PUBLIC_S3_URL}/${follower.userDetails[0].profilePicture}`} />: null}
                 <Box pl={2}>
-                  <Typography gutterBottom variant="subtitle2">
+                  {/* <Typography gutterBottom variant="subtitle2">
                     {_feed.company}
-                  </Typography>
+                  </Typography> */}
                   <Typography variant="h4" gutterBottom>
-                    {_feed.name}
+                    {`${follower.userDetails[0].firstName} ${follower.userDetails[0].lastName}`}
                   </Typography>
-                  <Typography color="text.primary" sx={{ pb: 2 }}>
+                  {/* <Typography color="text.primary" sx={{ pb: 2 }}>
                     {_feed.jobtitle}
                   </Typography>
                   <Button
@@ -77,7 +80,7 @@ function Feed() {
                     startIcon={<AddTwoToneIcon />}
                   >
                     Follow
-                  </Button>
+                  </Button> */}
                 </Box>
               </Box>
             </Grid>

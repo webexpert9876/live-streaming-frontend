@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-const SidebarLayout = ({ children }) => {
+const SidebarLayout = ({ children, userData }) => {
   const theme = useTheme();
+  // console.log('authUserInfo userData', userData);
 
   return (
     <>
@@ -38,7 +39,7 @@ const SidebarLayout = ({ children }) => {
       >
         <Header />
         
-        <Sidebar />
+        <Sidebar userData={userData}/>
         <Box
           sx={{
             position: 'relative',

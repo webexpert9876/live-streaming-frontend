@@ -12,7 +12,8 @@ import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../../../graphql";
 import { gql } from "@apollo/client";
 
-// import ActivityTab from 'src/content/Management/Users/settings/ActivityTab';
+import EditChannelTab from 'src/content/Management/Users/settings/EditChannelTab';
+import EditStreamTab from 'src/content/Management/Users/settings/EditStreamTab';
 import EditProfileTab from 'src/content/Management/Users/settings/EditProfileTab';
 import NotificationsTab from 'src/content/Management/Users/settings/NotificationsTab';
 import SecurityTab from 'src/content/Management/Users/settings/SecurityTab';
@@ -29,6 +30,7 @@ function ManagementUserSettings() {
   const [currentTab, setCurrentTab] = useState('edit_profile');
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   const [userData, setUserData] = useState([]);
+  const [artistStreamDetail, setArtistStreamDetail] = useState([]);
   const [userInfo, setUserInfo]= useState({});
   const authState = useSelector(selectAuthUser)
   const router = useRouter();
@@ -38,13 +40,14 @@ function ManagementUserSettings() {
     //   setUserInfo(authState);
     // }
     let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getTattooCategoryList(){
+    function getUserAllDetails(){
       client.query({
         variables: {
           usersId: userId._id,
+          artistId: userId._id,
         },
         query: gql`
-            query Query($usersId: ID) {
+            query Query($usersId: ID, $artistId: String!) {
               users(id: $usersId) {
                 _id
                 firstName
@@ -56,10 +59,41 @@ function ManagementUserSettings() {
                 urlSlug
                 jwtToken
                 role
+                channelId
+                channelDetails {
+                  channelName
+                  _id
+                  channelPicture
+                  channelCoverImage
+                  description
+                  subscribers
+                  userId
+                  urlSlug
+                  location
+                  createdAt
+                  socialLinks {
+                    platform
+                    url
+                  }
+                }
                 interestedStyleDetail {
                   title
                   _id
                 }
+              }
+              streams(artistId: $artistId) {
+                _id
+                title
+                description
+                tags
+                streamCategory
+                streamKey
+                streamStartDate
+                streamEndDate
+                streamPreviewImage
+                createdAt
+                artistId
+                channelId
               }
               tattooCategories {
                 title
@@ -71,14 +105,16 @@ function ManagementUserSettings() {
           console.log('result tattoo user', result.data)
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);
+          setArtistStreamDetail(result.data.streams)
       });
     }
-    getTattooCategoryList();
+    getUserAllDetails();
   },[])
 
   const tabs = [
-    // { value: 'activity', label: 'Activity' },
+    { value: 'channel', label: 'Edit Channel' },
     { value: 'edit_profile', label: 'Edit Profile' },
+    { value: 'edit_stream', label: 'Edit Stream' },
     { value: 'notifications', label: 'Notifications' },
     { value: 'security', label: 'Passwords/Security' }
   ];
@@ -90,8 +126,8 @@ function ManagementUserSettings() {
   return (
     <>
     {userData.length > 0?<SidebarLayout userData={userData}>
-    <Head>
-        <title>User Settings - Applications</title>
+      <Head>
+        <title>Channel Settings - Applications</title>
       </Head>
       <PageTitleWrapper>
         <PageHeader />
@@ -119,13 +155,21 @@ function ManagementUserSettings() {
             </TabsWrapper>
           </Grid>
           <Grid item xs={12}>
-            {/* {currentTab === 'activity' && <ActivityTab />} */}
+            {userData.length > 0 && userData[0].channelDetails.length > 0?
+              <>
+                {currentTab === 'channel' && <EditChannelTab channelData={userData[0].channelDetails} userData={userData}/>}
+              </>
+            : null }
+
             {tattooCategoryList.length > 0 && userData.length > 0 ?
               <>
                 {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
               </>
             : null }
+
+            {currentTab === 'edit_stream' && <EditStreamTab />}
             {currentTab === 'notifications' && <NotificationsTab />}
+
             {userData.length > 0?
               <>
                 {currentTab === 'security' && <SecurityTab userData={userData}/>}

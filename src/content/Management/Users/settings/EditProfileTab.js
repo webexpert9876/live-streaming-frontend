@@ -160,29 +160,8 @@ function EditProfileTab(props) {
   // }, [userInfo])
   }, [])
 
-  // console.log('userTattooInterest', userTattooInterest);
-
-  // useEffect(()=>{
-  //   function getTattooCategoryList(){
-  //     client.query({
-  //       query: gql`
-  //           query Query {
-  //               tattooCategories {
-  //                 title
-  //                 _id
-  //               }
-  //           }
-  //       `,
-  //     }).then((result) => {
-  //         console.log('result tattoo', result.data)
-  //         setTattooCategoryList(...result.data.tattooCategories);
-  //     });
-  //   }
-  //   getTattooCategoryList();
-  // },[])
 
   useEffect(()=>{
-    // console.log('userSelectedStyle in use effect', userSelectedStyle)
     setUserEditedStyle(userSelectedStyle);
   }, [userSelectedStyle]);
 

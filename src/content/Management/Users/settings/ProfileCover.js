@@ -78,29 +78,14 @@ const CardCoverAction = styled(Box)(
 `
 );
 
-const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
+const ProfileCover = ({ channelInfo }) => {
   // console.log('channelInfo', channelInfo)
   // console.log('channelTotalFollowers', channelTotalFollowers)
   return (
     <>
-      <Box display="flex" mb={3}>
-        <Tooltip arrow placement="top" title="Go back">
-          <IconButton color="primary" sx={{ p: 2, mr: 2 }}>
-            <ArrowBackTwoToneIcon />
-          </IconButton>
-        </Tooltip>
-        <Box>
-          <Typography variant="h3" component="h3" gutterBottom>
-            Profile for {channelInfo.channelName}
-          </Typography>
-          <Typography variant="subtitle2">
-            You can modify your channel informations
-          </Typography>
-        </Box>
-      </Box>
       <CardCover>
         {Object.keys(channelInfo).length > 0 ?<CardMedia image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: null}
-        {/* <CardCoverAction>
+        <CardCoverAction>
           <Input accept="image/*" id="change-cover" multiple type="file" />
           <label htmlFor="change-cover">
             <Button
@@ -111,7 +96,7 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
               Change cover
             </Button>
           </label>
-        </CardCoverAction> */}
+        </CardCoverAction>
       </CardCover>
       <AvatarWrapper>
         {Object.keys(channelInfo).length> 0? <Avatar variant="rounded" alt={channelInfo.channelName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelPicture}`} />: null}
@@ -129,40 +114,6 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
           </label>
         </ButtonUploadWrapper> */}
       </AvatarWrapper>
-      <Box py={2} pl={2} mb={3}>
-        <Typography gutterBottom variant="h4">
-          {channelInfo.channelName}
-        </Typography>
-        <Typography variant="subtitle2">{channelInfo.description}</Typography>
-        <Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
-          {channelInfo.location} | {channelTotalFollowers} followers
-        </Typography>
-        {/* <Box
-          display={{ xs: 'block', md: 'flex' }}
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Box>
-            <Button size="small" variant="contained">
-              Follow
-            </Button>
-            <Button size="small" sx={{ mx: 1 }} variant="outlined">
-              View website
-            </Button>
-            <IconButton color="primary" sx={{ p: 0.5 }}>
-              <MoreHorizTwoToneIcon />
-            </IconButton>
-          </Box>
-          <Button
-            sx={{ mt: { xs: 2, md: 0 } }}
-            size="small"
-            variant="text"
-            endIcon={<ArrowForwardTwoToneIcon />}
-          >
-            See all {channelTotalFollowers} connections
-          </Button>
-        </Box> */}
-      </Box>
     </>
   );
 };
