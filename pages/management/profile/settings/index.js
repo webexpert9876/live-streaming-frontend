@@ -56,6 +56,7 @@ function ManagementUserSettings() {
                 urlSlug
                 jwtToken
                 role
+                channelId
                 interestedStyleDetail {
                   title
                   _id
