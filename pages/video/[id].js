@@ -190,14 +190,14 @@ export default function Videos(props){
                         <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                             <Typography variant="body1" component={'div'} sx={{ display: 'flex', alignItems: 'start' }}>
                                 <Typography variant="body1" component={'div'} sx={{}}>
-                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px' }} alt="Girl in a jacket" width="500" height="600"></img>
+                                    {channelDetails?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px' }} alt="Girl in a jacket" width="500" height="600"></img>: <img style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', background: 'aliceblue' }}></img>}
                                 </Typography>
 
                                 <Typography variant="body1" component={'div'} sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Typography>
                                         <Typography variant="body1" component={'div'} sx={{ gap: "15px", display: "flex" }}>
                                             {/* <Typography variant="h3" component="h3" sx={{ fontWeight: 600, fontSize: '20px', cursor: 'pointer' }} align="left">{channelDetails.channelName}</Typography> */}
-                                            <Link sx={{ fontWeight: 600, fontSize: '20px', color: '#CBCCD2'}} align="left" href={`/channel/${channelDetails.urlSlug}`}>{channelDetails.channelName}</Link>
+                                            {channelDetails?<Link sx={{ fontWeight: 600, fontSize: '20px', color: '#CBCCD2'}} align="left" href={`/channel/${channelDetails.urlSlug}`}>{channelDetails.channelName}</Link>: <Typography sx={{ fontWeight: 600, fontSize: '18px', color: '#CBCCD2'}} align="left">No Channel name found</Typography>}
                                             {/* <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button> */}
                                         </Typography>
                                         {currentBroadcastVideo? <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', textAlign: 'left', marginTop: '5px' }}>
