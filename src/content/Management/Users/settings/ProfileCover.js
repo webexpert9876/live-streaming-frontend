@@ -28,10 +28,12 @@ const AvatarWrapper = styled(Card)(
     display: inline-block;
     margin-top: -${theme.spacing(9)};
     margin-left: ${theme.spacing(2)};
+    border-radius: 49%;
 
     .MuiAvatar-root {
       width: ${theme.spacing(16)};
       height: ${theme.spacing(16)};
+      border-radius: 50%;
     }
 `
 );

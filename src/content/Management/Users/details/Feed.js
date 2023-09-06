@@ -63,8 +63,8 @@ function Feed(props) {
           {channelFollowerDetails.map((follower, index) => (
             <Grid key={index} item xs={12} sm={6} lg={4}>
               <Box p={3} display="flex" alignItems="flex-start">
-                {follower.userDetails[0].profilePicture?<Avatar src={`${process.env.NEXT_PUBLIC_S3_URL}/${follower.userDetails[0].profilePicture}`} />: null}
-                <Box pl={2}>
+                {follower.userDetails[0].profilePicture?<Avatar src={`${process.env.NEXT_PUBLIC_S3_URL}/${follower.userDetails[0].profilePicture}`} />: <Avatar></Avatar>}
+                <Box pl={1}>
                   {/* <Typography gutterBottom variant="subtitle2">
                     {_feed.company}
                   </Typography> */}

@@ -31,6 +31,7 @@ function ManagementUserSettings() {
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   const [userData, setUserData] = useState([]);
   const [artistStreamDetail, setArtistStreamDetail] = useState([]);
+  const [tagList, setTagList] = useState([]);
   const [userInfo, setUserInfo]= useState({});
   const authState = useSelector(selectAuthUser)
   const router = useRouter();
@@ -99,10 +100,15 @@ function ManagementUserSettings() {
                 title
                 _id
               }
+              tag {
+                _id
+                name
+              }
             }
         `,
       }).then((result) => {
           console.log('result tattoo user', result.data)
+          setTagList(result.data.tag)
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);
           setArtistStreamDetail(result.data.streams)
@@ -167,7 +173,15 @@ function ManagementUserSettings() {
               </>
             : null }
 
-            {currentTab === 'edit_stream' && <EditStreamTab />}
+            {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList? 
+              <>
+                {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList}/>}
+              </>
+              :
+                <>
+                  {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} />}
+                </>
+            }
             {currentTab === 'notifications' && <NotificationsTab />}
 
             {userData.length > 0?

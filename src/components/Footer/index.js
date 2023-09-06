@@ -17,11 +17,11 @@ function Footer() {
         justifyContent="space-between"
       >
         <Box>
-          <Typography variant="subtitle1">
+          {/* <Typography variant="subtitle1">
             &copy; 2022 - Tokyo Free Black Next.js Javascript Admin Dashboard
-          </Typography>
+          </Typography> */}
         </Box>
-        <Typography
+        {/* <Typography
           sx={{
             pt: { xs: 2, md: 0 }
           }}
@@ -35,7 +35,7 @@ function Footer() {
           >
             BloomUI.com
           </Link>
-        </Typography>
+        </Typography> */}
       </Box>
     </FooterWrapper>
   );

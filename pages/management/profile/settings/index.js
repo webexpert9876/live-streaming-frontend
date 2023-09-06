@@ -92,7 +92,7 @@ function ManagementUserSettings() {
     <>
     {userData.length > 0?<SidebarLayout userData={userData}>
     <Head>
-        <title>User Settings - Applications</title>
+        <title>Settings - Applications</title>
       </Head>
       <PageTitleWrapper>
         <PageHeader />

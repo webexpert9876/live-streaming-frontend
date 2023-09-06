@@ -28,6 +28,7 @@ const AvatarWrapper = styled(Card)(
     display: inline-block;
     margin-top: -${theme.spacing(9)};
     margin-left: ${theme.spacing(2)};
+    border-radius: 49%;
 
     .MuiAvatar-root {
       width: ${theme.spacing(16)};
@@ -99,7 +100,7 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
         </Box>
       </Box>
       <CardCover>
-        {Object.keys(channelInfo).length > 0 ?<CardMedia image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: null}
+        {Object.keys(channelInfo).length > 0 ?<CardMedia image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: <CardMedia image={`No image found`} />}
         {/* <CardCoverAction>
           <Input accept="image/*" id="change-cover" multiple type="file" />
           <label htmlFor="change-cover">
@@ -114,7 +115,7 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
         </CardCoverAction> */}
       </CardCover>
       <AvatarWrapper>
-        {Object.keys(channelInfo).length> 0? <Avatar variant="rounded" alt={channelInfo.channelName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelPicture}`} />: null}
+        {Object.keys(channelInfo).length> 0? <Avatar alt={channelInfo.channelName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelPicture}`} />: <Avatar/>}
         {/* <ButtonUploadWrapper>
           <Input
             accept="image/*"
@@ -129,7 +130,7 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
           </label>
         </ButtonUploadWrapper> */}
       </AvatarWrapper>
-      <Box py={2} pl={2} mb={3}>
+      <Box py={2} pl={2} >
         <Typography gutterBottom variant="h4">
           {channelInfo.channelName}
         </Typography>

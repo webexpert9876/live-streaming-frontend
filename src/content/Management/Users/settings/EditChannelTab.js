@@ -70,7 +70,6 @@ function EditChannelTab(props) {
     location: props.channelData[0].location
   })
   const [socialInputs, setSocialInputs] = useState([]);
-  const [socialInputsFormat, setSocialInputsFormat] = useState();
   const [channelDetailSubmit, setChannelDetailSubmit]= useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -94,9 +93,8 @@ function EditChannelTab(props) {
       setChannelInfo(...props.channelData);
       setUserInfo(...props.userData);
 
-      let userSocialAccount = props.channelData[0].socialLinks;
-
       if(props.channelData[0].socialLinks){
+        let userSocialAccount = props.channelData[0].socialLinks;
         
         let socialPlatform = [{ platform: "facebook", url: "" },
         { platform: "instagram", url: "" },
@@ -111,9 +109,8 @@ function EditChannelTab(props) {
           }
         });
         
-        console.log()
-        setUserSocialLinks(socialPlatform);
-        setSocialInputsFormat(socialPlatform);
+        // setUserSocialLinks(socialPlatform);
+        // setSocialInputsFormat(socialPlatform);
         setSocialInputs(socialPlatform);
 
       }
@@ -135,12 +132,7 @@ function EditChannelTab(props) {
       if(userSelectedProfilePic.length > 0){
         formData.append('channelProfilePicture', userSelectedProfilePic);
       }
-      // formData.append('socialLinks', socialInputs);
-
-      // socialInputs.forEach((value) => { 
-      //   // formData.append('interestStyles', value); 
-      //   formData.append('socialLinks', value);
-      // });
+      
       for(let i=0; i< socialInputs.length; i++){
         formData.append(`socialLinks[${i}][platform]`, socialInputs[i].platform);
         formData.append(`socialLinks[${i}][url]`, socialInputs[i].url);
@@ -526,35 +518,6 @@ function EditChannelTab(props) {
                     name='discord'
                     onChange={handleSocialLinks}
                   /> */}
-
-
-                  {/* <FormControl sx={{ m: 1, width: 300 }}>
-                    <InputLabel id="demo-multiple-checkbox-label">Select Tattoo Interested Style</InputLabel>
-                    <Select
-                      labelId="demo-multiple-checkbox-label"
-                      id="demo-multiple-checkbox"
-                      multiple
-                      value={userTattooInterest}
-                      onChange={handleChange}
-                      input={<OutlinedInput label="Tag" />}
-                      // renderValue={(selected) => selected.join(', ')}
-                      renderValue={(selected) => selected.join(', ')}
-                      MenuProps={MenuProps}
-                    >
-                      {tattooCategoryList.length > 0?
-                      
-                        tattooCategoryList.map((tattooCategory) => (
-                          <MenuItem key={tattooCategory._id} value={tattooCategory.title}>
-                            
-                            <Checkbox checked={
-                                userTattooInterest.find(item => item === tattooCategory.title) ? true : false
-                              }/>
-                            <ListItemText primary={tattooCategory.title} />
-                          </MenuItem>
-                        )): null
-                      }
-                    </Select>
-                  </FormControl> */}
                   
                 </DialogContent>
                 <DialogActions>

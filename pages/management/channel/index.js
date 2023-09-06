@@ -8,6 +8,7 @@ import { Grid, Container } from '@mui/material';
 import ProfileCover from 'src/content/Management/Users/details/ProfileCover';
 import RecentActivity from 'src/content/Management/Users/details/RecentActivity';
 import Feed from 'src/content/Management/Users/details/Feed';
+import SubscriberList from 'src/content/Management/Users/details/SubscriberList';
 import PopularTags from 'src/content/Management/Users/details/PopularTags';
 import MyCards from 'src/content/Management/Users/details/MyCards';
 import Addresses from 'src/content/Management/Users/details/Addresses';
@@ -119,6 +120,9 @@ function ManagementChannelProfile() {
                 {channelFollower.length > 0? <Grid item xs={12} md={8}>
                     <Feed channelFollower={channelFollower}/>
                 </Grid>: null}
+                <Grid item xs={12} md={8}>
+                    <SubscriberList />
+                </Grid>
                 {/* <Grid item xs={12} md={4}>
                     <PopularTags />
                 </Grid>
