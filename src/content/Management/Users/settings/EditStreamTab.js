@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import {
   Grid,
   Typography,
@@ -24,6 +24,9 @@ import {
   Avatar,
   Slider
 } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 // import { Avatar, Slider } from "@material-ui/core";
 
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -58,45 +61,63 @@ const MenuProps = {
   },
 };
 
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
-function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData }) {  
+
+function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData}) {  
   const authState = useSelector(selectAuthUser)
   const [authUserDetail, setAuthUserDetail] = useState(useSelector(selectAuthUser));
-  const [openEditProfile, setOpenEditProfile] = useState(false);
+  const [openEditPreviewImage, setOpenEditPreviewImage] = useState(false);
   const [openEmailEdit, setOpenEmailEdit] = useState(false);
-  const [userTattooInterest, setUserTattooInterest] = useState([])
-  // const [userInfo, setUserInfo] = useState(userData);
+
+  // ---------------------Props state----------------
   const [userInfo, setUserInfo]= useState({});
   const [streamInfo, setStreamInfo]= useState(isStreamFound? streamData[0]: {});
-  console.log('props.tattooCategoryList', tattooCategoriesData)
-  console.log('props.streamData', streamData)
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
-  const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
+  // const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
   // console.log('props.tattooCategoryList 2', tattooCategoryList)
+
+
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
   const [userProfilePic, setUserProfilePic] = useState(isStreamFound? streamData[0].streamPreviewImage: '');
-  const [userSelectedProfilePic, setUserSelectedProfilePic] = useState([]);
+  const [selectedPreviewPic, setSelectedPreviewPic] = useState([]);
+  const [previewPicOriginalFile, setPreviewPicOriginalFile] = useState([]);
+  const [isPreviewImageUploaded, setIsPreviewImageUploaded] = useState(false);
   const [userUploadedImage, setUserUploadedImage] = useState('');
-  const [userSelectedStyle, setUserSelectedStyle]= useState([]);
-  const [userEditedStyle, setUserEditedStyle]= useState([]);
+
+  // --------------------------stream related input values---------------------------------------------
   const [streamInput, setStreamInput] = useState({
     title: streamData[0].title,
     description: streamData[0].description,
     streamCategory: streamData[0].streamCategory
   })
-  const [profileSubmit, setProfileSubmit]= useState(false);
+  const [streamInfoSubmit, setStreamInfoSubmit]= useState(false);
 
-  // // stream state management
+  // -----------------stream key state management----------------------
   const [oldStreamKey, setOldStreamKey] = useState(isStreamFound? streamData[0].streamKey: '');
   const [isRegenerateKey, setIsRegenerateKey] = useState(false);
-  const [userNewEmailSubmitted, setUserNewEmailSubmitted] = useState(false);
+
+  // -------------------------Error state------------------------
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
   
-  
+  // ---------------Tag State-----------------------
   const [tags, setTags] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
+  const [open, setOpen] = useState(false);
+  const [apiMessageType, setApiMessageType] = useState('');
+
+  const handleMessageBoxClose = () => {
+    setOpen(false);
+    setApiResponseMessage('');
+    setApiMessageType('')
+  };
+  const handleMessageBoxOpen = () => {
+    setOpen(true);
+  };
 
   const handleDelete = i => {
     console.log('delete', i)
@@ -129,7 +150,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   const [picture, setPicture] = useState({
     cropperOpen: false,
     img: null,
-    zoom: 2,
+    zoom: 1,
     croppedImg:
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
@@ -137,197 +158,143 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   // console.log('userInfo userInfo', userInfo);
 
   useEffect(()=>{
-    // console.log('authUserDetail', authUserDetail);
-    // console.log('authState', authState);
-    // if(userInfo.length == 0){
-    //   setUserInfo(authState);
-    // }
-    // if(userInfo.length != 0 ){
-    //   client.query({
-    //     variables: {
-    //         usersId: authState._id,
-    //     },
-    //     query: gql`
-    //         query Query($usersId: ID) {
-    //             users(id: $usersId) {
-    //               _id
-    //               firstName
-    //               lastName
-    //               username
-    //               email
-    //               password
-    //               profilePicture
-    //               urlSlug
-    //               interestedStyleDetail {
-    //                 title
-    //                 _id
-    //               }
-    //             }
-    //         }
-    //     `,
-    //   }).then((result) => {
-    //       console.log('result', result.data.users)
+    if(userData.length > 0){
+      setUserInfo(...userData);
+    }
+    if(tattooCategoriesData.length > 0){
 
-          // console.log('props.userData', props)
-          // User already selected tattoo category list
-          // if(props.userData.length > 0){
+      // Tattoo category list came from parent component
+      let tattooList = [tattooCategoriesData]
+      setTattooCategoryList(tattooList)
 
-          //   let interestedStyleList = props.userData[0].interestedStyleDetail
-            
-          //   let selectedStyle = []; 
-          //   for(let interestedStyle of interestedStyleList){
-          //     selectedStyle.push(interestedStyle.title);
-          //   }
-          //   setUserSelectedStyle([...selectedStyle])
-          //   setUserInfo(...props.userData);
-          // }
+    }
 
-          if(tattooCategoriesData.length > 0){
-
-            // Tattoo category list came from parent component
-            let tattooList = [tattooCategoriesData]
-            setTattooCategoryList(tattooList)
-
-          }
-
-          if(tagData.length > 0){
-            let tagList = tagData.map(tag => {
-              return {
-                id: tag._id,
-                text: tag.name
-              };
-            });
-            console.log('tagList', tagList)
-            
-            const matchingTags = tagData.filter(tagObj => streamData[0].tags.includes(tagObj.name));
-
-            // Use the map method to extract the id and name fields of matching tags
-            const matchingTagIdsAndNames = matchingTags.map(tagObj => ({
-              id: tagObj._id,
-              text: tagObj.name,
-            }));
-
-            console.log('oldSelectedTagInfo', matchingTagIdsAndNames)
-            setTags(matchingTagIdsAndNames);
-            setSuggestions(tagList);
-
-          }
-
+    if(tagData.length > 0){
+      // let tagList = tagData.map(tag => {
+      //   return {
+      //     id: tag.id,
+      //     text: tag.name
+      //   };
       // });
-    // }
-  // }, [userInfo])
+      // console.log('tagList', tagList)
+      
+      const matchingTags = tagData.filter(tagObj => streamData[0].tags.includes(tagObj.text));
+
+      // Use the map method to extract the id and name fields of matching tags
+      const matchingTagIdsAndNames = matchingTags.map(tagObj => ({
+        id: tagObj.id,
+        text: tagObj.text,
+      }));
+
+      setTags(matchingTagIdsAndNames);
+      setSuggestions(tagData);
+
+    }
   }, [])
 
-
-  useEffect(()=>{
-    setUserEditedStyle(userSelectedStyle);
-  }, [userSelectedStyle]);
-
+// -------------------------------------------Stream detail updaing api call -------------------------------------------
   useEffect(()=>{
 
-    if(profileSubmit){
-
-      const tattooCategoryObj = tattooCategoryList.filter(obj => userSelectedStyle.includes(obj.title));
-
-      let selectedTitle = [];
-      for(let selectedTattoo of tattooCategoryObj) {
-        selectedTitle.push(selectedTattoo._id)
-      }
-
-      // setUserTattooInterest(selectedTitle)
+    if(streamInfoSubmit){
 
       const formData = new FormData();
-      formData.append('id', userInfo._id);
-      formData.append('firstName', streamInput.firstName);
-      formData.append('lastName', streamInput.lastName);
-      formData.append('file', userSelectedProfilePic);
-      // formData.append('interestStyles', selectedTitle);
+      formData.append('title', streamInput.title);
+      formData.append('description', streamInput.description);
+      formData.append('streamCategory', streamInput.streamCategory);
 
-      selectedTitle.forEach((value) => { 
-        formData.append('interestStyles', value); 
+      tags.forEach((tag) => {
+        formData.append('tags', tag.text);
       });
 
-      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        // console.log('data', data.data.user);
-        setProfileSubmit(false)
-        let userData = data.data.user
-        userData.interestedStyleDetail = []
-        userSelectedStyle.forEach(element => {
-          userData.interestedStyleDetail.push({title: element})
-          setLoading(false);
-          handleClose('profile');
-        });
-        setUserInfo(userData);
-        setUserProfilePic(data.data.user.profilePicture)
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/stream/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+
+        setApiMessageType('success')
+        setApiResponseMessage('Stream detail update successfully');
+        setStreamInfoSubmit(false);
+        setStreamInfo(data.data.streamData);
+        setLoading(false);
+        handleMessageBoxOpen()
       }).catch((error)=>{
         console.log('error', error);
+        setApiMessageType('error')
         const errorMessage = error.response.data.message;
         
-        setErrorMessage(errorMessage);
-        setProfileSubmit(false)
+        handleMessageBoxOpen()
+        setApiResponseMessage(errorMessage);
+        setStreamInfoSubmit(false)
         setLoading(false);
       });
     }
-  },[profileSubmit])
+  },[streamInfoSubmit])
   
+  // -------------------------------------------Upload preview image for live streaming-------------------------------------
   useEffect(()=>{
+
+    if(isPreviewImageUploaded){
+
+      const formData = new FormData();
+      formData.append('streamPreviewImage', selectedPreviewPic);
+
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/stream/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+
+        setApiMessageType('success')
+        setApiResponseMessage('Live stream preview image uploaded successfully');
+        setUserProfilePic(data.data.streamData.streamPreviewImage);
+        setLoading(false);
+        handleMessageBoxOpen()
+        handleClose('stream')
+        setIsPreviewImageUploaded(false);
+      }).catch((error)=>{
+        console.log('error', error);
+        setApiMessageType('error')
+        const errorMessage = error.response.data.message;
+        handleMessageBoxOpen()
+        setApiResponseMessage(errorMessage);
+        setLoading(false);
+        handleClose('stream')
+        setIsPreviewImageUploaded(false)
+      });
+    }
+  },[isPreviewImageUploaded])
+  
+  // -------------------------------------------Stream key regenerate api call -------------------------------------------
+  useEffect(()=>{
+    let formData = {}
 
     if(isRegenerateKey){
       
-      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
-        // console.log('data', data.data.user);
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/regenerate/stream/key/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
+        console.log('data stream key', data.data);
 
-        setUserEmail(data.data);
-        setUserNewEmailSubmitted(false);
+        setApiMessageType('success')
+        setApiResponseMessage('Stream key regenerated successfully');
+        setOldStreamKey(data.data.newStreamKey);
+        setIsRegenerateKey(false)
         setLoading(false);
+        handleMessageBoxOpen()
       }).catch((error)=>{
         console.log('error', error);
         const errorMessage = error.response.data.message;
         
-        if('Validation failed: email: Please Enter a valid Email' == errorMessage){
-          setErrorMessage('Please Enter a valid Email');
-        } else {
-          setErrorMessage(errorMessage);
-        }
+        setApiMessageType('error')
+        setApiResponseMessage(errorMessage);
 
         setLoading(false);
-        setUserNewEmailSubmitted(false)
+        setIsRegenerateKey(false)
+        handleMessageBoxOpen()
       });
     }
   },[isRegenerateKey])
 
-  const handleChange = (event, value) => {
-    // const {
-    //   target: { value },
-    // } = event;
-    
-    // const tattooCategoryObj = tattooCategoryList.filter(obj => value.includes(obj.title));
-    // console.log('foundObjects tattooCategoryObj', tattooCategoryObj)
-
-    // let selectedTitle = [];
-    // for(let selectedTattoo of tattooCategoryObj) {
-    //   selectedTitle.push(selectedTattoo._id)
-    // }
-    // setUserSelectedStyle([...selectedTitle]);
-
-    // console.log('selectedValues', userSelectedStyle)
-
-    // setUserTattooInterest(
-    //   typeof value === 'string' ? value.split(',') : value,
-    // );
-    setUserSelectedStyle(value)
-  };
 
   const handleClickOpen = (dialogInfo) => {
 
     switch(dialogInfo) {
-      case 'profile':
-        // code block
-        setOpenEditProfile(true);
+      case 'stream':
+        setOpenEditPreviewImage(true);
         break;
       case 'email':
-        // code block
-        setOpenEmailEdit(true)
+        // setOpenEditPreviewImage(true)
         break;
     }
 
@@ -335,12 +302,10 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
 
   const handleClose = (dialogInfo) => {
     switch(dialogInfo) {
-      case 'profile':
-        // code block
-        setOpenEditProfile(false);
+      case 'stream':
+        setOpenEditPreviewImage(false);
         break;
       case 'email':
-        // code block
         setOpenEmailEdit(false);
         break;
     }
@@ -385,13 +350,14 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       
       let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
 
-      setUserSelectedProfilePic(newFile);
+      setSelectedPreviewPic(newFile);
     }
   };
 
   const handleFileChange = (e) => {
     setHideAvatarImage(true);
     let url = URL.createObjectURL(e.target.files[0]);
+    setPreviewPicOriginalFile(e.target.files[0]);
     // setUserUploadedImage(url);
     setPicture({
       ...picture,
@@ -405,31 +371,29 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       ...prevState,
       [e.target.name]: e.target.value
     }))
-    setErrorMessage('')
+    setApiResponseMessage('')
   }
   
-  const handleEmailChange = (e)=>{
-    setUserNewEmail(e.target.value);
-    setErrorMessage('')
-  }
-  
-  const handleEmailSubmit = ()=>{
-    setUserNewEmailSubmitted(true);
-    setLoading(true)
-    // handleClose('email');
-  }
-
   const handleFormSubmit = (e)=>{
     e.preventDefault();
-    setProfileSubmit(true);
+    setStreamInfoSubmit(true);
     setLoading(true)
-    // handleClose('profile');
+  }
+  
+  const handleStreamPreviewImageSubmit = (e)=>{
+    e.preventDefault();
+    // setStreamInfoSubmit(true);
+    setIsPreviewImageUploaded(true)
+    setLoading(true)
   }
 
   return (
+    <>
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Card>
+
+          {/* ------------------------------------------------Stream preview image upload modal----------------------------------------------- */}
           <Box
             p={3}
             display="flex"
@@ -444,80 +408,17 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                 Manage informations related to your Stream details
               </Typography>
             </Box>
-            <Button variant="text" startIcon={<EditTwoToneIcon />} onClick={()=>{handleClickOpen('profile')}}>
-              Edit
+            <Button variant="text" startIcon={<EditTwoToneIcon />} onClick={()=>{handleClickOpen('stream')}}>
+              Update Live Stream Preview Image
             </Button>
-            <Dialog open={openEditProfile} onClose={()=>{handleClose('profile')}}>
-              <DialogTitle>Edit streams</DialogTitle>
-              {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
-              <DialogContent>
-                {/* <DialogContentText>
-                  To subscribe to this website, please enter your email address here. We
-                  will send updates occasionally.
-                </DialogContentText> */}
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="title"
-                  label="Stream title"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='title'
-                  value={streamInput.title}
-                  onChange={handleFormChange}
-                  required
-                />
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="description"
-                  label="Stream description"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='description'
-                  value={streamInput.description}
-                  onChange={handleFormChange}
-                  required
-                />
-                {/* <TextField
-                  autoFocus
-                  margin="dense"
-                  id="category"
-                  label="Stream tattoo category"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='category'
-                  value={streamInput.streamCategory}
-                  onChange={handleFormChange}
-                  required
-                /> */}
+            <Dialog open={openEditPreviewImage} onClose={()=>{handleClose('stream')}}>
+              <DialogTitle>Upload live stream preview image</DialogTitle>
+              {/* {apiResponseMessage && <p style={{ color: "#f00" }}>{apiResponseMessage}</p>} */}
+              <DialogContent >
 
-                <Typography mt={2}>
-                  <FormControl fullWidth>
-                    <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                      Select Stream Tattoo Category
-                    </InputLabel>
-                    <NativeSelect
-                      defaultValue={30}
-                      inputProps={{
-                        name: 'category',
-                        id: 'uncontrolled-native',
-                      }}
-                      >
-                      {tattooCategoryList.map((category)=>{
-                        <option value={category._id}>{category.title}</option>
-                      })}
-                    {/* <option value={10}>te</option> */}
-                    </NativeSelect>
-                  </FormControl>
-                </Typography>
-
-                <Typography variant='body1' component={'div'}>
+                <Typography variant='body1' component={'div'} >
                   <Typography variant='p' component={'p'} sx={{marginTop: '15px', color: 'rgba(203, 204, 210, 0.7)'}}>Upload Stream Preview Image</Typography>
-                  <Box>
+                  <Box >
                     {hideAvatarImage?
                       null
                     :
@@ -531,7 +432,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                             <Avatar
                             variant='rounded'
                             src={picture.croppedImg}
-                            sx={{ width: 300, height: 300, padding: "5" }}
+                            sx={{ width: 500, height: 500, padding: "5" }}
                           />
                         }
                       </Typography>
@@ -545,8 +446,8 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                         <AvatarEditor
                           ref={setEditorRef}
                           image={picture.img}
-                          width={200}
-                          height={200}
+                          width={800}
+                          height={800}
                           border={50}
                           color={[255, 255, 255, 0.6]} // RGBA
                           rotate={0}
@@ -578,54 +479,16 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                   </Box>
                 </Typography>
 
-
-                {/* <FormControl sx={{ m: 1, width: 300 }}>
-                  <InputLabel id="demo-multiple-checkbox-label">Select Tattoo Interested Style</InputLabel>
-                  <Select
-                    labelId="demo-multiple-checkbox-label"
-                    id="demo-multiple-checkbox"
-                    multiple
-                    value={userTattooInterest}
-                    onChange={handleChange}
-                    input={<OutlinedInput label="Tag" />}
-                    // renderValue={(selected) => selected.join(', ')}
-                    renderValue={(selected) => selected.join(', ')}
-                    MenuProps={MenuProps}
-                  >
-                    {tattooCategoryList.length > 0?
-                    
-                      tattooCategoryList.map((tattooCategory) => (
-                        <MenuItem key={tattooCategory._id} value={tattooCategory.title}>
-                          
-                          <Checkbox checked={
-                              userTattooInterest.find(item => item === tattooCategory.title) ? true : false
-                            }/>
-                          <ListItemText primary={tattooCategory.title} />
-                        </MenuItem>
-                      )): null
-                    }
-                  </Select>
-                </FormControl> */}
-                <Typography sx={{marginTop: '30px'}}>
-                  <MultiSelectComponent
-                    getOptionLabel={(options) => options}
-                    label="Select your tattoo category"
-                    value={userSelectedStyle}
-                    options={tattooCategoryMenuList}
-                    onChange={handleChange}
-                    limitTags={3} // limits number of chip to render while out of focus, useful for responsiveness
-                    getLimitTagsText={(count) => `+${count}📦`} // modify the limit tag text, useful for translation too
-                    // filterOptions={}
-                  />
-                </Typography>
               </DialogContent>
               <DialogActions>
-                <Button onClick={()=>{handleClose('profile')}}>Cancel</Button>
-                <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
+                <Button onClick={()=>{handleClose('stream')}}>Cancel</Button>
+                <Button onClick={handleStreamPreviewImageSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
               </DialogActions>
             </Dialog>
           </Box>
           <Divider />
+          
+          {/* ----------------------------------------------------------Stream Related information----------------------------------------------------------------- */}
           <CardContent sx={{ p: 4 }}>
             <Typography variant="subtitle2">
               <Grid container spacing={0}>
@@ -698,14 +561,15 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                         Select Stream Tattoo Category
                       </InputLabel> */}
                       <NativeSelect
-                        defaultValue={30}
+                        defaultValue={streamInfo.streamCategory}
+                        onChange={handleFormChange}
                         inputProps={{
-                          name: 'category',
+                          name: 'streamCategory',
                           id: 'uncontrolled-native',
                         }}
                         >
                           {tattooCategoriesData.map((category)=>(
-                            <option value={category._id}>{category.title}</option>
+                            <option key={category._id} value={category._id}>{category.title}</option>
                           ))}
                       </NativeSelect>
                     </FormControl>
@@ -718,18 +582,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                 </Grid>
                 <Grid item xs={12} sm={8} md={9}>
                   <Text color="black">
-                    {/* {Object.keys(userInfo).length != 0?
-                      (
-                        userInfo.interestedStyleDetail?
-                          userInfo.interestedStyleDetail.map((style)=>(
-                            <b>{style.title}, </b>
-                          ))
-                          : 
-                          <b>No interested style found</b>
-                      )
-                      :
-                       <b>No user data found</b>
-                    } */}
                     <Box mt={2}>
                       <ReactTags
                         tags={tags}
@@ -746,23 +598,16 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                     </Box>
                   </Text>
                 </Grid>
-                {/* <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                  <Box pr={3} pb={2}>
-                    Style:
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={8} md={9}>
-                  <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
-                    <Text color="black">
-                      style code
-                    </Text>
-                  </Box>
-                </Grid> */}
               </Grid>
+            </Typography>
+            <Typography sx={{textAlign: 'end'}}>
+              <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
             </Typography>
           </CardContent>
         </Card>
       </Grid>
+
+      {/* ----------------------------------------------------------------------Stream key regenerate box----------------------------------------------------------------- */}
       <Grid item xs={12}>
         <Card>
           <Box
@@ -779,35 +624,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                 Manage your stream key ( Do not share stream key with any one )
               </Typography>
             </Box>
-            {/* <Button variant="text" startIcon={<EditTwoToneIcon />} onClick={()=>{handleClickOpen('email')}}>
-              Edit
-            </Button> */}
-            <Dialog open={openEmailEdit} onClose={()=>{handleClose('email')}}>
-              <DialogTitle>Regenerate stream key</DialogTitle>
-              <DialogContent>
-                {/* <DialogContentText>
-                  To subscribe to this website, please enter your email address here. We
-                  will send updates occasionally.
-                </DialogContentText> */}
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="stream-key"
-                  label="Stream key"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='key'
-                  onChange={handleEmailChange}
-                  // value={userNewEmail}
-                />
-                {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={()=>{handleClose('email')}}>Cancel</Button>
-                <Button onClick={handleEmailSubmit} disabled={loading}>{loading ? 'Regenerating key...' : 'Regenerate key'}</Button>
-              </DialogActions>
-            </Dialog>
           </Box>
           <Divider />
           <CardContent sx={{ p: 4 }}>
@@ -822,25 +638,15 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                   <Text color="black">
                     {oldStreamKey? 
                       <b>{oldStreamKey}</b>
-                      // <TextField
-                      //   autoFocus
-                      //   margin="dense"
-                      //   id="stream-key"
-                      //   type="text"
-                      //   fullWidth
-                      //   variant="standard"
-                      //   name='key'
-                      //   // onChange={(e)=>setNewStreamKey(e.target.value)}
-                      //   value={oldStreamKey}
-                      // />
                     :
                       <b>No stream key found</b>
                     }
                   </Text>
                   <Box pl={3} component="span">
-                    {/* <Label color="success">Primary</Label> */}
-                    <Button variant="text" onClick={()=>{setIsRegenerateKey(true)}}>
-                      Regenerate key
+                    <Button variant="text" disabled={loading} onClick={()=>{
+                        setLoading(true); setIsRegenerateKey(true)
+                      }}>
+                      {loading ? 'Regenerating key...' : 'Regenerate key'}
                     </Button>
                   </Box>
                 </Grid>     
@@ -849,8 +655,20 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
           </CardContent>
         </Card>
       </Grid>
-      
     </Grid>
+
+    {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+      <Stack spacing={2} sx={{ width: '100%' }}>
+        <Snackbar anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+          <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+            {apiResponseMessage}
+          </Alert>
+        </Snackbar>
+      </Stack>
+  </>
 );
 }
 

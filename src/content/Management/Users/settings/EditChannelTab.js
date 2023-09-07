@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import {
   Grid,
   Typography,
@@ -24,6 +24,9 @@ import {
   Avatar,
   Slider
 } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 // import { Avatar, Slider } from "@material-ui/core";
 
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -51,6 +54,9 @@ const MenuProps = {
   },
 };
 
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function EditChannelTab(props) {  
   const authState = useSelector(selectAuthUser)
@@ -74,6 +80,18 @@ function EditChannelTab(props) {
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
+  const [open, setOpen] = useState(false);
+  const [apiMessageType, setApiMessageType] = useState('');
+
+  const handleMessageBoxClose = () => {
+    setOpen(false);
+    setApiResponseMessage('');
+    setApiMessageType('')
+  };
+  const handleMessageBoxOpen = () => {
+    setOpen(true);
+  };
   
 
   var editor = "";
@@ -142,16 +160,20 @@ function EditChannelTab(props) {
         console.log('data', data.data);
         setChannelDetailSubmit(false)
         // let userData = data.data.user
-        
+        setApiMessageType('success')
+        setApiResponseMessage('Channel information updated successfully');
         setLoading(false);
         handleClose('profile');
         setChannelProfilePic(data.data.channelData.channelPicture);
         setChannelInfo(data.data.channelData)
         setUserSelectedProfilePic([])
+        handleMessageBoxOpen()
       }).catch((error)=>{
         console.log('error', error);
         const errorMessage = error.response.data.message;
-        
+        setApiMessageType('error')
+        handleMessageBoxOpen()
+        setApiResponseMessage(errorMessage);
         setErrorMessage(errorMessage);
         setChannelDetailSubmit(false)
         setLoading(false);
@@ -312,6 +334,7 @@ function EditChannelTab(props) {
     // handleClose('profile');
   }
 
+
   return (
     <>
       <Grid container spacing={3}>
@@ -458,67 +481,6 @@ function EditChannelTab(props) {
                     />
                   ))}
                   
-
-                  {/* <TextField
-                    autoFocus
-                    margin="dense"
-                    id="facebook"
-                    label="Facebook url (Optional)"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    name='facebook'
-                    onChange={handleSocialLinks}
-                  />
-
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="instagram"
-                    label="Instagram url (Optional)"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    name='instagram'
-                    onChange={handleSocialLinks}
-                  />
-
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="youtube"
-                    label="Youtube url (Optional)"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    name='youtube'
-                    onChange={handleSocialLinks}
-                  />
-
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="twitter"
-                    label="Twitter url (Optional)"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    name='twitter'
-                    onChange={handleSocialLinks}
-                  />
-
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="discord"
-                    label="Discord url (Optional)"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    name='discord'
-                    onChange={handleSocialLinks}
-                  /> */}
-                  
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={()=>{handleClose('profile')}}>Cancel</Button>
@@ -528,7 +490,7 @@ function EditChannelTab(props) {
             </Box>
             <Divider />
             <CardContent sx={{ p: 4 }}>
-              <ProfileCover channelInfo={channelInfo} />
+              {Object.keys(channelInfo).length > 0?<ProfileCover userInfo={userInfo} channelInfo={channelInfo} />:null}
               <Typography variant="subtitle2" sx={{marginTop: '30px'}}>
                 <Grid container spacing={0}>
                   {/* <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
@@ -552,7 +514,6 @@ function EditChannelTab(props) {
                   </Grid>
                   <Grid item xs={12} sm={8} md={9}>
                     <Text color="black">
-                      {/* <b> {authState && `${authState.firstName} ${authState.lastName}`}</b> */}
                       <b> {channelInfo && `${channelInfo.channelName}`}</b>
                     </Text>
                   </Grid>
@@ -586,18 +547,22 @@ function EditChannelTab(props) {
                     <>
                       {channelInfo.socialLinks.map((item)=>(
                         <>
-                          <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                            <Box pr={3} pb={2}>
-                              {item.platform}:
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12} sm={8} md={9}>
-                            <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
-                              <Text color="black">
-                                {`${item.url}`}
-                              </Text>
-                            </Box>
-                          </Grid>
+                          {item.url && 
+                          <>
+                            <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                              <Box pr={3} pb={2}>
+                                {item.platform}:
+                              </Box>
+                            </Grid>
+                            <Grid item xs={12} sm={8} md={9}>
+                              <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
+                                <Text color="black">
+                                  {`${item.url}`}
+                                </Text>
+                              </Box>
+                            </Grid>
+                          </>
+                          }
                         </>
                         ))
                       }
@@ -742,6 +707,18 @@ function EditChannelTab(props) {
           </Card>
         </Grid> */}
       </Grid>
+
+
+      <Stack spacing={2} sx={{ width: '100%' }}>
+        <Snackbar anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+          <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+            {apiResponseMessage}
+          </Alert>
+        </Snackbar>
+      </Stack>
     </>
   );
 }
