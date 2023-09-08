@@ -154,7 +154,7 @@ export default function Videos(props){
                             className: 'video-page-player',
                             sources: [{
                                 // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/videos/${videoDetails.url}`,
+                                src: `${process.env.NEXT_PUBLIC_S3_video_URL}/${videoDetails.url}`,
                                 type: "video/mp4"
                             }]
                         }} onReady={handlePlayerReady} />

@@ -236,6 +236,27 @@ export async function getStaticProps() {
               urlSlug
             } 
           }
+          getSliderLiveStreams {
+            viewers
+            videoId
+            channelDetails {
+              urlSlug
+              channelName
+              channelPicture
+              description
+              _id
+            }
+            streamUrl
+            tags
+            tattooCategoryDetails {
+              title
+              urlSlug
+            }
+            _id
+            description
+            title
+            videoPoster
+          }
         }
       `,
     });
@@ -255,121 +276,4 @@ export async function getStaticProps() {
 Overview.getLayout = function getLayout(page) {
   return <BaseLayout>{page}</BaseLayout>;
 };
-
-// export async function getStaticProps() {
-
-//   let data = await client.query({
-//     query: gql`
-//           query Query {
-//             channels {
-//               channelName
-//               channelPicture
-//             }
-//             tattooCategories {
-//               _id
-//               profilePicture
-//               tags
-//               title
-//             }
-//             liveStreamings {
-//               _id
-//               title
-//               tattooCategory
-//               videoId
-//               viewers
-//             }
-//           }
-//       `,
-//   })
-//     .then((result) => {
-//       console.log('result.data', result.data)
-//       // setChannels(result.data.channels)
-//       // setTattooCategories(result.data.tattooCategories)
-//       // setLiveStreamings(result.data.liveStreamings)
-//       return result.data
-//     });
-//     // data = JSON.stringify(data);
-//     // const LiveChannelsList = [{
-//     //   channelName: "StreamerHouse",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/c71b60fc-4215-4c41-aaaa-17908502babf-profile_image-70x70.png",
-//     //   channelCategory: "Remnant II",
-//     //   channelViewers: "340"
-//     // },
-//     // {
-//     //   channelName: "VeliaInn",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/6eadc3b0-61dc-4d11-8e14-924bbfa35664-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "470"
-//     // },
-//     // {
-//     //   channelName: "MikaRS",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "292"
-//     // },
-//     // {
-//     //   channelName: "KatContii",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/0303d2c5-5e4f-4138-9919-976285515616-profile_image-70x70.png",
-//     //   channelCategory: "Remnant II",
-//     //   channelViewers: "268"
-//     // },
-//     // {
-//     //   channelName: "KROTHA",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/a9ce83ba-c0bd-49cc-83bd-9d17647a211a-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "77"
-//     // },
-//     // {
-//     //   channelName: "zackrawrr",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/946c7e72-d500-47d9-a8a4-5597ba0b76f8-profile_image-70x70.png",
-//     //   channelCategory: "Just Chatting",
-//     //   channelViewers: "22.5K"
-//     // },
-//     // {
-//     //   channelName: "AzzeyUK",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/e66515cc-b8aa-485b-82fa-f26b3f4adca0-profile_image-70x70.png",
-//     //   channelCategory: "Just Chatting",
-//     //   channelViewers: "142"
-//     // },
-//     // {
-//     //   channelName: "M3LFUNCTION",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/8617132c-dfab-4c76-a20a-420781b8adb0-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "15"
-//     // },
-//     // {
-//     //   channelName: "KatContii",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/0303d2c5-5e4f-4138-9919-976285515616-profile_image-70x70.png",
-//     //   channelCategory: "Remnant II",
-//     //   channelViewers: "268"
-//     // },
-//     // {
-//     //   channelName: "KROTHA",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/a9ce83ba-c0bd-49cc-83bd-9d17647a211a-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "77"
-//     // },
-//     // {
-//     //   channelName: "zackrawrr",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/946c7e72-d500-47d9-a8a4-5597ba0b76f8-profile_image-70x70.png",
-//     //   channelCategory: "Just Chatting",
-//     //   channelViewers: "22.5K"
-//     // },
-//     // {
-//     //   channelName: "AzzeyUK",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/e66515cc-b8aa-485b-82fa-f26b3f4adca0-profile_image-70x70.png",
-//     //   channelCategory: "Just Chatting",
-//     //   channelViewers: "142"
-//     // },
-//     // {
-//     //   channelName: "M3LFUNCTION",
-//     //   channelPicture: "https://static-cdn.jtvnw.net/jtv_user_pictures/8617132c-dfab-4c76-a20a-420781b8adb0-profile_image-70x70.png",
-//     //   channelCategory: "New World",
-//     //   channelViewers: "15"
-//     // }
-//     // ]
-//   return {
-//     props: { data },
-//   }
-// }
 

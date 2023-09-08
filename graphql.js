@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, useQuery, gql } from '@apollo/client';
 
 const client = new ApolloClient({
-    uri: 'https://tattoo-live-streaming-api-server.onrender.com/graphql',
+    uri: process.env.NEXT_PUBLIC_BACKEND_URL_GRAPHQL,
     cache: new InMemoryCache(),
 });
 export default client;

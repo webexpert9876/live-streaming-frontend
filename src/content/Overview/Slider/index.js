@@ -20,7 +20,8 @@ import Link from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 
-const data = new Array(10).fill({ coverImage: 'https://images6.alphacoders.com/679/thumb-1920-679459.jpg', video: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' });
+// const data = new Array(10).fill({ coverImage: 'https://images6.alphacoders.com/679/thumb-1920-679459.jpg', video: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' });
+// let sliderLiveData = null; 
 
 const recommendedStyle = {
   display: 'grid',
@@ -63,8 +64,10 @@ const SliderItemSkeletonItem = () => {
   );
 };
 
-export default function SimpleSlider() {
+export default function SimpleSlider({sliderData}) {
   const ref = useRef();
+  
+console.log('sliderData', sliderData);
 
   return (
     <div className='twitch twitch-width'>
@@ -78,7 +81,7 @@ export default function SimpleSlider() {
                 slideComponent={Slide}
                 slideWidth={750}
                 carouselWidth={width}
-                data={data}
+                data={sliderData}
                 maxVisibleSlide={5}
                 disableSwipe
                 customScales={[1, 0.85, 0.7, 0.55]}
@@ -149,13 +152,26 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
     }, 2000);
   }, []);
 
-  const { coverImage, video } = data[dataIndex];
+  // const { coverImage, video } = data[dataIndex];
+  const { channelDetails, description, streamUrl, tags, tattooCategoryDetails, title, videoId, videoPoster, viewers, _id } = data[dataIndex];
 
   const liveVideo = {
     title: "Bot Danny",
     channelName: "The Sims 4",
     liveViewers: "793 viewers",
     videoTags: ["TwitchOG", "Marathon"]
+  }
+
+  const countLiveViewing = (viewers) => {
+    if(viewers > 999 && viewers < 1000000){
+      const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
+      return viewing
+    } else if(viewers > 999999){
+      const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
+      return viewing
+    } else {
+      return `${viewers}`
+    } 
   }
 
   return (
@@ -177,19 +193,20 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
                 if (!isCenterSlide) swipeTo(slideIndex);
               }}
             />
-            <img className='cover-image fill' src={coverImage} />
+            {videoPoster?<img className='cover-image fill' src={`${process.env.NEXT_PUBLIC_S3_URL}/${videoPoster}`} />: null}
           </div>
           {loaded && (
             <div className='detail fill'>
               <div className='video-player'>
-                <Link href="#">
+                <Link href={`/channel/${channelDetails[0].urlSlug}`}>
                   <VideoJS options={{
                     autoplay: true,
                     controls: true,
                     responsive: true,
                     fluid: true,
                     sources: [{
-                      src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
+                      // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
+                      src: `${streamUrl}`,
                       type: 'application/x-mpegURL'
                     }]
                   }} onReady={handlePlayerReady} />
@@ -198,30 +215,31 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
               <div className='discription'>
                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                   <Grid item>
-                    <img src="https://static-cdn.jtvnw.net/jtv_user_pictures/fd9521c0-018f-4d93-ab0d-44d2a00a00ef-profile_image-50x50.png" className='br100 listChannelIconSize' />
+                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails[0].channelPicture}`} className='br100 listChannelIconSize'/>
                   </Grid>
                   <Grid item ml={"15px"} style={{ width: "74%" }}>
                     <Typography className='sliveVideoTitle'>
-                      <Link href="#" color={'black'}>{liveVideo.title}</Link>
+                      <Link href={`/channel/${channelDetails[0].urlSlug}`} >{channelDetails[0].channelName}</Link>
                     </Typography>
-                    <Typography className='sliveVideoChannelName'>
-                      <Link href="#" color={"black"}>{liveVideo.channelName}</Link>
+                    <Typography sx={{textWrap: 'balance'}} className='sliveVideoChannelName'>
+                      <Link href={`/single-category/${tattooCategoryDetails[0].urlSlug}`} >{tattooCategoryDetails[0].title}</Link>
                     </Typography>
-                    <Typography className='sliveVideoLiveViewers'>
-                      <Link href="#" color={"black"}><i>{liveVideo.liveViewers}</i></Link>
+                    <Typography className='sliveVideoLiveViewers' color={'#000'}>
+                      {/* <Link href="#" color={"black"}>{countLiveViewing(viewers)} Viewers</Link> */}
+                      {countLiveViewing(viewers)} Viewers
                     </Typography>
                   </Grid>
                 </Grid>
-                {liveVideo.videoTags && liveVideo.videoTags ? (
+                {tags.length > 0 ? (
                   <Stack direction="row" ml={"12px"} spacing={1} className='sliveVideoTags'>
-                    {liveVideo.videoTags.map((tag) => (
-                      <Link href='#' key={tag}>
+                    {tags.map((tag) => (
+                      <Link href={`/tags/`} key={tag}>
                         <Chip label={tag} style={{ background: "#ddd", color: "#000", fontSize: "12px", height: "25px" }} />
                       </Link>
                     ))}
                   </Stack>
                 ) : null}
-                <Typography className='sLiveVideoShortDesc' component='p' color={"black"} mt={"15px"}>Check out this stream from chess!</Typography>
+                <Typography className='sLiveVideoShortDesc' component='p' color={"black"} mt={"15px"}>Check out this stream from {channelDetails[0].channelName}!</Typography>
               </div>              
             </div>
             

@@ -67,13 +67,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function OverviewPage({homeData}) {
-
+console.log('homeData', homeData)
   const theme = useTheme();
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(true);
   const [channels, setChannels] = useState(homeData.channels);
   const [tattooCategories, setTattooCategories] = useState(homeData.tattooCategories);
   const [liveStreamings, setLiveStreamings] = useState(homeData.liveStreamings)
+  const [sliderData, setSliderData] = useState(homeData.getSliderLiveStreams)
   const router = useRouter()
 
   const handleDrawerOpen = () => {
@@ -110,7 +111,7 @@ export default function OverviewPage({homeData}) {
       <CssBaseline />
       <LeftMenu />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <SimpleSlider />
+        <SimpleSlider sliderData={sliderData}/>
         {/* <Recommended channels = {channels} />         */}
         <LiveStreamings liveStreamings={liveStreamings} />
         <ChannelCategory tattooCategories={tattooCategories} />        

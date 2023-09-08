@@ -260,7 +260,7 @@ export default function ChannelName(props) {
                                 className: 'online-video',
                                 sources: [{
                                     // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                    src: currentBroadcast.streamUrl,
+                                    src: `${process.env.NEXT_PUBLIC_S3_video_URL}/${currentBroadcast.streamUrl}`,
                                     type: 'application/x-mpegURL'
                                 }]
                             }} onReady={handlePlayerReady} />
