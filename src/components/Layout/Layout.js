@@ -21,7 +21,7 @@ export default function Layout({ children }) {
             <Box>
                 <Box sx={{ display: 'flex' }}>                    
                     <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={{padding: "0"}}>
-                        <main>{children}</main>                        
+                        <main className="testttttt">{children}</main>                        
                     </Box>
                 </Box>                
             </Box>            

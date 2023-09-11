@@ -242,3 +242,13 @@ body .css-1o8jgg6 {
 .react-loading-skeleton::after {
     background-color: #0c1028 !important;   
 }
+input.ReactTags__tagInputField {
+    padding: 10px;
+    background: transparent;
+    border: 0;
+    border-bottom: solid 1px;
+    margin-bottom: 10px;
+}
+.ReactTags__selected button.ReactTags__remove {
+    margin: 5px;
+}

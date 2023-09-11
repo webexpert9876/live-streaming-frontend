@@ -95,39 +95,10 @@ function TokyoApp({ Component, ...rest  }) {
 
         </Head>
 
-        
-        
-        {/* <HeaderWrapper className='stickyHeader'>
-          <Container maxWidth="lg">
-            <Box display="flex" alignItems="center">
-              <Logo />
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                flex={1}
-              >
-                <Box />
-                <Box>
-                  <Button
-                    component={Link}
-                    href="/auth/login"
-                    variant="contained"
-                    sx={{ ml: 2 }}
-                  >
-                    Login
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-          </Container>
-        </HeaderWrapper> */}
-
-
         <SidebarProvider>
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CssBaseline />
+              <CssBaseline />xdfsdf
                 <Layout style={bodyColor}>
                   {getLayout(
                       <Component {...pageProps} />
