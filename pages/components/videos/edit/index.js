@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import numeral from 'numeral';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
+import PageHeader from '../PageHeader';
 import { Grid, Container } from '@mui/material';
 import {
     Tooltip,
