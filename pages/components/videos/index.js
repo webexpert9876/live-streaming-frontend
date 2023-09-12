@@ -465,7 +465,7 @@ const Video = () => {
     
     const handlePrivacyChange = (e) => {
         let value = null;
-        
+
         if (e.target.value !== 'all') {
             value = e.target.value;
         }
@@ -486,6 +486,9 @@ const Video = () => {
         setIsCheckStatusChange(true)
     };
 
+    const handleCancelBtnFunction = ()=>{
+        setIsVideoEditing(true);
+    }
 
     const theme = useTheme();
 
@@ -671,7 +674,7 @@ const Video = () => {
                                                     onRowsPerPageChange={handleLimitChange}
                                                     page={page}
                                                     rowsPerPage={limit}
-                                                    rowsPerPageOptions={[1,2,3,4,5, 10, 25, 30]}
+                                                    rowsPerPageOptions={[5, 10, 25, 30]}
                                                 />
                                             </Box>
                                         </Card>
@@ -732,7 +735,15 @@ const Video = () => {
                                 </Container >
                             </>
                         :
-                            (userData && selectedRowVideoDetails && tattooCategoryList && tagList) ? <VideoEditCard userData={userData} videoDetail={selectedRowVideoDetails} tattooCategoryList={tattooCategoryList} tagData={tagList}/> : null
+                            (userData && selectedRowVideoDetails && tattooCategoryList && tagList) ? 
+                                <VideoEditCard 
+                                    userData={userData} 
+                                    videoDetail={selectedRowVideoDetails} 
+                                    tattooCategoryList={tattooCategoryList} 
+                                    tagData={tagList}
+                                    cancelBtnFunction={handleCancelBtnFunction}
+                                /> 
+                                : null
                     }
                     <Footer />
                 </SidebarLayout>

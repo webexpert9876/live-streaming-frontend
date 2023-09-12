@@ -382,7 +382,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   
   const handleStreamPreviewImageSubmit = (e)=>{
     e.preventDefault();
-    // setStreamInfoSubmit(true);
     setIsPreviewImageUploaded(true)
     setLoading(true)
   }

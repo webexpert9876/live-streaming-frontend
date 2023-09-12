@@ -18,7 +18,8 @@ import {
     TextField,
     Button,
     Avatar,
-    Slider
+    Slider,
+    Alert
 } from '@mui/material';
 
 import { useRouter } from 'next/router';
@@ -31,6 +32,9 @@ import Text from '../Text';
 import { WithContext as ReactTags } from 'react-tag-input';
 import AvatarEditor from 'react-avatar-editor';
 import {v4 as uuidv4} from 'uuid';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 
 const KeyCodes = {
@@ -39,12 +43,11 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
+function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, cancelBtnFunction}){
     const [videoInput, setVideoInput] = useState({
         title: '',
         description: '',
         tattooCategoryId: '',
-        tags: '',
         isPublished: '',
         videoPreviewStatus: ''
     })
@@ -73,6 +76,23 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
     const [previewPicOriginalFile, setPreviewPicOriginalFile] = useState([]);
     const [isPreviewImageUploaded, setIsPreviewImageUploaded] = useState(false);
     const [userUploadedImage, setUserUploadedImage] = useState('');
+    const [isUpdatingVideoInfo, setIsUpdatingVideoInfo] = useState(false);
+
+    // -------------------------Error state------------------------
+    const [apiResponseMessage, setApiResponseMessage] = useState('');
+
+    const [open, setOpen] = useState(false);
+    const [apiMessageType, setApiMessageType] = useState('');
+
+    const handleMessageBoxClose = () => {
+        setOpen(false);
+        setApiResponseMessage('');
+        setApiMessageType('')
+    };
+    const handleMessageBoxOpen = () => {
+        setOpen(true);
+    };
+
 
     console.log('userData', userData)
     console.log('videoDetail', videoDetail)
@@ -80,9 +100,21 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
     console.log('tagData', tagData)
 
     useEffect(()=>{
-        setVideoDetails(videoDetail);
         setTattooCategoriesData(tattooCategoryList);
-        setUserInfo(userData[0]);
+        
+        if(userData.length > 0){
+            setUserInfo(userData[0]);
+        }
+        if(videoDetail){
+            setVideoDetails(videoDetail);
+            setVideoInput({
+                title: videoDetail.title,
+                description: videoDetail.description,
+                tattooCategoryId: videoDetail.tattooCategoryId,
+                isPublished: videoDetail.isPublished,
+                videoPreviewStatus: videoDetail.videoPreviewStatus
+            })
+        }
 
         if(tagData.length > 0){
             
@@ -99,6 +131,49 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
         }
 
     }, [])
+
+    useEffect(()=>{
+        if(isUpdatingVideoInfo){
+            console.log('video input ', videoInput)
+            console.log('video tags ', tags)
+            console.log('video selected Preview Pic ', selectedPreviewPic)
+
+            const formData = new FormData();
+            formData.append('title', videoInput.title);
+            formData.append('description', videoInput.description);
+            formData.append('tattooCategoryId', videoInput.tattooCategoryId);
+            formData.append('isPublished', videoInput.isPublished);
+            formData.append('videoPreviewStatus', videoInput.videoPreviewStatus);
+            console.log('video selectedPreviewPic ', selectedPreviewPic)
+            if(selectedPreviewPic){
+                console.log('if video selectedPreviewPic ', selectedPreviewPic)
+                formData.append('files', selectedPreviewPic);
+            }
+
+            tags.forEach((tag) => {
+                formData.append('tags', tag.text);
+            });
+
+            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+
+                setApiMessageType('success')
+                setApiResponseMessage('Video detail update successfully');
+                setIsUpdatingVideoInfo(false);
+                // setStreamInfo(data.data.streamData);
+                setLoading(false);
+                handleMessageBoxOpen()
+            }).catch((error)=>{
+                console.log('error', error);
+                setApiMessageType('error')
+                const errorMessage = error.response.data.message;
+                
+                handleMessageBoxOpen()
+                setApiResponseMessage(errorMessage);
+                setIsUpdatingVideoInfo(false)
+                setLoading(false);
+            });
+        }
+    }, [isUpdatingVideoInfo])
 
     const handleDelete = i => {
         console.log('delete', i)
@@ -126,12 +201,17 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
         console.log('The tag at index ' + index + ' was clicked');
       };
 
-    const handleFormChange = ()=>{
-        
+    const handleFormChange = (e)=>{
+        setVideoInput((prevState)=>({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }))
     }
 
-    const handleFormSubmit = ()=>{
-
+    const handleFormSubmit = (e)=>{
+        e.preventDefault();
+        setIsUpdatingVideoInfo(true);
+        setLoading(true);
     }
 
     const handleSlider = (event, value) => {
@@ -159,10 +239,10 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
         const croppedImg = canvasScaled.toDataURL();
         
         setPicture({
-        ...picture,
-        img: null,
-        cropperOpen: false,
-        croppedImg: croppedImg
+            ...picture,
+            img: null,
+            cropperOpen: false,
+            croppedImg: croppedImg
         });
         setHideAvatarImage(false);
         setUserUploadedImage(croppedImg);
@@ -248,15 +328,15 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                             :
                                             <Typography sx={{marginTop: '10px'}}>
                                                 {userUploadedImage?
-                                                    <img style={{width: '400px', height: '400px'}} src={userUploadedImage}/> 
+                                                    <img style={{width: '200px', height: '200px'}} src={userUploadedImage}/> 
                                                 :
                                                     userProfilePic? 
-                                                        <img style={{width: '300px', height: '300px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                                                        <img style={{width: '200px', height: '200px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
                                                     : 
                                                         <Avatar
                                                             variant='rounded'
                                                             src={picture.croppedImg}
-                                                            sx={{ width: 500, height: 500, padding: "5" }}
+                                                            sx={{ width: 200, height: 200, padding: "5" }}
                                                         />
                                                 }
                                             </Typography>
@@ -270,8 +350,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                                     <AvatarEditor
                                                         ref={setEditorRef}
                                                         image={picture.img}
-                                                        width={400}
-                                                        height={400}
+                                                        width={200}
+                                                        height={200}
                                                         border={50}
                                                         color={[255, 255, 255, 0.6]} // RGBA
                                                         rotate={0}
@@ -331,24 +411,24 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                     <Grid item xs={12} sm={8} md={9}>
                                         <Typography width={250} color="black">
                                             <TextField
-                                            autoFocus
-                                            margin="dense"
-                                            id="description"
-                                            multiline
-                                            type="text"
-                                            fullWidth
-                                            variant="standard"
-                                            name='description'
-                                            value={videoInput.description}
-                                            onChange={handleFormChange}
-                                            required
+                                                autoFocus
+                                                margin="dense"
+                                                id="description"
+                                                multiline
+                                                type="text"
+                                                fullWidth
+                                                variant="standard"
+                                                name='description'
+                                                value={videoInput.description}
+                                                onChange={handleFormChange}
+                                                required
                                             />
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                    <Box mt={1} pr={3} pb={2}>
-                                        Tattoo Category:
-                                    </Box>
+                                        <Box mt={1} pr={3} pb={2}>
+                                            Tattoo Category:
+                                        </Box>
                                     </Grid>
                                     <Grid item xs={12} sm={8} md={9}>
                                         <Typography width={250} mt={1.5} color="black">
@@ -357,14 +437,14 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                                 Select Stream Tattoo Category
                                             </InputLabel> */}
                                                 <NativeSelect
-                                                    defaultValue={videoDetails.tattooCategoryId}
+                                                    defaultValue={videoDetail.tattooCategoryId}
                                                     onChange={handleFormChange}
                                                     inputProps={{
-                                                    name: 'tattooCategoryId',
-                                                    id: 'uncontrolled-native',
+                                                        name: 'tattooCategoryId',
+                                                        id: 'uncontrolled-native',
                                                     }}
-                                                    >
-                                                    {tattooCategoriesData.map((category)=>(
+                                                >
+                                                    {tattooCategoryList.map((category)=>(
                                                         <option key={category._id} value={category._id}>{category.title}</option>
                                                     ))}
                                                 </NativeSelect>
@@ -406,14 +486,14 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                                 Select Stream Tattoo Category
                                             </InputLabel> */}
                                                 <NativeSelect
-                                                    defaultValue={videoDetails.isPublished}
+                                                    defaultValue={videoDetail.isPublished}
                                                     onChange={handleFormChange}
                                                     inputProps={{
                                                         name: 'isPublished',
                                                         id: 'uncontrolled-native',
                                                     }}
                                                 >
-                                                    <option key={1} value={true}>Public</option>
+                                                    <option key={1} value={true}>Publish</option>
                                                     <option key={2} value={false}>Draft</option>
                                                 </NativeSelect>
                                             </FormControl>
@@ -431,16 +511,16 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                                 Select Stream Tattoo Category
                                             </InputLabel> */}
                                                 <NativeSelect
-                                                    defaultValue={videoDetails.videoPreviewStatus}
+                                                    defaultValue={videoDetail.videoPreviewStatus}
                                                     onChange={handleFormChange}
                                                     inputProps={{
                                                         name: 'videoPreviewStatus',
                                                         id: 'uncontrolled-native',
                                                     }}
                                                 >
-                                                    <option key={1} value={'Public'}>Public</option>
+                                                    <option key={1} value={'public'}>Public</option>
                                                     <option key={2} value={'private'}>Private</option>
-                                                    <option key={3} value={'subscribe'}>Subscriber</option>
+                                                    <option key={3} value={'subscriber'}>Subscriber</option>
                                                 </NativeSelect>
                                             </FormControl>
                                         </Typography>
@@ -448,6 +528,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                                 </Grid>
                             </Typography>
                             <Typography sx={{textAlign: 'end'}}>
+                            <Button onClick={cancelBtnFunction} disabled={loading}>Cancel</Button>
                             <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Updating...' : 'Update'}</Button>
                             </Typography>
                         </CardContent>
@@ -455,6 +536,18 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData}){
                     </Card>
                 </Grid>
             </Container >
+
+        {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+            <Stack spacing={2} sx={{ width: '100%' }}>
+                <Snackbar anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+                <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                    {apiResponseMessage}
+                </Alert>
+                </Snackbar>
+            </Stack>
         </>
     )
 
