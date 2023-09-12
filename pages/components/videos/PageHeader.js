@@ -4,15 +4,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthState } from '../../../store/slices/authSlice';
 import { selectAuthUser } from '../../../store/slices/authSlice';
 import { setAuthUser, setAuthState } from '../../../store/slices/authSlice';
+import { useRouter } from 'next/router';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 
 function PageHeader() {
     const dispatch = useDispatch();
-    const user = {
-        name: 'Catherine Pike',
-        avatar: '/static/images/avatars/1.jpg'
-    };
+    const nextRouter = useRouter();
 
     useEffect(() => {
         let authUser = JSON.parse(localStorage.getItem('authUser'))

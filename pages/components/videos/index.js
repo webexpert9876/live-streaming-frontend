@@ -47,16 +47,34 @@ import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
+import VideoEditCard from "../../../src/components/VideoEdit/VideoEditCard";
 
 const getStatusLabel = (videoStatus) => {
-    let map = {        
-        public: {
-            text: 'Public',
-            color: 'warning'
+    let map = {
+        publish: {
+            text: 'Publish',
+            color: 'success'
         },
         draft: {
             text: 'Draft',
+            color: 'warning'
+        }
+    };
+    let videoCheck = videoStatus? 'publish': 'draft'
+    const { text, color } = map[videoCheck];
+
+    return <Label color={color}>{text}</Label>;
+};
+
+const getVideoPrivacyLabel = (videoStatus) => {
+    let map = {        
+        public: {
+            text: 'Public',
             color: 'error'
+        },
+        private: {
+            text: 'Private',
+            color: 'warning'
         },
         subscriber: {
             text: 'Subscriber',
@@ -99,6 +117,9 @@ const Video = () => {
   const [filters, setFilters] = useState({
     status: null
   });
+  const [privacyFilters, setPrivacyFilters] = useState({
+    status: null
+  });
   const [allVideoDetails, setAllVideoDetails]= useState([])
   const [showAllVideoDetails, setShowAllVideoDetails]= useState([])
   const [isCheckStatusChange, setIsCheckStatusChange]= useState(false)
@@ -111,11 +132,23 @@ const Video = () => {
 
   const [openVideoEditDialog, setOpenVideoEditDialog] = useState(false);
   const [openDeleteDialog, setOpenVideoDeleteDialog] = useState(false);
+
+  const [isVideoEditing, setIsVideoEditing] = useState(true);
+  const [selectedRowVideoDetails, setSelectedRowVideoDetails] = useState({});
   
-  const handleClickOpen = (dialogType) => {
+  const [tattooCategoryList, setTattooCategoryList] = useState([]);
+  const [tagList, setTagList] = useState([]);
+
+  const [isVideoPrivacyChange, setIsVideoPrivacyChange] = useState(false);
+  
+  const handleClickOpen = (dialogType, video) => {
     switch(dialogType){
         case 'videoEdit':
-            setOpenVideoEditDialog(true);
+            // setOpenVideoEditDialog(true);
+            // router.push({pathname: '/components/videos/edit'})
+            console.log('selected row video', video)
+            setSelectedRowVideoDetails(video)
+            setIsVideoEditing(false)
             break;
         case 'videoDelete':
             setOpenVideoDeleteDialog(true);
@@ -200,26 +233,35 @@ const Video = () => {
                     streamId
                     tags
                     videoQualityUrl {
-                    url
-                    quality
+                        url
+                        quality
                     }
                     channelDetails {
-                    channelCoverImage
-                    channelPicture
-                    channelName
-                    description
-                    isApproved
-                    subscribers
-                    urlSlug
-                    userId
+                        channelCoverImage
+                        channelPicture
+                        channelName
+                        description
+                        isApproved
+                        subscribers
+                        urlSlug
+                        userId
                     }
                     tattooCategoryDetails {
-                    description
-                    title
-                    profilePicture
+                        description
+                        title
+                        profilePicture
+                        _id
+                        urlSlug
+                    }
+                }
+                tattooCategories {
                     _id
                     urlSlug
-                    }
+                    title
+                }
+                tagForStream {
+                    text
+                    id
                 }
             }
         `,
@@ -229,7 +271,10 @@ const Video = () => {
           setAllVideoDetails(result.data.videos);
           setShowAllVideoDetails(result.data.videos);
           setFilteredVideoList(result.data.videos);
+          setTattooCategoryList(result.data.tattooCategories);
+          setTagList(result.data.tagForStream)
           setIsCheckStatusChange(true)
+          setIsVideoPrivacyChange(true)
         });
     }
     getUserAllDetails();
@@ -237,20 +282,78 @@ const Video = () => {
 
   useEffect(()=>{
     if(isCheckStatusChange){
-        const filteredVideo = applyFilters(allVideoDetails, filters);
-        
-        setFilteredVideoList(filteredVideo)
+        // if(filters.status == 'all' || filters.status == null && privacyFilters.status == 'all' || privacyFilters.status == null ){
 
-        const paginatedVideo = applyPagination(
-            filteredVideo,
-            page,
-            limit
-        );
+            const filteredVideo = applyFilters(allVideoDetails, filters, privacyFilters);
+            
+            setFilteredVideoList(filteredVideo)
+    
+            const paginatedVideo = applyPagination(
+                filteredVideo,
+                page,
+                limit
+            );
+        // } else {
+        //     const filteredVideo = applyFilters(showAllVideoDetails, filters, privacyFilters);
+            
+        //     setFilteredVideoList(filteredVideo)
+    
+        //     const paginatedVideo = applyPagination(
+        //         filteredVideo,
+        //         page,
+        //         limit
+        //     );
+        // }
         setIsCheckStatusChange(false)
     }
   },[isCheckStatusChange])
+  
+  useEffect(()=>{
+    if(isVideoPrivacyChange){
+
+        // if(filters.status == 'all' || filters.status == null && privacyFilters.status == 'all' || privacyFilters.status == null ){
+
+            const filteredVideo = applyPrivacyFilters(allVideoDetails, privacyFilters, filters);
+            
+            setFilteredVideoList(filteredVideo)
+    
+            const paginatedVideo = applyPagination(
+                filteredVideo,
+                page,
+                limit
+            );
+        // } else {
+
+        //     const filteredVideo = applyPrivacyFilters(showAllVideoDetails, privacyFilters, filters);
+            
+        //     setFilteredVideoList(filteredVideo)
+    
+        //     const paginatedVideo = applyPagination(
+        //         filteredVideo,
+        //         page,
+        //         limit
+        //     );
+        // }
+        setIsVideoPrivacyChange(false)
+    }
+  },[isVideoPrivacyChange])
 
     const statusOptions = [
+        {
+            id: 'all',
+            name: 'All'
+        },
+        {
+            id: true,
+            name: 'Publish'
+        },
+        {
+            id: false,
+            name: 'Draft'
+        },
+    ];
+
+    const videoPrivacyOption = [
         {
             id: 'all',
             name: 'All'
@@ -260,8 +363,8 @@ const Video = () => {
             name: 'Public'
         },
         {
-            id: 'draft',
-            name: 'Draft'
+            id: 'private',
+            name: 'Private'
         },
         {
             id: 'subscriber',
@@ -270,12 +373,47 @@ const Video = () => {
     ];
 
 
-    const applyFilters = (allVideos, filters) => {
+    const applyFilters = (allVideos, filters, privacyFilterParam) => {
         return allVideos.filter((video) => {
             let matches = true;
+            
+            if(privacyFilterParam.status != null ){
+                matches = false
+
+                if(filters.status == false){
     
-            if (filters.status && video.videoPreviewStatus !== filters.status) {
-                matches = false;
+                    if ( video.isPublished == filters.status && privacyFilterParam.status == video.videoPreviewStatus) {
+                        matches = true;
+                    }
+                } else if(filters.status == true) {
+                    
+                    if (filters.status && video.isPublished == filters.status && privacyFilterParam.status == video.videoPreviewStatus) {
+                        matches = true;
+                    }
+                } else if(filters.status == null) {
+                    
+                    if (privacyFilterParam.status == video.videoPreviewStatus) {
+                        matches = true;
+                    }
+                }
+
+            } else {
+                if(filters.status == false){
+    
+                    if ( video.isPublished !== filters.status) {
+                        matches = false;
+                    }
+                } else if(filters.status == true) {
+                    
+                    if (filters.status && video.isPublished !== filters.status) {
+                        matches = false;
+                    }
+                } else if(filters.status == null) {
+                    
+                    if (filters.status && video.isPublished !== filters.status) {
+                        matches = false;
+                    }
+                }
             }
     
             return matches;
@@ -288,6 +426,30 @@ const Video = () => {
     };
 
 
+    const applyPrivacyFilters = (allVideos, filters, publistStatusParam) => {
+        return allVideos.filter((video) => {
+            let matches = true;
+
+            if(publistStatusParam.status !== null){
+                matches = false
+
+                    if(filters.status == null){
+                        if (video.videoPreviewStatus !== filters.status && video.isPublished == publistStatusParam.status) {
+                            matches = true;
+                        }
+                    } else if ( video.isPublished == publistStatusParam.status && filters.status == video.videoPreviewStatus) {
+                        matches = true;
+                    }
+            } else {
+                if (filters.status && video.videoPreviewStatus !== filters.status && video.isPublished !== publistStatusParam.status) {
+                    matches = false;
+                }
+            }
+    
+            return matches;
+        });
+    };
+
     const handleStatusChange = (e) => {
         let value = null;
 
@@ -299,6 +461,19 @@ const Video = () => {
             status: value
         }));
         setIsCheckStatusChange(true)
+    };
+    
+    const handlePrivacyChange = (e) => {
+        let value = null;
+        
+        if (e.target.value !== 'all') {
+            value = e.target.value;
+        }
+        setPrivacyFilters((prevFilters) => ({
+            ...prevFilters,
+            status: value
+        }));
+        setIsVideoPrivacyChange(true)
     };
 
     const handlePageChange = (_event, newPage) => {
@@ -313,27 +488,6 @@ const Video = () => {
 
 
     const theme = useTheme();
-    const video = [
-        {
-            id: '1',
-            orderDetails: 'Video 1',
-            orderDate: new Date().getTime(),
-            status: 'public',
-            orderID: 'VUVX709ET7BY',
-            styleName: 'Style 1',            
-            videoView: "10005",
-        },
-        {
-            id: '2',
-            orderDetails: 'Video 2',
-            orderDate: subDays(new Date(), 1).getTime(),
-            status: 'public',
-            orderID: '23M3UOG65G8K',
-            styleName: 'Style 2',
-            videoView: "85585",
-        },
-        
-    ];
 
     // console.log(video)
 
@@ -345,219 +499,241 @@ const Video = () => {
                     <Head>
                         <title>All Videos</title>
                     </Head>
-                    <PageTitleWrapper>
-                        <PageHeader />
-                    </PageTitleWrapper>
-                    <Container maxWidth="lg">
-                        <Grid
-                            container
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="stretch"
-                            spacing={3}
-                        >
-                            <Grid item xs={12}></Grid>
-                            <Card style={{width: "97%"}}>
-                                <CardHeader
-                                    action={
-                                        <Box width={150}>
-                                            <FormControl fullWidth variant="outlined">
-                                                <InputLabel>Status</InputLabel>
-                                                <Select
-                                                    value={filters.status || 'all'}
-                                                    onChange={handleStatusChange}
-                                                    label="Status"
-                                                    autoWidth
-                                                >
-                                                    {statusOptions.map((statusOption) => (
-                                                        <MenuItem key={statusOption.id} value={statusOption.id}>
-                                                            {statusOption.name}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Box>
-                                    }
-                                    title="Recent Videos"
-                                />
-                                <Divider />
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Video Title</TableCell>
-                                                <TableCell>Video ID</TableCell>
-                                                <TableCell>Style</TableCell>
-                                                <TableCell align="right">Views</TableCell>
-                                                <TableCell align="right">Status</TableCell>
-                                                <TableCell align="right">Actions</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {showAllVideoDetails.map((video) => {
-                                                return (
-                                                    <TableRow hover key={video.id}>
-                                                        <TableCell>
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
+                    {
+                        isVideoEditing?
+                            <>
+                                <PageTitleWrapper>
+                                    <PageHeader />
+                                </PageTitleWrapper>
+                                <Container maxWidth="lg">
+                                    <Grid
+                                        container
+                                        direction="row"
+                                        justifyContent="center"
+                                        alignItems="stretch"
+                                        spacing={3}
+                                    >
+                                        <Grid item xs={12}></Grid>
+                                        <Card style={{width: "97%"}}>
+                                            <CardHeader
+                                                action={
+                                                    <Box width={300} sx={{display: 'flex'}}>
+                                                        <FormControl fullWidth variant="outlined" sx={{mr:1}}>
+                                                            <InputLabel>Status</InputLabel>
+                                                            <Select
+                                                                value={filters.status == null ? 'all': filters.status ? true: false}
+                                                                onChange={handleStatusChange}
+                                                                label="Status"
+                                                                autoWidth
                                                             >
-                                                                {video.title}
-                                                            </Typography>
-                                                            {/* <Typography variant="body2" color="text.secondary" noWrap>
-                                                                {format(video.createdAt, 'MMMM dd yyyy')}
-                                                            </Typography> */}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
+                                                                {statusOptions.map((statusOption) => (
+                                                                    <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                                        {statusOption.name}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+                                                        <FormControl fullWidth variant="outlined">
+                                                            <InputLabel>Video Privacy</InputLabel>
+                                                            <Select
+                                                                value={privacyFilters.status || 'all'}
+                                                                onChange={handlePrivacyChange}
+                                                                label=" Video privacy"
+                                                                autoWidth
                                                             >
-                                                                {video._id}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
-                                                            >
-                                                                {video.tattooCategoryDetails[0].title}
-                                                            </Typography>
-                                                            {/* <Typography variant="body2" color="text.secondary" noWrap>
-                                                                {video.sourceDesc}
-                                                            </Typography> */}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
-                                                            >
-                                                                {video.views}
-                                                            </Typography>
-                                                
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {getStatusLabel(video.videoPreviewStatus)}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Tooltip title="Edit Video Details" arrow>
-                                                                <IconButton
-                                                                    sx={{
-                                                                        '&:hover': {
-                                                                            background: theme.colors.primary.lighter
-                                                                        },
-                                                                        color: theme.palette.primary.main
-                                                                    }}
-                                                                    color="inherit"
-                                                                    size="small"
-                                                                    onClick={()=>{handleClickOpen('videoEdit')}}
-                                                                >
-                                                                    <EditTwoToneIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Delete Video" arrow>
-                                                                <IconButton
-                                                                    sx={{
-                                                                        '&:hover': { background: theme.colors.error.lighter },
-                                                                        color: theme.palette.error.main
-                                                                    }}
-                                                                    color="inherit"
-                                                                    size="small"
-                                                                    onClick={()=>{handleClickOpen('videoDelete')}}
-                                                                >
-                                                                    <DeleteTwoToneIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                                <Box p={2}>
-                                    <TablePagination
-                                        component="div"
-                                        count={filteredVideoList.length}
-                                        onPageChange={handlePageChange}
-                                        onRowsPerPageChange={handleLimitChange}
-                                        page={page}
-                                        rowsPerPage={limit}
-                                        rowsPerPageOptions={[5, 10, 25, 30]}
-                                    />
-                                </Box>
-                            </Card>
-                        </Grid>
-                        
-    {/* ---------------------------------------Video edit box---------------------------------- */}
-                        <Dialog open={openVideoEditDialog} onClose={()=>handleClose('videoEdit')}>
-                            <DialogTitle>Edit Video Details</DialogTitle>
-                            <DialogContent>
-                                {/* <DialogContentText>
-                                    To subscribe to this website, please enter your email address here. We
-                                    will send updates occasionally.
-                                </DialogContentText> */}
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="title"
-                                    label="Video Title"
-                                    type="text"
-                                    fullWidth
-                                    variant="standard"
-                                />
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="description"
-                                    label="Video description"
-                                    type="text"
-                                    fullWidth
-                                    variant="standard"
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={()=>handleClose('videoEdit')}>Cancel</Button>
-                                <Button >Update</Button>
-                            </DialogActions>
-                        </Dialog>
+                                                                {videoPrivacyOption.map((statusOption) => (
+                                                                    <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                                        {statusOption.name}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+                                                    </Box>
+                                                }
+                                                title="Videos"
+                                            />
+                                            <Divider />
+                                            <TableContainer>
+                                                <Table>
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Video Title</TableCell>
+                                                            <TableCell>Video ID</TableCell>
+                                                            <TableCell>Style</TableCell>
+                                                            <TableCell align="right">Views</TableCell>
+                                                            <TableCell align="right">Status</TableCell>
+                                                            <TableCell align="right">Video Privacy</TableCell>
+                                                            <TableCell align="right">Actions</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {showAllVideoDetails.map((video) => {
+                                                            return (
+                                                                <TableRow hover key={video._id}>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                            variant="body1"
+                                                                            fontWeight="bold"
+                                                                            color="text.primary"
+                                                                            gutterBottom
+                                                                            noWrap
+                                                                        >
+                                                                            {video.title}
+                                                                        </Typography>
+                                                                        {/* <Typography variant="body2" color="text.secondary" noWrap>
+                                                                            {format(video.createdAt, 'MMMM dd yyyy')}
+                                                                        </Typography> */}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                            variant="body1"
+                                                                            fontWeight="bold"
+                                                                            color="text.primary"
+                                                                            gutterBottom
+                                                                            noWrap
+                                                                        >
+                                                                            {video._id}
+                                                                        </Typography>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                            variant="body1"
+                                                                            fontWeight="bold"
+                                                                            color="text.primary"
+                                                                            gutterBottom
+                                                                            noWrap
+                                                                        >
+                                                                            {video.tattooCategoryDetails[0].title}
+                                                                        </Typography>
+                                                                        {/* <Typography variant="body2" color="text.secondary" noWrap>
+                                                                            {video.sourceDesc}
+                                                                        </Typography> */}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        <Typography
+                                                                            variant="body1"
+                                                                            fontWeight="bold"
+                                                                            color="text.primary"
+                                                                            gutterBottom
+                                                                            noWrap
+                                                                        >
+                                                                            {video.views}
+                                                                        </Typography>
+                                                            
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {getStatusLabel(video.isPublished)}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {getVideoPrivacyLabel(video.videoPreviewStatus)}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        <Tooltip title="Edit Video Details" arrow>
+                                                                            <IconButton
+                                                                                sx={{
+                                                                                    '&:hover': {
+                                                                                        background: theme.colors.primary.lighter
+                                                                                    },
+                                                                                    color: theme.palette.primary.main
+                                                                                }}
+                                                                                color="inherit"
+                                                                                size="small"
+                                                                                onClick={()=>{handleClickOpen('videoEdit', video)}}
+                                                                            >
+                                                                                <EditTwoToneIcon fontSize="small" />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                        <Tooltip title="Delete Video" arrow>
+                                                                            <IconButton
+                                                                                sx={{
+                                                                                    '&:hover': { background: theme.colors.error.lighter },
+                                                                                    color: theme.palette.error.main
+                                                                                }}
+                                                                                color="inherit"
+                                                                                size="small"
+                                                                                onClick={()=>{handleClickOpen('videoDelete', video)}}
+                                                                            >
+                                                                                <DeleteTwoToneIcon fontSize="small" />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                            <Box p={2}>
+                                                <TablePagination
+                                                    component="div"
+                                                    count={filteredVideoList.length}
+                                                    onPageChange={handlePageChange}
+                                                    onRowsPerPageChange={handleLimitChange}
+                                                    page={page}
+                                                    rowsPerPage={limit}
+                                                    rowsPerPageOptions={[1,2,3,4,5, 10, 25, 30]}
+                                                />
+                                            </Box>
+                                        </Card>
+                                    </Grid>
+                                    
+                {/* ---------------------------------------Video Delete box---------------------------------- */}
+                                    <Dialog open={openDeleteDialog} onClose={()=>handleClose('videoDelete')}>
+                                        <DialogTitle>Delete Video Details</DialogTitle>
+                                        <DialogContent>
+                                            <DialogContentText>
+                                                Are you sure? You want delete this video. If you want to delete this video type delete in input box.
+                                            </DialogContentText>
+                                            <TextField
+                                                autoFocus
+                                                margin="dense"
+                                                id="delete-text"
+                                                label="Delete"
+                                                type="text"
+                                                fullWidth
+                                                variant="standard"
+                                            />
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={()=>handleClose('videoDelete')}>Cancel</Button>
+                                            <Button >Delete</Button>
+                                        </DialogActions>
+                                    </Dialog>
 
-    {/* ---------------------------------------Video Delete box---------------------------------- */}
-                        <Dialog open={openDeleteDialog} onClose={()=>handleClose('videoDelete')}>
-                            <DialogTitle>Delete Video Details</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText>
-                                    Are you sure? You want delete this video. If you want to delete this video type delete in input box.
-                                </DialogContentText>
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="delete-text"
-                                    label="Delete"
-                                    type="text"
-                                    fullWidth
-                                    variant="standard"
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={()=>handleClose('videoDelete')}>Cancel</Button>
-                                <Button >Delete</Button>
-                            </DialogActions>
-                        </Dialog>
+                    {/* ---------------------------------------Video edit box---------------------------------- */}
+                                    {/* <Dialog open={openVideoEditDialog} onClose={()=>handleClose('videoEdit')}>
+                                        <DialogTitle>Edit Video Details</DialogTitle>
+                                        <DialogContent>
+                                            <TextField
+                                                autoFocus
+                                                margin="dense"
+                                                id="title"
+                                                label="Video Title"
+                                                type="text"
+                                                fullWidth
+                                                variant="standard"
+                                            />
+                                            <TextField
+                                                autoFocus
+                                                margin="dense"
+                                                id="description"
+                                                label="Video description"
+                                                type="text"
+                                                fullWidth
+                                                variant="standard"
+                                            />
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={()=>handleClose('videoEdit')}>Cancel</Button>
+                                            <Button >Update</Button>
+                                        </DialogActions>
+                                    </Dialog> */}
 
-                    </Container >
+                                </Container >
+                            </>
+                        :
+                            (userData && selectedRowVideoDetails && tattooCategoryList && tagList) ? <VideoEditCard userData={userData} videoDetail={selectedRowVideoDetails} tattooCategoryList={tattooCategoryList} tagData={tagList}/> : null
+                    }
                     <Footer />
                 </SidebarLayout>
             : null}
