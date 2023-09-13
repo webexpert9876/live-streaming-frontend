@@ -490,6 +490,21 @@ const Video = () => {
         setIsVideoEditing(true);
     }
 
+    const handleListVideoUpdate = (id, videoData)=>{
+          
+        const updatedArray = allVideoDetails.map(obj => {
+            if (obj._id === id) {
+            //   return { ...obj, ...videoData }; 
+                return { ...videoData }; 
+            }
+            return obj; // Keep other objects unchanged
+        });
+        
+        setAllVideoDetails(updatedArray)
+        let selectedVideo = updatedArray.slice(page * limit, page * limit + limit);
+        setShowAllVideoDetails(selectedVideo);
+    }
+
     const theme = useTheme();
 
     // console.log(video)
@@ -742,6 +757,7 @@ const Video = () => {
                                     tattooCategoryList={tattooCategoryList} 
                                     tagData={tagList}
                                     cancelBtnFunction={handleCancelBtnFunction}
+                                    videoUpdateFunction={handleListVideoUpdate}
                                 /> 
                                 : null
                     }

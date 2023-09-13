@@ -40,6 +40,7 @@ function PageHeader() {
                     sx={{ mt: { xs: 2, md: 0 } }}
                     variant="contained"
                     startIcon={<AddTwoToneIcon fontSize="small" />}
+                    onClick={()=>{nextRouter.push('/management/video/add')}}
                 >
                     Add video
                 </Button>
