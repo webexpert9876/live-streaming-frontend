@@ -65,32 +65,34 @@ export default function ChannelName(props) {
     
     // console.log('currentBroadcast', currentBroadcast)
     React.useEffect(()=>{
-        client.query({
-            variables: {
-                // videoId: '649e6a81509b35397cc26534', use this not found
-                videoId: currentBroadcast.videoId,
-            },
-            query: gql`
-                query Query($videoId: String!) {
-                    chatMessages(videoId: $videoId) {
-                        userDetail {
-                            firstName
-                            lastName
-                            _id
+        if(currentBroadcast){
+            client.query({
+                variables: {
+                    // videoId: '649e6a81509b35397cc26534', use this not found
+                    videoId: currentBroadcast.videoId,
+                },
+                query: gql`
+                    query Query($videoId: String!) {
+                        chatMessages(videoId: $videoId) {
+                            userDetail {
+                                firstName
+                                lastName
+                                _id
+                            }
+                            message
+                            videoId
+                            hours
+                            mins
                         }
-                        message
-                        videoId
-                        hours
-                        mins
+    
                     }
-
-                }
-            `,
-        })
-        .then((result) => {
-            // console.log('result', result)
-            setOldReceivedMessages(result.data.chatMessages)
-        });
+                `,
+            })
+            .then((result) => {
+                // console.log('result', result)
+                setOldReceivedMessages(result.data.chatMessages)
+            });
+        }
     }, [])
 
     useEffect( ()=>{
