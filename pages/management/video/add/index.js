@@ -112,6 +112,17 @@ const Video = () => {
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
 
+//   ------------------------file error message-----------------------------
+  const [openVideoError, setOpenVideoError] = useState(false);
+  const [videoErrorMessage, setVideoErrorMessage] = useState('Please enter video file.');
+  const [openImageError, setOpenImageError] = useState(false);
+  const [imageErrorMessage, setImageErrorMessage] = useState('Please enter image file.');
+
+  const [openTitleError, setOpenTitleError] = useState(false)
+  const [titleErrorMessage, setTitleErrorMessage] = useState('Video title is required')
+  const [openDescriptionError, setOpenDescriptionError] = useState(false)
+  const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('Video description is required')
+
   useEffect(()=>{
 
     let userId = JSON.parse(localStorage.getItem('authUser'));
@@ -267,11 +278,6 @@ const Video = () => {
                 setIsAddingVideo(false)
                 setLoading(false);
             });
-
-            setTimeout(()=>{
-                setIsAddingVideo(false)
-                setLoading(false);
-            }, 2000)
             
         }
     },[isAddingVideo])
@@ -286,39 +292,88 @@ const Video = () => {
         console.log('delete', i)
         console.log('delete', tags)
         setTags(tags.filter((tag, index) => index !== i));
-      };
-    
-      const handleAddition = tag => {
-        console.log('add', tag)
-        setTags([...tags, tag]);
-      };
-    
-      const handleDrag = (tag, currPos, newPos) => {
-        const newTags = tags.slice();
-    
-        newTags.splice(currPos, 1);
-        newTags.splice(newPos, 0, tag);
-    
-        // re-render
-        setTags(newTags);
-      };
-    
-      const handleTagClick = index => {
-        console.log('tag click', index)
-        console.log('The tag at index ' + index + ' was clicked');
-      };
+    };
+
+    const handleAddition = tag => {
+    console.log('add', tag)
+    setTags([...tags, tag]);
+    };
+
+    const handleDrag = (tag, currPos, newPos) => {
+    const newTags = tags.slice();
+
+    newTags.splice(currPos, 1);
+    newTags.splice(newPos, 0, tag);
+
+    // re-render
+    setTags(newTags);
+    };
+
+    const handleTagClick = index => {
+    console.log('tag click', index)
+    console.log('The tag at index ' + index + ' was clicked');
+    };
 
     const handleFormChange = (e)=>{
-        setVideoInput((prevState)=>({
-            ...prevState,
-            [e.target.name]: e.target.value
-        }))
+
+        if(e.target.name == 'title'){
+            console.log('e.target.value', e.target.value)
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenTitleError(false)
+            } else {
+                
+                setOpenTitleError(true)
+                // setTitleErrorMessage('Video title is required');
+            }
+        } else if(e.target.name == 'description'){
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenDescriptionError(false)
+            } else {
+                setOpenDescriptionError(true)
+                // setDescriptionErrorMessage('Video description is required');
+            }
+        }
+        // setVideoInput((prevState)=>({
+        //     ...prevState,
+        //     [e.target.name]: e.target.value
+        // }))
     }
 
     const handleFormSubmit = (e)=>{
         e.preventDefault();
-        setIsAddingVideo(true)
-        setLoading(true);
+        // setIsAddingVideo(true)
+            // setLoading(true);
+        // if(videoInput.title && videoInput.description && videoInput.tattooCategoryId && videoInput.isPublished && videoInput.videoPreviewStatus ){
+        if(!videoInput.title){
+            setOpenTitleError(true)    
+            console.log('all detail filled')
+
+        } 
+        if(!videoInput.description){
+            setOpenDescriptionError(true)
+        }
+        if(selectedPreviewPic){
+            setOpenImageError(true)
+        }
+         if(selectedVideo){
+            setOpenVideoError(true)
+        }
+        //  else {
+        //     console.log('all detail not filled')
+        //     // setApiMessageType('error')
+        //     // setApiResponseMessage('Please enter all the details.');
+        //     // setOpen(true);
+        // }
     }
 
     const handleSlider = (event, value) => {
@@ -329,6 +384,8 @@ const Video = () => {
     };
 
     const handleCancel = () => {
+        setOpenImageError(true);
+        setImageErrorMessage('Please enter image file.');
         setPicture({
             ...picture,
             cropperOpen: false
@@ -341,63 +398,82 @@ const Video = () => {
     };
 
     const handleSave = async (e) => {
-    if (setEditorRef) {
-        const canvasScaled = editor.getImageScaledToCanvas();
-        const croppedImg = canvasScaled.toDataURL();
-        
-        setPicture({
-            ...picture,
-            img: null,
-            cropperOpen: false,
-            croppedImg: croppedImg
-        });
-        setHideAvatarImage(false);
-        setUserUploadedImage(croppedImg);
+        if (setEditorRef) {
+            const canvasScaled = editor.getImageScaledToCanvas();
+            const croppedImg = canvasScaled.toDataURL();
+            
+            setPicture({
+                ...picture,
+                img: null,
+                cropperOpen: false,
+                croppedImg: croppedImg
+            });
+            setHideAvatarImage(false);
+            setUserUploadedImage(croppedImg);
 
-        const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
+            const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
 
-        let imageUniqueName = `${uuidv4()}.png`
-        
-        let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
+            let imageUniqueName = `${uuidv4()}.png`
+            
+            let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
 
-        setSelectedPreviewPic(newFile);
-    }
+            setSelectedPreviewPic(newFile);
+        }
     };
 
     const handleFileChange = (e) => {
-        setHideAvatarImage(true);
-        let url = URL.createObjectURL(e.target.files[0]);
-        setPreviewPicOriginalFile(e.target.files[0]);
-        // setUserUploadedImage(url);
-        setPicture({
-            ...picture,
-            img: url,
-            cropperOpen: true
-        });
+
+        if(e.target.files[0] == undefined ){
+            setOpenImageError(true);
+            // setImageErrorMessage('Please enter image file.');
+        } else if ( !e.target.files[0] || e.target.files[0].type.indexOf("image") !== -1) {
+            setHideAvatarImage(true);
+            let url = URL.createObjectURL(e.target.files[0]);
+            setPreviewPicOriginalFile(e.target.files[0]);
+            // setUserUploadedImage(url);
+            setPicture({
+                ...picture,
+                img: url,
+                cropperOpen: true
+            });
+            setOpenImageError(false);
+        } else {
+            setOpenImageError(true);
+            // setImageErrorMessage('Unexpected file type. Please enter only image file.');
+        }
     };
     
     const handleVideoFileChange = (e) => {
         
         console.log('e.target.files[0]', e.target.files[0])
-        setSelectedVideo(e.target.files[0])
-        // if(e.target.files[0].mimetype.match(/^image/)){
-            
-        //     console.log('image-----------------------------------------------------', e.target.files[0])
-        // } else {
-            
-        //     console.log('video-----------------------------------------------------', e.target.files[0])
-        // }
-
-        // setHideAvatarImage(true);
-        // let url = URL.createObjectURL(e.target.files[0]);
-        // setPreviewPicOriginalFile(e.target.files[0]);
-        // // setUserUploadedImage(url);
-        // setPicture({
-        //     ...picture,
-        //     img: url,
-        //     cropperOpen: true
-        // });
+        if(e.target.files[0] == undefined ){
+            setOpenVideoError(true)
+            // setVideoErrorMessage('Please enter video file.');
+        } else if (!e.target.files[0] || e.target.files[0].type.indexOf("video") !== -1) {
+            setSelectedVideo(e.target.files[0])
+            setOpenVideoError(false)
+        } else {
+            console.log('cancel image ')
+            setOpenVideoError(true)
+            // setVideoErrorMessage('Unexpected file type. Please enter only video file.');
+        }
+      
+        // prepareFileUpload(files[0]);
+        
+        // setSelectedVideo(e.target.files[0])
+        
     };
+
+    // const checkIsVideo = (file)=> {
+    //     if (file.type.indexOf("video") !== -1) {
+    //         setSelectedVideo(e.target.files[0])
+    //         return "video";
+    //     }
+
+    //     setApiMessageType('error')
+    //     setApiResponseMessage('Unexpected file type. Please enter only video file.');
+    //     setOpen(true);
+    // };
 
     const handleMessageBoxClose = () => {
         setOpen(false);
@@ -471,18 +547,23 @@ const Video = () => {
                                                 <Grid item xs={12} sm={8} md={9}>
                                                     <Text color="black">
                                                         <TextField
-                                                        autoFocus
-                                                        margin="dense"
-                                                        id="title"
-                                                        type="text"
-                                                        fullWidth
-                                                        variant="standard"
-                                                        name='title'
-                                                        value={videoInput.title}
-                                                        onChange={handleFormChange}
-                                                        required
+                                                            autoFocus
+                                                            margin="dense"
+                                                            id="title"
+                                                            type="text"
+                                                            fullWidth
+                                                            variant="standard"
+                                                            name='title'
+                                                            value={videoInput.title}
+                                                            onChange={handleFormChange}
+                                                            required
+                                                            error={openTitleError}
+                                                            helperText={openTitleError?titleErrorMessage:null}
                                                         />
                                                     </Text>
+                                                    {/* {openTitleError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                            {titleErrorMessage}
+                                                    </Box>: null} */}
                                                 </Grid>
                                                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                                     <Box mt={1} pr={3} pb={2}>
@@ -503,8 +584,13 @@ const Video = () => {
                                                             value={videoInput.description}
                                                             onChange={handleFormChange}
                                                             required
+                                                            error={openDescriptionError}
+                                                            helperText={openDescriptionError?descriptionErrorMessage:null}
                                                         />
                                                     </Typography>
+                                                    {/* {openDescriptionError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                        {descriptionErrorMessage}
+                                                    </Box>: null} */}
                                                 </Grid>
                                                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                                     <Box mt={2} pr={3} pb={2}>
@@ -616,6 +702,9 @@ const Video = () => {
                                                             <input type="file" accept="video/*" onChange={handleVideoFileChange} />
                                                         </Button>
                                                     </Box>
+                                                    {openVideoError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                        {videoErrorMessage}
+                                                    </Box>: null}
                                                 </Grid>
                                                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                                     <Box pr={3} pb={2}>
@@ -679,6 +768,9 @@ const Video = () => {
                                                             <input type="file" accept="image/*" onChange={handleFileChange} />
                                                         </Button>
                                                     </Box>
+                                                    {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                        {imageErrorMessage}
+                                                    </Box>: null}
                                                 </Grid>
                                             </Grid>
                                         </Typography>
@@ -698,7 +790,7 @@ const Video = () => {
                             vertical: 'bottom',
                             horizontal: 'right',
                         }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
-                        <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                        <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
                             {apiResponseMessage}
                         </Alert>
                         </Snackbar>
