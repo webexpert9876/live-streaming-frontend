@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Grid, Container } from '@mui/material';
 import {
     Tooltip,
+    IconButton,
     Divider,
     Box,
     FormControl,
@@ -21,6 +22,7 @@ import {
     Slider,
     Alert
 } from '@mui/material';
+import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -43,7 +45,7 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, cancelBtnFunction}){
+function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, cancelBtnFunction, videoUpdateFunction}){
     const [videoInput, setVideoInput] = useState({
         title: '',
         description: '',
@@ -155,11 +157,14 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
             });
 
             axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+                console.log('data.data updated data', data.data);
+                let videoNewInfo = data.data.videoData;
 
                 setApiMessageType('success')
                 setApiResponseMessage('Video detail update successfully');
                 setIsUpdatingVideoInfo(false);
-                // setStreamInfo(data.data.streamData);
+                setVideoDetails(videoNewInfo);
+                videoUpdateFunction(videoNewInfo._id, videoNewInfo)
                 setLoading(false);
                 handleMessageBoxOpen()
             }).catch((error)=>{
@@ -271,38 +276,46 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
 
     return(
         <>
-            <Container maxWidth="lg">
+            <Container maxWidth="lg" >
                 <Grid
                     container
                     direction="row"
                     justifyContent="center"
                     alignItems="stretch"
                     spacing={3}
+                    mt={3}
                 >
-                    <Grid item xs={12}></Grid>
+                    {/* <Grid item xs={12}></Grid> */}
                     <Card style={{width: "97%"}}>
-                        <CardHeader
-                            // action={
-                            //     <Box width={150}>
-                            //         <FormControl fullWidth variant="outlined">
-                            //             <InputLabel>Status</InputLabel>
-                            //             <Select
-                            //                 value={filters.status || 'all'}
-                            //                 onChange={handleStatusChange}
-                            //                 label="Status"
-                            //                 autoWidth
-                            //             >
-                            //                 {statusOptions.map((statusOption) => (
-                            //                     <MenuItem key={statusOption.id} value={statusOption.id}>
-                            //                         {statusOption.name}
-                            //                     </MenuItem>
-                            //                 ))}
-                            //             </Select>
-                            //         </FormControl>
-                            //     </Box>
-                            // }
-                            title="Edit Videos"
-                        />
+                        <Box sx={{display: 'flex'}}>
+                            <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={cancelBtnFunction}>
+                                <IconButton color="primary" sx={{ p: 2 }}>
+                                    <ArrowBackTwoToneIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <CardHeader
+                                // action={
+                                //     <Box width={150}>
+                                //         <FormControl fullWidth variant="outlined">
+                                //             <InputLabel>Status</InputLabel>
+                                //             <Select
+                                //                 value={filters.status || 'all'}
+                                //                 onChange={handleStatusChange}
+                                //                 label="Status"
+                                //                 autoWidth
+                                //             >
+                                //                 {statusOptions.map((statusOption) => (
+                                //                     <MenuItem key={statusOption.id} value={statusOption.id}>
+                                //                         {statusOption.name}
+                                //                     </MenuItem>
+                                //                 ))}
+                                //             </Select>
+                                //         </FormControl>
+                                //     </Box>
+                                // }
+                                title="Edit Videos"
+                            />
+                        </Box>
                         <Divider />
                         <Box>
                         <CardContent sx={{ p: 4 }}>
@@ -426,32 +439,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                        <Box mt={1} pr={3} pb={2}>
-                                            Tattoo Category:
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={8} md={9}>
-                                        <Typography width={250} mt={1.5} color="black">
-                                            <FormControl fullWidth>
-                                            {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                                Select Stream Tattoo Category
-                                            </InputLabel> */}
-                                                <NativeSelect
-                                                    defaultValue={videoDetail.tattooCategoryId}
-                                                    onChange={handleFormChange}
-                                                    inputProps={{
-                                                        name: 'tattooCategoryId',
-                                                        id: 'uncontrolled-native',
-                                                    }}
-                                                >
-                                                    {tattooCategoryList.map((category)=>(
-                                                        <option key={category._id} value={category._id}>{category.title}</option>
-                                                    ))}
-                                                </NativeSelect>
-                                            </FormControl>
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                         <Box mt={2} pr={3} pb={2}>
                                             Tags:
                                         </Box>
@@ -474,57 +461,88 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                             </Box>
                                         </Text>
                                     </Grid>
-                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                        <Box mt={2} pr={3} pb={2}>
-                                            Video status:
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={8} md={9}>
-                                        <Typography width={250} mt={1.5} color="black">
-                                            <FormControl fullWidth>
-                                            {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                                Select Stream Tattoo Category
-                                            </InputLabel> */}
-                                                <NativeSelect
-                                                    defaultValue={videoDetail.isPublished}
-                                                    onChange={handleFormChange}
-                                                    inputProps={{
-                                                        name: 'isPublished',
-                                                        id: 'uncontrolled-native',
-                                                    }}
-                                                >
-                                                    <option key={1} value={true}>Publish</option>
-                                                    <option key={2} value={false}>Draft</option>
-                                                </NativeSelect>
-                                            </FormControl>
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                        <Box mt={2} pr={3} pb={2}>
-                                            Video Privacy:
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={8} md={9}>
-                                        <Typography width={250} mt={1.5} color="black">
-                                            <FormControl fullWidth>
-                                            {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                                Select Stream Tattoo Category
-                                            </InputLabel> */}
-                                                <NativeSelect
-                                                    defaultValue={videoDetail.videoPreviewStatus}
-                                                    onChange={handleFormChange}
-                                                    inputProps={{
-                                                        name: 'videoPreviewStatus',
-                                                        id: 'uncontrolled-native',
-                                                    }}
-                                                >
-                                                    <option key={1} value={'public'}>Public</option>
-                                                    <option key={2} value={'private'}>Private</option>
-                                                    <option key={3} value={'subscriber'}>Subscriber</option>
-                                                </NativeSelect>
-                                            </FormControl>
-                                        </Typography>
-                                    </Grid>
+                                    {Object.keys(videoDetails).length>0?
+                                        <>
+                                            <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                <Box mt={1} pr={3} pb={2}>
+                                                    Tattoo Category:
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={12} sm={8} md={9}>
+                                                <Typography width={250} mt={1.5} color="black">
+                                                    <FormControl fullWidth>
+                                                    {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                                        Select Stream Tattoo Category
+                                                    </InputLabel> */}
+                                                        <NativeSelect
+                                                            defaultValue={videoDetails.tattooCategoryId}
+                                                            onChange={handleFormChange}
+                                                            inputProps={{
+                                                                name: 'tattooCategoryId',
+                                                                id: 'uncontrolled-native',
+                                                            }}
+                                                        >
+                                                            {tattooCategoryList.map((category)=>(
+                                                                <option key={category._id} value={category._id}>{category.title}</option>
+                                                            ))}
+                                                        </NativeSelect>
+                                                    </FormControl>
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                <Box mt={2} pr={3} pb={2}>
+                                                    Video status:
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={12} sm={8} md={9}>
+                                                <Typography width={250} mt={1.5} color="black">
+                                                    <FormControl fullWidth>
+                                                    {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                                        Select Stream Tattoo Category
+                                                    </InputLabel> */}
+                                                        <NativeSelect
+                                                            defaultValue={videoDetails.isPublished}
+                                                            onChange={handleFormChange}
+                                                            inputProps={{
+                                                                name: 'isPublished',
+                                                                id: 'uncontrolled-native',
+                                                            }}
+                                                        >
+                                                            <option key={1} value={true}>Publish</option>
+                                                            <option key={2} value={false}>Draft</option>
+                                                        </NativeSelect>
+                                                    </FormControl>
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                <Box mt={2} pr={3} pb={2}>
+                                                    Video Privacy:
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={12} sm={8} md={9}>
+                                                <Typography width={250} mt={1.5} color="black">
+                                                    <FormControl fullWidth>
+                                                    {/* <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                                        Select Stream Tattoo Category
+                                                    </InputLabel> */}
+                                                        <NativeSelect
+                                                            defaultValue={videoDetails.videoPreviewStatus}
+                                                            onChange={handleFormChange}
+                                                            inputProps={{
+                                                                name: 'videoPreviewStatus',
+                                                                id: 'uncontrolled-native',
+                                                            }}
+                                                        >
+                                                            <option key={1} value={'public'}>Public</option>
+                                                            <option key={2} value={'private'}>Private</option>
+                                                            <option key={3} value={'subscriber'}>Subscriber</option>
+                                                        </NativeSelect>
+                                                    </FormControl>
+                                                </Typography>
+                                            </Grid>
+
+                                        </>
+                                    :null}
                                 </Grid>
                             </Typography>
                             <Typography sx={{textAlign: 'end'}}>
@@ -543,7 +561,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                     vertical: 'bottom',
                     horizontal: 'right',
                 }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
-                <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
                     {apiResponseMessage}
                 </Alert>
                 </Snackbar>

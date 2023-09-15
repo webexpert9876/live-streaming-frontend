@@ -65,32 +65,34 @@ export default function ChannelName(props) {
     
     // console.log('currentBroadcast', currentBroadcast)
     React.useEffect(()=>{
-        client.query({
-            variables: {
-                // videoId: '649e6a81509b35397cc26534', use this not found
-                videoId: currentBroadcast.videoId,
-            },
-            query: gql`
-                query Query($videoId: String!) {
-                    chatMessages(videoId: $videoId) {
-                        userDetail {
-                            firstName
-                            lastName
-                            _id
+        if(currentBroadcast){
+            client.query({
+                variables: {
+                    // videoId: '649e6a81509b35397cc26534', use this not found
+                    videoId: currentBroadcast.videoId,
+                },
+                query: gql`
+                    query Query($videoId: String!) {
+                        chatMessages(videoId: $videoId) {
+                            userDetail {
+                                firstName
+                                lastName
+                                _id
+                            }
+                            message
+                            videoId
+                            hours
+                            mins
                         }
-                        message
-                        videoId
-                        hours
-                        mins
+    
                     }
-
-                }
-            `,
-        })
-        .then((result) => {
-            // console.log('result', result)
-            setOldReceivedMessages(result.data.chatMessages)
-        });
+                `,
+            })
+            .then((result) => {
+                // console.log('result', result)
+                setOldReceivedMessages(result.data.chatMessages)
+            });
+        }
     }, [])
 
     useEffect( ()=>{
@@ -260,7 +262,7 @@ export default function ChannelName(props) {
                                 className: 'online-video',
                                 sources: [{
                                     // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                    src: `${process.env.NEXT_PUBLIC_S3_video_URL}/${currentBroadcast.streamUrl}`,
+                                    src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${currentBroadcast.streamUrl}`,
                                     type: 'application/x-mpegURL'
                                 }]
                             }} onReady={handlePlayerReady} />

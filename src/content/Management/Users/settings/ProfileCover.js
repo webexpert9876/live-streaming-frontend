@@ -370,7 +370,7 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
             vertical: 'bottom',
             horizontal: 'right',
           }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
-          <Alert onClose={handleMessageBoxClose} severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+          <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
             {apiResponseMessage}
           </Alert>
         </Snackbar>
