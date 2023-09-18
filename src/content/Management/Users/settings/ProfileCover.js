@@ -100,7 +100,7 @@ const Alert = forwardRef(function Alert(props, ref) {
 });
 
 const ProfileCover = ({ userInfo, channelInfo }) => {
-  console.log('channelInfo', channelInfo)
+  // console.log('channelInfo', channelInfo)
   // console.log('channelTotalFollowers', channelTotalFollowers)
   const [userData, setUserData] = useState({});
   const [channelData, setChannelData] = useState({});
@@ -152,7 +152,7 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
       formData.append('channelCoverImage', selectedChannelCoverPic);
 
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/channel/cover-image/${channelInfo._id}`, formData, {headers: {'x-access-token': userData.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        console.log(data)
+        // console.log(data)
         setApiMessageType('success')
         setApiResponseMessage('Channel cover image uploaded successfully');
         setChannelData(data.data.channelData);
@@ -257,8 +257,8 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
 
   return (
     <>
-      <CardCover>
-        {Object.keys(channelData).length > 0 ?<CardMedia image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelData.channelCoverImage}`} />: null}
+      <CardCover >
+        {Object.keys(channelData).length > 0 ?<CardMedia sx={{height: '400px !important'}} image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelData.channelCoverImage}`} />: null}
         <CardCoverAction>
           {/* <Input accept="image/*" id="change-cover" multiple type="file" /> */}
           {/* <label htmlFor="change-cover"> */}
@@ -303,15 +303,15 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
               :
                 <Typography sx={{marginTop: '10px'}}>
                   {userUploadedImage?
-                    <img style={{width: '150px', height: '150px'}} src={userUploadedImage}/> 
+                    <img style={{width: '550px', height: '300px'}} src={userUploadedImage}/> 
                   :
                     userCoverImage? 
-                      <img style={{width: '150px', height: '150px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userCoverImage}`}/> 
+                      <img style={{width: '550px', height: '300px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userCoverImage}`}/> 
                     : 
                       <Avatar
                       variant='rounded'
                       src={picture.croppedImg}
-                      sx={{ width: 500, height: 500, padding: "5" }}
+                      sx={{ width: 550, height: 300, padding: "5" }}
                     />
                   }
                 </Typography>
@@ -325,12 +325,13 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
                   <AvatarEditor
                     ref={setEditorRef}
                     image={picture.img}
-                    width={800}
-                    height={400}
+                    width={1600}
+                    height={500}
                     border={50}
                     color={[255, 255, 255, 0.6]} // RGBA
                     rotate={0}
                     scale={picture.zoom}
+                    style={{width: '550px', height: '300px'}}
                   />
                   <Slider
                     aria-label="raceSlider"

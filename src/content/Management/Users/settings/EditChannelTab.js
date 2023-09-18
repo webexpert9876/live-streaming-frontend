@@ -84,6 +84,9 @@ function EditChannelTab(props) {
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
 
+  const [openChannelNameError, setOpenChannelNameError] = useState(false)
+  const [channelNameErrorMessage, setChannelNameErrorMessage] = useState('channel name is required')
+
   const handleMessageBoxClose = () => {
     setOpen(false);
     setApiResponseMessage('');
@@ -157,11 +160,12 @@ function EditChannelTab(props) {
       }
 
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/channel/${channelInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        console.log('data', data.data);
+        // console.log('data', data.data);
         setChannelDetailSubmit(false)
         // let userData = data.data.user
         setApiMessageType('success')
         setApiResponseMessage('Channel information updated successfully');
+        
         setLoading(false);
         handleClose('profile');
         setChannelProfilePic(data.data.channelData.channelPicture);
@@ -280,10 +284,24 @@ function EditChannelTab(props) {
   };
 
   const handleFormChange = (e)=>{
+    if(e.target.name == 'channelName'){
+      setChannelProfileInput((prevState)=>({
+        ...prevState,
+        [e.target.name]: e.target.value
+      }))
+
+      if(e.target.value){
+          setOpenChannelNameError(false)
+      } else {
+        setOpenChannelNameError(true)
+          // setDescriptionErrorMessage('Video description is required');
+      }
+  } else {
     setChannelProfileInput((prevState)=>({
       ...prevState,
       [e.target.name]: e.target.value
     }))
+  }
     setErrorMessage('')
   }
 
@@ -329,8 +347,12 @@ function EditChannelTab(props) {
 
   const handleFormSubmit = (e)=>{
     e.preventDefault();
-    setChannelDetailSubmit(true);
-    setLoading(true)
+    if(!channelProfileInput.channelName){
+      setOpenChannelNameError(true)
+    } else {
+      setChannelDetailSubmit(true);
+      setLoading(true)
+    }
     // handleClose('profile');
   }
 
@@ -377,6 +399,8 @@ function EditChannelTab(props) {
                     value={channelProfileInput.channelName}
                     onChange={handleFormChange}
                     required
+                    error={openChannelNameError}
+                    helperText={openChannelNameError?channelNameErrorMessage:null}
                   />
                   <TextField
                     autoFocus

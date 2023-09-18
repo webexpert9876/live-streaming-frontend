@@ -33,7 +33,8 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    TextField
+    TextField,
+    Alert
 } from '@mui/material';
 
 import Label from 'src/components/Label';
@@ -48,6 +49,8 @@ import client from "../../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
 import VideoEditCard from "../../../src/components/VideoEdit/VideoEditCard";
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
 
 const getStatusLabel = (videoStatus) => {
     let map = {
@@ -140,17 +143,27 @@ const Video = () => {
   const [tagList, setTagList] = useState([]);
 
   const [isVideoPrivacyChange, setIsVideoPrivacyChange] = useState(false);
+
+  const [isDeletingVideo, setIsDeletingVideo] = useState(false);
+  const [deleteInputValue, setDeleteInputValue] = useState('');
+
+  // -------------------------Error state------------------------
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [apiMessageType, setApiMessageType] = useState('');
   
   const handleClickOpen = (dialogType, video) => {
     switch(dialogType){
         case 'videoEdit':
             // setOpenVideoEditDialog(true);
             // router.push({pathname: '/components/videos/edit'})
-            console.log('selected row video', video)
+            // console.log('selected row video', video)
             setSelectedRowVideoDetails(video)
             setIsVideoEditing(false)
             break;
         case 'videoDelete':
+            setSelectedRowVideoDetails(video)
             setOpenVideoDeleteDialog(true);
             break;
     }
@@ -266,7 +279,7 @@ const Video = () => {
             }
         `,
       }).then((result) => {
-          console.log('video page result', result.data)
+        //   console.log('video page result', result.data)
           setUserData(result.data.users);
           setAllVideoDetails(result.data.videos);
           setShowAllVideoDetails(result.data.videos);
@@ -337,6 +350,52 @@ const Video = () => {
         setIsVideoPrivacyChange(false)
     }
   },[isVideoPrivacyChange])
+  
+  useEffect(()=>{
+    if(isDeletingVideo){
+
+        // console.log('selectedRowVideoDetails', selectedRowVideoDetails);
+
+        axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/delete/video/${selectedRowVideoDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+            // console.log('delete data ', data)
+            setApiMessageType('success')
+            setApiResponseMessage('Video deleted successfully');
+            removeVideoFromList(selectedRowVideoDetails._id)
+            setIsDeletingVideo(false);
+            setLoading(false);
+            handleMessageBoxOpen()
+        }).catch((error)=>{
+            console.log('error', error);
+            setApiMessageType('error')
+            const errorMessage = error.response.data.message;
+            
+            handleMessageBoxOpen()
+            setApiResponseMessage(errorMessage);
+            setIsDeletingVideo(false)
+            setLoading(false);
+        });
+
+    }
+  },[isDeletingVideo])
+
+    const handleMessageBoxClose = () => {
+        setOpen(false);
+        setApiResponseMessage('');
+        setApiMessageType('')
+    };
+    const handleMessageBoxOpen = () => {
+        setOpen(true);
+    };
+
+    const removeVideoFromList = (id)=>{
+        
+        const updatedArray  = allVideoDetails.filter(obj => obj._id !== id);
+        
+        setAllVideoDetails(updatedArray)
+        let selectedVideo = updatedArray.slice(page * limit, page * limit + limit);
+
+        setShowAllVideoDetails(selectedVideo);
+    }
 
     const statusOptions = [
         {
@@ -508,6 +567,13 @@ const Video = () => {
     const theme = useTheme();
 
     // console.log(video)
+
+    const handleDeleteVideo= ()=>{
+        if(deleteInputValue.toLowerCase() == 'delete'){
+            setIsDeletingVideo(true)
+            handleClose('videoDelete')
+        }
+    }
 
     return (
         <>
@@ -684,7 +750,7 @@ const Video = () => {
                                             <Box p={2}>
                                                 <TablePagination
                                                     component="div"
-                                                    count={filteredVideoList.length}
+                                                    count={allVideoDetails.length}
                                                     onPageChange={handlePageChange}
                                                     onRowsPerPageChange={handleLimitChange}
                                                     page={page}
@@ -710,11 +776,13 @@ const Video = () => {
                                                 type="text"
                                                 fullWidth
                                                 variant="standard"
+                                                value={deleteInputValue}
+                                                onChange={(e)=>{setDeleteInputValue(e.target.value)}}
                                             />
                                         </DialogContent>
                                         <DialogActions>
                                             <Button onClick={()=>handleClose('videoDelete')}>Cancel</Button>
-                                            <Button >Delete</Button>
+                                            <Button onClick={handleDeleteVideo}>Delete</Button>
                                         </DialogActions>
                                     </Dialog>
 
@@ -761,6 +829,20 @@ const Video = () => {
                                 /> 
                                 : null
                     }
+
+                {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+                    <Stack spacing={2} sx={{ width: '100%' }}>
+                        <Snackbar anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                        }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+                        <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                            {apiResponseMessage}
+                        </Alert>
+                        </Snackbar>
+                    </Stack>
+
+
                     <Footer />
                 </SidebarLayout>
             : null}

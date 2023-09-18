@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import {
   Box,
   Typography,
@@ -38,6 +38,9 @@ import { format, subHours, subWeeks, subDays } from 'date-fns';
 import axios from 'axios';
 import { setAuthUser, selectAuthUser, selectAuthState } from '../../../../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const ButtonError = styled(Button)(
   ({ theme }) => `
@@ -65,6 +68,10 @@ const AvatarWrapper = styled(Avatar)(
 `
 );
 
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 function SecurityTab({userData}) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -82,7 +89,17 @@ function SecurityTab({userData}) {
     confirmPassword: ''
   })
   const [isPasswordChange, setIsPasswordChange] = useState(false);
-
+  
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
+  const [apiMessageType, setApiMessageType] = useState('');
+  const [openOldPasswordError, setOpenOldPasswordError] = useState(false);
+  const [oldPasswordErrorMessage, setOldPasswordErrorMessage] = useState('Old password is required');
+  const [openNewPasswordError, setOpenNewPasswordError] = useState(false);
+  const [newPasswordErrorMessage, setNewPasswordErrorMessage] = useState('New password is required');
+  const [openConfirmPasswordError, setOpenConfirmPasswordError] = useState(false);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('Confirm password is required');
+  const [openErrorBox, setOpenErrorBox] = useState(false);
+  
   useEffect(()=>{
     if(isPasswordChange){
       
@@ -91,7 +108,7 @@ function SecurityTab({userData}) {
         setLoading(false);
         setIsPasswordChange(false);
       } else {
-        console.log('userInfo', userInfo._id)
+        // console.log('userInfo', userInfo._id)
 
         let passwordData = {
           id: userInfo._id,
@@ -102,12 +119,15 @@ function SecurityTab({userData}) {
 
         axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/password/user`, passwordData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
           
-          console.log('data', data.data);
+          // console.log('data', data.data);
           dispatch(setAuthUser(data.data.user));
           localStorage.setItem('authUser', JSON.stringify(data.data.user))
           setSuccessMessage('Your password has been changed');
+          setApiMessageType('success')
+          setApiResponseMessage('Your password has been changed');
           setLoading(false);
           setIsPasswordChange(false)
+          handleMessageBoxOpen()
           handleClose();
           
         }).catch((error)=>{
@@ -115,8 +135,12 @@ function SecurityTab({userData}) {
           const errorMessage = error.response.data.message;
           setSuccessMessage('');
           setErrorMessage(errorMessage);
+          setApiMessageType('error')
+          setApiResponseMessage(errorMessage);
           setIsPasswordChange(false)
           setLoading(false);
+          handleMessageBoxOpen();
+          handleClose();
         });
 
       }
@@ -133,17 +157,71 @@ function SecurityTab({userData}) {
   
   const handleChangePassSubmit = () => {
     // setOpen(false);
-    setIsPasswordChange(true);
-    setLoading(true)
+    if(!passwordInputs.oldPassword){
+      setOpenOldPasswordError(true)
+    } 
+    if(!passwordInputs.newPassword){
+      setOpenNewPasswordError(true)
+    }
+    if(!passwordInputs.confirmPassword){
+      setOpenConfirmPasswordError(true)
+    } 
+
+    if(passwordInputs.oldPassword && passwordInputs.newPassword && passwordInputs.confirmPassword){
+      setIsPasswordChange(true);
+      setLoading(true)
+    }
+    // setIsPasswordChange(true);
+    // setLoading(true)
   };
 
   const handleFormChange = (e)=>{
-    setPasswordInputs((prevState)=>({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }))
+    
+    if (e.target.name == 'oldPassword') {
+      setPasswordInputs((prevState) => ({
+        ...prevState,
+        [e.target.name]: e.target.value
+      }))
+
+      if (e.target.value) {
+        setOpenOldPasswordError(false)
+      } else {
+        setOpenOldPasswordError(true)
+        // setDescriptionErrorMessage('Video description is required');
+      }
+    } else if (e.target.name == 'newPassword') {
+      setPasswordInputs((prevState) => ({
+        ...prevState,
+        [e.target.name]: e.target.value
+      }))
+
+      if (e.target.value) {
+        setOpenNewPasswordError(false)
+      } else {
+        setOpenNewPasswordError(true)
+        // setDescriptionErrorMessage('Video description is required');
+      }
+    } else if (e.target.name == 'confirmPassword') {
+      setPasswordInputs((prevState) => ({
+        ...prevState,
+        [e.target.name]: e.target.value
+      }))
+
+      if (e.target.value) {
+        setOpenConfirmPasswordError(false)
+      } else {
+        setOpenConfirmPasswordError(true)
+        // setDescriptionErrorMessage('Video description is required');
+      }
+    }
     setErrorMessage('')
     setSuccessMessage('')
+    // setPasswordInputs((prevState)=>({
+    //   ...prevState,
+    //   [e.target.name]: e.target.value
+    // }))
+    // setErrorMessage('')
+    // setSuccessMessage('')
   }
 
   const handleChangePage = (event, newPage) => {
@@ -193,231 +271,258 @@ function SecurityTab({userData}) {
     }
   ];
 
+  const handleMessageBoxClose = () => {
+    setOpenErrorBox(false);
+    setApiResponseMessage('');
+    setApiMessageType('')
+  };
+  const handleMessageBoxOpen = () => {
+    setOpenErrorBox(true);
+  };
+
   return (
-    <Grid container spacing={3}>
-      {/* <Grid item xs={12}>
-        <Box pb={2}>
-          <Typography variant="h3">Social Accounts</Typography>
-          <Typography variant="subtitle2">
-            Manage connected social accounts options
-          </Typography>
-        </Box>
-        <Card>
-          <List>
-            <ListItem sx={{ p: 3 }}>
-              <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarWrapper src="/static/images/logo/google.svg" />
-              </ListItemAvatar>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Google"
-                secondary="A Google account hasn’t been yet added to your account"
-              />
-              <Button color="secondary" size="large" variant="contained">
-                Connect
-              </Button>
-            </ListItem>
-          </List>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <List>
-            <ListItem sx={{ p: 3 }}>
-              <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarSuccess>
-                  <DoneTwoToneIcon />
-                </AvatarSuccess>
-              </ListItemAvatar>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Facebook"
-                secondary="Your Facebook account has been successfully connected"
-              />
-              <ButtonError size="large" variant="contained">
-                Revoke access
-              </ButtonError>
-            </ListItem>
-            <Divider component="li" />
-            <ListItem sx={{ p: 3 }}>
-              <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarSuccess>
-                  <DoneTwoToneIcon />
-                </AvatarSuccess>
-              </ListItemAvatar>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Twitter"
-                secondary="Your Twitter account was last syncronized 6 days ago"
-              />
-              <ButtonError size="large" variant="contained">
-                Revoke access
-              </ButtonError>
-            </ListItem>
-          </List>
-        </Card>
-      </Grid> */}
-      <Grid item xs={12}>
-        <Box pb={2}>
-          <Typography variant="h3">Security</Typography>
-          <Typography variant="subtitle2">
-            Change your security preferences below
-          </Typography>
-        </Box>
-        <Card>
-          <List>
-            <ListItem sx={{ p: 3 }}>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Change Password"
-                secondary="You can change your password here"
-              />
-              <Button size="large" variant="outlined" onClick={handleClickOpen}>
-                Change password
-              </Button>
-            </ListItem>
-            <Dialog open={open} onClose={handleClose}>
-              <DialogTitle>Change Password</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Please Enter your new password below
-                </DialogContentText>
-                {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
-                {successMessage && <p style={{ color: "#008000" }}>{successMessage}</p>}
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="old-password"
-                  label="Enter Old Password"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='oldPassword'
-                  onChange={handleFormChange}
-                />
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="n-password"
-                  label="Enter New Password"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='newPassword'
-                  onChange={handleFormChange}
-                />
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="c-password"
-                  label="Enter Confirm Password"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  name='confirmPassword'
-                  onChange={handleFormChange}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleChangePassSubmit} disabled={loading}>{loading? 'Changing...': 'Change'}</Button>
-              </DialogActions>
-            </Dialog>
-            <Divider component="li" />
-            <ListItem sx={{ p: 3 }}>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Two-Factor Authentication"
-                secondary="Enable PIN verification for all sign in attempts"
-              />
-              <Switch color="primary" />
-            </ListItem>
-          </List>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader
-            subheaderTypographyProps={{}}
-            titleTypographyProps={{}}
-            title="Access Logs"
-            subheader="Recent sign in activity logs"
-          />
-          <Divider />
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Browser</TableCell>
-                  <TableCell>IP Address</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Date/Time</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {logs.map((log) => (
-                  <TableRow key={log.id} hover>
-                    <TableCell>{log.browser}</TableCell>
-                    <TableCell>{log.ipaddress}</TableCell>
-                    <TableCell>{log.location}</TableCell>
-                    <TableCell>
-                      {format(log.date, 'dd MMMM, yyyy - h:mm:ss a')}
-                    </TableCell>
-                    <TableCell align="right">
-                      <Tooltip placement="top" title="Delete" arrow>
-                        <IconButton
-                          sx={{
-                            '&:hover': {
-                              background: theme.colors.error.lighter
-                            },
-                            color: theme.palette.error.main
-                          }}
-                          color="inherit"
-                          size="small"
-                        >
-                          <DeleteTwoToneIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box p={2}>
-            <TablePagination
-              component="div"
-              count={100}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+    <>
+      <Grid container spacing={3}>
+        {/* <Grid item xs={12}>
+          <Box pb={2}>
+            <Typography variant="h3">Social Accounts</Typography>
+            <Typography variant="subtitle2">
+              Manage connected social accounts options
+            </Typography>
           </Box>
-        </Card>
+          <Card>
+            <List>
+              <ListItem sx={{ p: 3 }}>
+                <ListItemAvatar sx={{ pr: 2 }}>
+                  <AvatarWrapper src="/static/images/logo/google.svg" />
+                </ListItemAvatar>
+                <ListItemText
+                  primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
+                  secondaryTypographyProps={{
+                    variant: 'subtitle2',
+                    lineHeight: 1
+                  }}
+                  primary="Google"
+                  secondary="A Google account hasn’t been yet added to your account"
+                />
+                <Button color="secondary" size="large" variant="contained">
+                  Connect
+                </Button>
+              </ListItem>
+            </List>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card>
+            <List>
+              <ListItem sx={{ p: 3 }}>
+                <ListItemAvatar sx={{ pr: 2 }}>
+                  <AvatarSuccess>
+                    <DoneTwoToneIcon />
+                  </AvatarSuccess>
+                </ListItemAvatar>
+                <ListItemText
+                  primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
+                  secondaryTypographyProps={{
+                    variant: 'subtitle2',
+                    lineHeight: 1
+                  }}
+                  primary="Facebook"
+                  secondary="Your Facebook account has been successfully connected"
+                />
+                <ButtonError size="large" variant="contained">
+                  Revoke access
+                </ButtonError>
+              </ListItem>
+              <Divider component="li" />
+              <ListItem sx={{ p: 3 }}>
+                <ListItemAvatar sx={{ pr: 2 }}>
+                  <AvatarSuccess>
+                    <DoneTwoToneIcon />
+                  </AvatarSuccess>
+                </ListItemAvatar>
+                <ListItemText
+                  primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
+                  secondaryTypographyProps={{
+                    variant: 'subtitle2',
+                    lineHeight: 1
+                  }}
+                  primary="Twitter"
+                  secondary="Your Twitter account was last syncronized 6 days ago"
+                />
+                <ButtonError size="large" variant="contained">
+                  Revoke access
+                </ButtonError>
+              </ListItem>
+            </List>
+          </Card>
+        </Grid> */}
+        <Grid item xs={12}>
+          <Box pb={2}>
+            <Typography variant="h3">Security</Typography>
+            <Typography variant="subtitle2">
+              Change your security preferences below
+            </Typography>
+          </Box>
+          <Card>
+            <List>
+              <ListItem sx={{ p: 3 }}>
+                <ListItemText
+                  primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
+                  secondaryTypographyProps={{
+                    variant: 'subtitle2',
+                    lineHeight: 1
+                  }}
+                  primary="Change Password"
+                  secondary="You can change your password here"
+                />
+                <Button size="large" variant="outlined" onClick={handleClickOpen}>
+                  Change password
+                </Button>
+              </ListItem>
+              <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Change Password</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Please Enter your new password below
+                  </DialogContentText>
+                  {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
+                  {successMessage && <p style={{ color: "#008000" }}>{successMessage}</p>}
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="old-password"
+                    label="Enter Old Password"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    name='oldPassword'
+                    onChange={handleFormChange}
+                    error={openOldPasswordError}
+                    helperText={openOldPasswordError?oldPasswordErrorMessage:null}
+                  />
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="n-password"
+                    label="Enter New Password"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    name='newPassword'
+                    onChange={handleFormChange}
+                    error={openNewPasswordError}
+                    helperText={openNewPasswordError?newPasswordErrorMessage:null}
+                  />
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="c-password"
+                    label="Enter Confirm Password"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    name='confirmPassword'
+                    onChange={handleFormChange}
+                    error={openConfirmPasswordError}
+                    helperText={openConfirmPasswordError?confirmPasswordErrorMessage:null}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleClose}>Cancel</Button>
+                  <Button onClick={handleChangePassSubmit} disabled={loading}>{loading? 'Changing...': 'Change'}</Button>
+                </DialogActions>
+              </Dialog>
+              <Divider component="li" />
+              <ListItem sx={{ p: 3 }}>
+                <ListItemText
+                  primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
+                  secondaryTypographyProps={{
+                    variant: 'subtitle2',
+                    lineHeight: 1
+                  }}
+                  primary="Two-Factor Authentication"
+                  secondary="Enable PIN verification for all sign in attempts"
+                />
+                <Switch color="primary" />
+              </ListItem>
+            </List>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card>
+            <CardHeader
+              subheaderTypographyProps={{}}
+              titleTypographyProps={{}}
+              title="Access Logs"
+              subheader="Recent sign in activity logs"
+            />
+            <Divider />
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Browser</TableCell>
+                    <TableCell>IP Address</TableCell>
+                    <TableCell>Location</TableCell>
+                    <TableCell>Date/Time</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {logs.map((log) => (
+                    <TableRow key={log.id} hover>
+                      <TableCell>{log.browser}</TableCell>
+                      <TableCell>{log.ipaddress}</TableCell>
+                      <TableCell>{log.location}</TableCell>
+                      <TableCell>
+                        {format(log.date, 'dd MMMM, yyyy - h:mm:ss a')}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip placement="top" title="Delete" arrow>
+                          <IconButton
+                            sx={{
+                              '&:hover': {
+                                background: theme.colors.error.lighter
+                              },
+                              color: theme.palette.error.main
+                            }}
+                            color="inherit"
+                            size="small"
+                          >
+                            <DeleteTwoToneIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box p={2}>
+              <TablePagination
+                component="div"
+                count={100}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Box>
+          </Card>
+        </Grid>
       </Grid>
-    </Grid>
+      <Stack spacing={2} sx={{ width: '100%' }}>
+        <Snackbar anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }} open={openErrorBox} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+          <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+            {apiResponseMessage}
+          </Alert>
+        </Snackbar>
+      </Stack>
+    </>
   );
 }
 

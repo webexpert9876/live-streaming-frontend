@@ -73,7 +73,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     });
 
     const [hideAvatarImage, setHideAvatarImage] = useState(false);
-    const [userProfilePic, setUserProfilePic] = useState(videoDetail? videoDetail.videoPreviewImage: '');
+    // const [userProfilePic, setUserProfilePic] = useState(videoDetail? videoDetail.videoPreviewImage: '');
+    const [videoPreviewImage, setVideoPreviewImage] = useState(videoDetail? videoDetail.videoPreviewImage: '');
     const [selectedPreviewPic, setSelectedPreviewPic] = useState([]);
     const [previewPicOriginalFile, setPreviewPicOriginalFile] = useState([]);
     const [isPreviewImageUploaded, setIsPreviewImageUploaded] = useState(false);
@@ -86,6 +87,17 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     const [open, setOpen] = useState(false);
     const [apiMessageType, setApiMessageType] = useState('');
 
+    const [openImageError, setOpenImageError] = useState(false);
+    const [imageErrorMessage, setImageErrorMessage] = useState('Please enter image file.');
+
+    const [openTitleError, setOpenTitleError] = useState(false)
+    const [titleErrorMessage, setTitleErrorMessage] = useState('Video title is required')
+    const [openDescriptionError, setOpenDescriptionError] = useState(false)
+    const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('Video description is required')
+    const [openTattooCategoryIdError, setOpenTattooCategoryIdError] = useState(false)
+    const [tattooCategoryIdErrorMessage, setTattooCategoryIdErrorMessage] = useState('Tattoo category is required')
+
+
     const handleMessageBoxClose = () => {
         setOpen(false);
         setApiResponseMessage('');
@@ -94,12 +106,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     const handleMessageBoxOpen = () => {
         setOpen(true);
     };
-
-
-    console.log('userData', userData)
-    console.log('videoDetail', videoDetail)
-    console.log('videoDetail', tattooCategoryList)
-    console.log('tagData', tagData)
 
     useEffect(()=>{
         setTattooCategoriesData(tattooCategoryList);
@@ -136,9 +142,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
 
     useEffect(()=>{
         if(isUpdatingVideoInfo){
-            console.log('video input ', videoInput)
-            console.log('video tags ', tags)
-            console.log('video selected Preview Pic ', selectedPreviewPic)
 
             const formData = new FormData();
             formData.append('title', videoInput.title);
@@ -146,10 +149,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
             formData.append('tattooCategoryId', videoInput.tattooCategoryId);
             formData.append('isPublished', videoInput.isPublished);
             formData.append('videoPreviewStatus', videoInput.videoPreviewStatus);
-            console.log('video selectedPreviewPic ', selectedPreviewPic)
-            if(selectedPreviewPic){
-                console.log('if video selectedPreviewPic ', selectedPreviewPic)
-                formData.append('files', selectedPreviewPic);
+            if(selectedPreviewPic.length > 0){
+                formData.append('files', selectedPreviewPic[0]);
             }
 
             tags.forEach((tag) => {
@@ -157,7 +158,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
             });
 
             axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-                console.log('data.data updated data', data.data);
+                // console.log('data.data updated data', data.data);
                 let videoNewInfo = data.data.videoData;
 
                 setApiMessageType('success')
@@ -181,13 +182,10 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     }, [isUpdatingVideoInfo])
 
     const handleDelete = i => {
-        console.log('delete', i)
-        console.log('delete', tags)
         setTags(tags.filter((tag, index) => index !== i));
       };
     
       const handleAddition = tag => {
-        console.log('add', tag)
         setTags([...tags, tag]);
       };
     
@@ -202,21 +200,84 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
       };
     
       const handleTagClick = index => {
-        console.log('tag click', index)
-        console.log('The tag at index ' + index + ' was clicked');
+        // console.log('tag click', index)
+        // console.log('The tag at index ' + index + ' was clicked');
       };
 
     const handleFormChange = (e)=>{
-        setVideoInput((prevState)=>({
-            ...prevState,
-            [e.target.name]: e.target.value
-        }))
+        // setVideoInput((prevState)=>({
+        //     ...prevState,
+        //     [e.target.name]: e.target.value
+        // }))
+        if(e.target.name == 'title'){
+            // console.log('e.target.value', e.target.value)
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenTitleError(false)
+            } else {
+                
+                setOpenTitleError(true)
+                // setTitleErrorMessage('Video title is required');
+            }
+        } else if(e.target.name == 'description'){
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenDescriptionError(false)
+            } else {
+                setOpenDescriptionError(true)
+                // setDescriptionErrorMessage('Video description is required');
+            }
+        } else if(e.target.name == 'tattooCategoryId'){
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenTattooCategoryIdError(false)
+            } else {
+                setOpenTattooCategoryIdError(true)
+                // setDescriptionErrorMessage('Video description is required');
+            }
+        }
     }
 
     const handleFormSubmit = (e)=>{
         e.preventDefault();
-        setIsUpdatingVideoInfo(true);
-        setLoading(true);
+        if(!videoInput.title){
+            setOpenTitleError(true)
+        } 
+        if(!videoInput.description){
+            setOpenDescriptionError(true)
+        }
+        if(!videoInput.tattooCategoryId){
+            setOpenTattooCategoryIdError(true)
+        }
+        if(!videoPreviewImage && selectedPreviewPic.length == 0){
+            setOpenImageError(true)
+        } 
+        // if(selectedPreviewPic.length == 0){
+        //     setOpenImageError(true)
+        // }
+
+        if(videoInput.title && videoInput.description && videoInput.tattooCategoryId && videoInput.videoPreviewStatus && (selectedPreviewPic.length > 0 || videoPreviewImage !== '') ){
+            setIsUpdatingVideoInfo(true);
+            setLoading(true);
+        } else {
+            setApiMessageType('error')
+            setApiResponseMessage('Please enter all the required details.');
+            setOpen(true);
+        }
+        // setIsUpdatingVideoInfo(true);
+        // setLoading(true);
     }
 
     const handleSlider = (event, value) => {
@@ -227,6 +288,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     };
 
     const handleCancel = () => {
+        setOpenImageError(true);
+        setImageErrorMessage('Please enter image file.');
         setPicture({
             ...picture,
             cropperOpen: false
@@ -258,21 +321,55 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
         
         let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
 
-        setSelectedPreviewPic(newFile);
+        setSelectedPreviewPic([newFile]);
     }
     };
 
     const handleFileChange = (e) => {
-        setHideAvatarImage(true);
-        let url = URL.createObjectURL(e.target.files[0]);
-        setPreviewPicOriginalFile(e.target.files[0]);
-        // setUserUploadedImage(url);
-        setPicture({
-            ...picture,
-            img: url,
-            cropperOpen: true
-        });
+        // setHideAvatarImage(true);
+        // let url = URL.createObjectURL(e.target.files[0]);
+        // setPreviewPicOriginalFile(e.target.files[0]);
+        // // setUserUploadedImage(url);
+        // setPicture({
+        //     ...picture,
+        //     img: url,
+        //     cropperOpen: true
+        // });
+
+        if(e.target.files.length == 0 ){
+            setPicture({
+                cropperOpen: false,
+                img: null,
+                zoom: 1,
+                croppedImg:
+                "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
+            });
+            setSelectedPreviewPic([])
+            setUserUploadedImage('')
+            setHideAvatarImage(false)
+            setOpenImageError(true);
+            // setImageErrorMessage('Please enter image file.');
+        } else if ( !e.target.files[0] || e.target.files[0].type.indexOf("image") !== -1) {
+            setHideAvatarImage(true);
+            let url = URL.createObjectURL(e.target.files[0]);
+            setPreviewPicOriginalFile(e.target.files[0]);
+            // setUserUploadedImage(url);
+            setPicture({
+                ...picture,
+                img: url,
+                cropperOpen: true
+            });
+            setOpenImageError(false);
+        } else {
+            setOpenImageError(true);
+            // setImageErrorMessage('Unexpected file type. Please enter only image file.');
+        }
     };
+
+    const prvVideoBanner = {
+        width: '600px',
+        height: '334px'
+    }
 
     return(
         <>
@@ -341,15 +438,16 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                             :
                                             <Typography sx={{marginTop: '10px'}}>
                                                 {userUploadedImage?
-                                                    <img style={{width: '200px', height: '200px'}} src={userUploadedImage}/> 
+                                                    <img style={prvVideoBanner} src={userUploadedImage}/> 
                                                 :
-                                                    userProfilePic? 
-                                                        <img style={{width: '200px', height: '200px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                                                videoPreviewImage? 
+                                                        <img style={prvVideoBanner} src={`${process.env.NEXT_PUBLIC_S3_URL}/${videoPreviewImage}`}/> 
                                                     : 
                                                         <Avatar
                                                             variant='rounded'
                                                             src={picture.croppedImg}
-                                                            sx={{ width: 200, height: 200, padding: "5" }}
+                                                            style={prvVideoBanner}
+                                                            sx={{ padding: "5" }}
                                                         />
                                                 }
                                             </Typography>
@@ -363,12 +461,13 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                                     <AvatarEditor
                                                         ref={setEditorRef}
                                                         image={picture.img}
-                                                        width={200}
-                                                        height={200}
+                                                        width={1600}
+                                                        height={890}
                                                         border={50}
                                                         color={[255, 255, 255, 0.6]} // RGBA
                                                         rotate={0}
                                                         scale={picture.zoom}
+                                                        style={prvVideoBanner}
                                                     />
                                                     <Slider
                                                         aria-label="raceSlider"
@@ -394,6 +493,9 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                                 <input type="file" accept="image/*" onChange={handleFileChange} />
                                             </Button>
                                         </Box>
+                                        {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                            {imageErrorMessage}
+                                        </Box>: null}
                                     </Grid>
                                     <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                         <Box mt={1} pr={3} pb={2}>
@@ -403,16 +505,18 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                     <Grid item xs={12} sm={8} md={9}>
                                         <Text color="black">
                                             <TextField
-                                            autoFocus
-                                            margin="dense"
-                                            id="title"
-                                            type="text"
-                                            fullWidth
-                                            variant="standard"
-                                            name='title'
-                                            value={videoInput.title}
-                                            onChange={handleFormChange}
-                                            required
+                                                autoFocus
+                                                margin="dense"
+                                                id="title"
+                                                type="text"
+                                                fullWidth
+                                                variant="standard"
+                                                name='title'
+                                                value={videoInput.title}
+                                                onChange={handleFormChange}
+                                                required
+                                                error={openTitleError}
+                                                helperText={openTitleError?titleErrorMessage:null}
                                             />
                                         </Text>
                                     </Grid>
@@ -435,6 +539,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                                 value={videoInput.description}
                                                 onChange={handleFormChange}
                                                 required
+                                                error={openDescriptionError}
+                                                helperText={openDescriptionError?descriptionErrorMessage:null}
                                             />
                                         </Typography>
                                     </Grid>
@@ -488,6 +594,9 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                                         </NativeSelect>
                                                     </FormControl>
                                                 </Typography>
+                                                {openTattooCategoryIdError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                    {tattooCategoryIdErrorMessage}
+                                                </Box>: null}
                                             </Grid>
                                             <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                                 <Box mt={2} pr={3} pb={2}>

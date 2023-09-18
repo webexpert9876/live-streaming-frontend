@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import { useState, useEffect, useRef } from 'react';
 // import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import { Grid, Container } from '@mui/material';
@@ -10,27 +9,12 @@ import {
     Divider,
     Box,
     FormControl,
-    InputLabel,
     Card,
     IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableContainer,
-    Select,
-    MenuItem,
     Typography,
     useTheme,
     CardHeader,
     Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     TextField,
     CardContent,
     NativeSelect,
@@ -55,6 +39,7 @@ import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Text from '../../../../src/components/Text'
+import LinearProgressWithLabel from '../../../../src/components/ProgressBar/LinearProgressBar'
 
 const KeyCodes = {
     comma: 188,
@@ -64,10 +49,8 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Video = () => {
   const [userData, setUserData] = useState([]);
-
-
-  const [isCheckStatusChange, setIsCheckStatusChange]= useState(false)
-
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
 
   const [userInfo, setUserInfo]= useState({});
   const authState = useSelector(selectAuthUser)
@@ -103,7 +86,7 @@ const Video = () => {
     const [tags, setTags] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
 
-    const [selectedVideo, setSelectedVideo] = useState({})
+    const [selectedVideo, setSelectedVideo] = useState([])
 
   // -------------------------Error state------------------------
   const [loading, setLoading] = useState(false);
@@ -122,6 +105,10 @@ const Video = () => {
   const [titleErrorMessage, setTitleErrorMessage] = useState('Video title is required')
   const [openDescriptionError, setOpenDescriptionError] = useState(false)
   const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('Video description is required')
+  const [openTattooCategoryIdError, setOpenTattooCategoryIdError] = useState(false)
+  const [tattooCategoryIdErrorMessage, setTattooCategoryIdErrorMessage] = useState('Tattoo category is required')
+
+  const [progress, setProgress] = useState(0);
 
   useEffect(()=>{
 
@@ -220,7 +207,7 @@ const Video = () => {
             }
         `,
       }).then((result) => {
-          console.log('video page result', result.data);
+        //   console.log('video page result', result.data);
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);
         //   setTagList(result.data.tagForStream);
@@ -232,7 +219,7 @@ const Video = () => {
 
     useEffect(()=>{
         if(isAddingVideo){
-            console.log('videoInput===========', videoInput)
+            // console.log('videoInput===========', videoInput)
 
             const formData = new FormData();
             formData.append('title', videoInput.title);
@@ -244,58 +231,74 @@ const Video = () => {
             formData.append('isStreamed', false);
             formData.append('isPublished', videoInput.isPublished);
             formData.append('videoPreviewStatus', videoInput.videoPreviewStatus);
-            console.log('video selectedPreviewPic ', selectedPreviewPic)
-            
-            // if(Object.keys(selectedPreviewPic).length > 0 ){
-                console.log('if video selectedPreviewPic ', selectedPreviewPic)
-                formData.append('files', selectedPreviewPic);
-                // }
-                
-                // if(selectedVideo.length > 0){
-                    console.log('selectedVideo', selectedVideo)
-                    formData.append('files', selectedVideo);
-            // }
+            formData.append('files', selectedPreviewPic[0]);
+            formData.append('files', selectedVideo[0]);
 
             tags.forEach((tag) => {
                 formData.append('tags', tag.text);
             });
             
-            axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/create/video`, formData, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-                console.log('data.data updated data', data.data);
+            axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/create/video`, formData,
+                {
+                    onUploadProgress: data => {
+                        setProgress(Math.round((100 * data.loaded) / data.total))
+                    },
+                    headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}
+                }).then((data)=>{
 
-                setApiMessageType('success')
-                setApiResponseMessage('Video added successfully');
-                setIsAddingVideo(false)
-                setLoading(false);
-                handleMessageBoxOpen()
-            }).catch((error)=>{
-                console.log('error', error);
-                setApiMessageType('error')
-                const errorMessage = error.response.data.message;
-                
-                handleMessageBoxOpen()
-                setApiResponseMessage(errorMessage);
-                setIsAddingVideo(false)
-                setLoading(false);
-            });
+                    setApiMessageType('success')
+                    setApiResponseMessage('Video added successfully');
+                    
+                    setVideoInput({
+                        title: '',
+                        description: '',
+                        tattooCategoryId: '',
+                        isPublished: false,
+                        videoPreviewStatus: 'public'
+                    })
+                    setSelectedPreviewPic([]);
+                    setSelectedVideo([]);
+                    setPicture({
+                        cropperOpen: false,
+                        img: null,
+                        zoom: 1,
+                        croppedImg:
+                        "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
+                    });
+                    setUserUploadedImage('');
+                    setHideAvatarImage(false);
+                    setTags([]);
+                    imageInputRef.current.value = '';
+                    videoInputRef.current.value = '';
+                    setProgress(0);
+
+                    setIsAddingVideo(false)
+                    setLoading(false);
+                    handleMessageBoxOpen()
+                }).catch((error)=>{
+                    console.log('error', error);
+                    setApiMessageType('error')
+                    const errorMessage = error.response.data.message;
+                    
+                    handleMessageBoxOpen()
+                    setApiResponseMessage(errorMessage);
+                    setIsAddingVideo(false)
+                    setLoading(false);
+                });
             
         }
     },[isAddingVideo])
     
-    const handleCancelBtnFunction = ()=>{
-
-    }
-
     const theme = useTheme();
 
     const handleDelete = i => {
-        console.log('delete', i)
-        console.log('delete', tags)
+        // console.log('delete', i)
+        // console.log('delete', tags)
         setTags(tags.filter((tag, index) => index !== i));
     };
 
     const handleAddition = tag => {
-    console.log('add', tag)
+    // console.log('add', tag)
     setTags([...tags, tag]);
     };
 
@@ -310,14 +313,14 @@ const Video = () => {
     };
 
     const handleTagClick = index => {
-    console.log('tag click', index)
-    console.log('The tag at index ' + index + ' was clicked');
+    // console.log('tag click', index)
+    // console.log('The tag at index ' + index + ' was clicked');
     };
 
     const handleFormChange = (e)=>{
 
         if(e.target.name == 'title'){
-            console.log('e.target.value', e.target.value)
+            // console.log('e.target.value', e.target.value)
             setVideoInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value
@@ -342,38 +345,47 @@ const Video = () => {
                 setOpenDescriptionError(true)
                 // setDescriptionErrorMessage('Video description is required');
             }
+        } else if(e.target.name == 'tattooCategoryId'){
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
+            if(e.target.value){
+                setOpenTattooCategoryIdError(false)
+            } else {
+                setOpenTattooCategoryIdError(true)
+                // setDescriptionErrorMessage('Video description is required');
+            }
         }
-        // setVideoInput((prevState)=>({
-        //     ...prevState,
-        //     [e.target.name]: e.target.value
-        // }))
     }
 
     const handleFormSubmit = (e)=>{
         e.preventDefault();
-        // setIsAddingVideo(true)
-            // setLoading(true);
-        // if(videoInput.title && videoInput.description && videoInput.tattooCategoryId && videoInput.isPublished && videoInput.videoPreviewStatus ){
         if(!videoInput.title){
-            setOpenTitleError(true)    
-            console.log('all detail filled')
-
+            setOpenTitleError(true)
         } 
         if(!videoInput.description){
             setOpenDescriptionError(true)
         }
-        if(selectedPreviewPic){
+        if(!videoInput.tattooCategoryId){
+            setOpenTattooCategoryIdError(true)
+        }
+        if(selectedPreviewPic.length == 0){
             setOpenImageError(true)
         }
-         if(selectedVideo){
+        if(selectedVideo.length == 0){
             setOpenVideoError(true)
         }
-        //  else {
-        //     console.log('all detail not filled')
-        //     // setApiMessageType('error')
-        //     // setApiResponseMessage('Please enter all the details.');
-        //     // setOpen(true);
-        // }
+        
+        if(videoInput.title && videoInput.description && videoInput.tattooCategoryId && videoInput.videoPreviewStatus && selectedPreviewPic.length > 0 && selectedVideo.length > 0){
+            setIsAddingVideo(true)
+            setLoading(true);
+        } else {
+            setApiMessageType('error')
+            setApiResponseMessage('Please enter all the details.');
+            setOpen(true);
+        }
     }
 
     const handleSlider = (event, value) => {
@@ -417,13 +429,23 @@ const Video = () => {
             
             let newFile = new File([croppedImageBlob], imageUniqueName, { type: 'image/png' });
 
-            setSelectedPreviewPic(newFile);
+            setSelectedPreviewPic([newFile]);
         }
     };
 
     const handleFileChange = (e) => {
 
-        if(e.target.files[0] == undefined ){
+        if(e.target.files.length == 0 ){
+            setPicture({
+                cropperOpen: false,
+                img: null,
+                zoom: 1,
+                croppedImg:
+                "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
+            });
+            setSelectedPreviewPic([])
+            setUserUploadedImage('')
+            setHideAvatarImage(false)
             setOpenImageError(true);
             // setImageErrorMessage('Please enter image file.');
         } else if ( !e.target.files[0] || e.target.files[0].type.indexOf("image") !== -1) {
@@ -445,15 +467,15 @@ const Video = () => {
     
     const handleVideoFileChange = (e) => {
         
-        console.log('e.target.files[0]', e.target.files[0])
-        if(e.target.files[0] == undefined ){
+        // console.log('e.target.files[0]', e.target.files[0])
+        if(e.target.files.length == 0 ){
+            setSelectedVideo([])
             setOpenVideoError(true)
             // setVideoErrorMessage('Please enter video file.');
         } else if (!e.target.files[0] || e.target.files[0].type.indexOf("video") !== -1) {
-            setSelectedVideo(e.target.files[0])
+            setSelectedVideo(e.target.files)
             setOpenVideoError(false)
         } else {
-            console.log('cancel image ')
             setOpenVideoError(true)
             // setVideoErrorMessage('Unexpected file type. Please enter only video file.');
         }
@@ -486,6 +508,11 @@ const Video = () => {
 
     // console.log(video)
 
+    const prvVideoBanner = {
+        width: '600px',
+        height: '334px'
+    }
+
     return (
         <>
             {userData.length > 0?
@@ -512,25 +539,6 @@ const Video = () => {
                                         </IconButton>
                                     </Tooltip>
                                     <CardHeader
-                                        // action={
-                                        //     <Box width={150}>
-                                        //         <FormControl fullWidth variant="outlined">
-                                        //             <InputLabel>Status</InputLabel>
-                                        //             <Select
-                                        //                 value={filters.status || 'all'}
-                                        //                 onChange={handleStatusChange}
-                                        //                 label="Status"
-                                        //                 autoWidth
-                                        //             >
-                                        //                 {statusOptions.map((statusOption) => (
-                                        //                     <MenuItem key={statusOption.id} value={statusOption.id}>
-                                        //                         {statusOption.name}
-                                        //                     </MenuItem>
-                                        //                 ))}
-                                        //             </Select>
-                                        //         </FormControl>
-                                        //     </Box>
-                                        // }
                                         title="Add Video"
                                     />
                                 </Box>
@@ -639,6 +647,9 @@ const Video = () => {
                                                                     </NativeSelect>
                                                                 </FormControl>
                                                             </Typography>
+                                                            {openTattooCategoryIdError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                                {tattooCategoryIdErrorMessage}
+                                                            </Box>: null}
                                                         </Grid>
                                                     </>
                                                 : null}
@@ -699,9 +710,10 @@ const Video = () => {
                                                             width="100%"
                                                             sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
                                                         >
-                                                            <input type="file" accept="video/*" onChange={handleVideoFileChange} />
+                                                            <input type="file" ref={videoInputRef}  accept="video/*" onChange={handleVideoFileChange} />
                                                         </Button>
                                                     </Box>
+                                                    {progress > 0 ?<LinearProgressWithLabel value={progress} />: null}
                                                     {openVideoError?<Box sx={{color: 'red', fontWeight: 600}}>
                                                         {videoErrorMessage}
                                                     </Box>: null}
@@ -718,12 +730,13 @@ const Video = () => {
                                                         :
                                                         <Typography sx={{marginTop: '10px'}}>
                                                             {userUploadedImage?
-                                                                <img style={{width: '200px', height: '200px'}} src={userUploadedImage}/> 
+                                                                <img style={prvVideoBanner} src={userUploadedImage}/> 
                                                             :
                                                                 <Avatar
                                                                     variant='rounded'
                                                                     src={picture.croppedImg}
-                                                                    sx={{ width: 200, height: 200, padding: "5" }}
+                                                                    style={prvVideoBanner}
+                                                                    sx={{ padding: "5" }}
                                                                 />
                                                             }
                                                         </Typography>
@@ -737,12 +750,13 @@ const Video = () => {
                                                                 <AvatarEditor
                                                                     ref={setEditorRef}
                                                                     image={picture.img}
-                                                                    width={200}
-                                                                    height={200}
+                                                                    width={1600}
+                                                                    height={890}
                                                                     border={50}
                                                                     color={[255, 255, 255, 0.6]} // RGBA
                                                                     rotate={0}
                                                                     scale={picture.zoom}
+                                                                    style={prvVideoBanner}
                                                                 />
                                                                 <Slider
                                                                     aria-label="raceSlider"
@@ -765,9 +779,10 @@ const Video = () => {
                                                             width="100%"
                                                             sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
                                                         >
-                                                            <input type="file" accept="image/*" onChange={handleFileChange} />
+                                                            <input type="file" ref={imageInputRef} accept="image/*" onChange={handleFileChange} />
                                                         </Button>
                                                     </Box>
+                                                    {/* {progress > 0 ?<LinearProgressWithLabel value={progress} />: null} */}
                                                     {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
                                                         {imageErrorMessage}
                                                     </Box>: null}
@@ -775,7 +790,7 @@ const Video = () => {
                                             </Grid>
                                         </Typography>
                                         <Typography sx={{textAlign: 'end'}}>
-                                            <Button onClick={handleCancelBtnFunction} disabled={loading}>Cancel</Button>
+                                            <Button onClick={()=>{router.push('/components/videos')}} disabled={loading}>Cancel</Button>
                                             <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Video...' : 'Add Video'}</Button>
                                         </Typography>
                                     </CardContent>
