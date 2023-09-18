@@ -21,6 +21,8 @@ import 'react-multi-carousel/lib/styles.css';
 // import '../../src/content/Overview/Slider/videoPlayer.css'
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import TwitterIcon from '@mui/icons-material/Twitter';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
@@ -43,6 +45,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function ChannelName(props) {
     const channelInfo = JSON.parse(props.channelInfo);
+    console.log('channelInfo', channelInfo)
     const [channelDetails, setChannelDetails] = useState(...channelInfo.channels);
     const [recentLiveStreamVideos, setRecentLiveStreamVideos] = useState(channelInfo.recentLiveStreamVideos);
     const [recentUploadedVideos, setRecentUploadedVideos] = useState(channelInfo.recentUploadedVideos);
@@ -417,40 +420,86 @@ export default function ChannelName(props) {
                                             </Item>
 
                                             <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
-                                                <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
-                                                    <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
-                                                        <Link href="#"><FacebookIcon /> Facebook</Link>
-                                                    </Typography>
-                                                    <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
-                                                        <Link href="#" ><YouTubeIcon /> YouTube</Link>
-                                                    </Typography>
-                                                    <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
-                                                        <Link href="#">
-                                                            <svg width="22px" height="22px" viewBox="0 0.5 24 24" id="meteor-icon-kit__regular-discord" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                {channelDetails.socialLinks.length > 0?
+                                                    <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
+                                                        {
+                                                            channelDetails.socialLinks.map((links)=>(
+                                                                <>
+                                                                    {links.platform == 'facebook' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                                        <Link target="_blank" href={`https://${links.url}`}><FacebookIcon /> Facebook</Link>
+                                                                    </Typography>}
+                                                                    {links.platform == 'youTube' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                                        <Link target="_blank" href={`https://${links.url}`} ><YouTubeIcon /> YouTube</Link>
+                                                                    </Typography>}
+                                                                    {links.platform == 'instagram' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                                        <Link target="_blank" href={`https://${links.url}`} ><InstagramIcon /> Instagram</Link>
+                                                                    </Typography>}
+                                                                    {links.platform == 'twitter' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                                        <Link target="_blank" href={`https://${links.url}`} ><TwitterIcon /> Twitter</Link>
+                                                                    </Typography>}
+                                                                    {links.platform == 'discord' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                                        <Link target="_blank" href={`https://${links.url}`}>
+                                                                            <svg width="22px" height="22px" viewBox="0 0.5 24 24" id="meteor-icon-kit__regular-discord" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-                                                                <g clip-path="url(#clip0_525_68)">
+                                                                                <g clip-path="url(#clip0_525_68)">
 
-                                                                    <path d="M20.317 4.54101C18.7873 3.82774 17.147 3.30224 15.4319 3.00126C15.4007 2.99545 15.3695 3.00997 15.3534 3.039C15.1424 3.4203 14.9087 3.91774 14.7451 4.30873C12.9004 4.02808 11.0652 4.02808 9.25832 4.30873C9.09465 3.90905 8.85248 3.4203 8.64057 3.039C8.62448 3.01094 8.59328 2.99642 8.56205 3.00126C6.84791 3.30128 5.20756 3.82678 3.67693 4.54101C3.66368 4.54681 3.65233 4.5565 3.64479 4.56907C0.533392 9.29283 -0.31895 13.9005 0.0991801 18.451C0.101072 18.4733 0.11337 18.4946 0.130398 18.5081C2.18321 20.0401 4.17171 20.9701 6.12328 21.5866C6.15451 21.5963 6.18761 21.5847 6.20748 21.5585C6.66913 20.9179 7.08064 20.2424 7.43348 19.532C7.4543 19.4904 7.43442 19.441 7.39186 19.4246C6.73913 19.173 6.1176 18.8662 5.51973 18.5178C5.47244 18.4897 5.46865 18.421 5.51216 18.3881C5.63797 18.2923 5.76382 18.1926 5.88396 18.0919C5.90569 18.0736 5.93598 18.0697 5.96153 18.0813C9.88928 19.9036 14.1415 19.9036 18.023 18.0813C18.0485 18.0687 18.0788 18.0726 18.1015 18.091C18.2216 18.1916 18.3475 18.2923 18.4742 18.3881C18.5177 18.421 18.5149 18.4897 18.4676 18.5178C17.8697 18.8729 17.2482 19.173 16.5945 19.4236C16.552 19.4401 16.533 19.4904 16.5538 19.532C16.9143 20.2414 17.3258 20.9169 17.7789 21.5576C17.7978 21.5847 17.8319 21.5963 17.8631 21.5866C19.8241 20.9701 21.8126 20.0401 23.8654 18.5081C23.8834 18.4946 23.8948 18.4742 23.8967 18.452C24.3971 13.1911 23.0585 8.6212 20.3482 4.57004C20.3416 4.5565 20.3303 4.54681 20.317 4.54101ZM8.02002 15.6802C6.8375 15.6802 5.86313 14.577 5.86313 13.222C5.86313 11.8671 6.8186 10.7639 8.02002 10.7639C9.23087 10.7639 10.1958 11.8768 10.1769 13.222C10.1769 14.577 9.22141 15.6802 8.02002 15.6802ZM15.9947 15.6802C14.8123 15.6802 13.8379 14.577 13.8379 13.222C13.8379 11.8671 14.7933 10.7639 15.9947 10.7639C17.2056 10.7639 18.1705 11.8768 18.1516 13.222C18.1516 14.577 17.2056 15.6802 15.9947 15.6802Z" fill="#758CA3" />
+                                                                                    <path d="M20.317 4.54101C18.7873 3.82774 17.147 3.30224 15.4319 3.00126C15.4007 2.99545 15.3695 3.00997 15.3534 3.039C15.1424 3.4203 14.9087 3.91774 14.7451 4.30873C12.9004 4.02808 11.0652 4.02808 9.25832 4.30873C9.09465 3.90905 8.85248 3.4203 8.64057 3.039C8.62448 3.01094 8.59328 2.99642 8.56205 3.00126C6.84791 3.30128 5.20756 3.82678 3.67693 4.54101C3.66368 4.54681 3.65233 4.5565 3.64479 4.56907C0.533392 9.29283 -0.31895 13.9005 0.0991801 18.451C0.101072 18.4733 0.11337 18.4946 0.130398 18.5081C2.18321 20.0401 4.17171 20.9701 6.12328 21.5866C6.15451 21.5963 6.18761 21.5847 6.20748 21.5585C6.66913 20.9179 7.08064 20.2424 7.43348 19.532C7.4543 19.4904 7.43442 19.441 7.39186 19.4246C6.73913 19.173 6.1176 18.8662 5.51973 18.5178C5.47244 18.4897 5.46865 18.421 5.51216 18.3881C5.63797 18.2923 5.76382 18.1926 5.88396 18.0919C5.90569 18.0736 5.93598 18.0697 5.96153 18.0813C9.88928 19.9036 14.1415 19.9036 18.023 18.0813C18.0485 18.0687 18.0788 18.0726 18.1015 18.091C18.2216 18.1916 18.3475 18.2923 18.4742 18.3881C18.5177 18.421 18.5149 18.4897 18.4676 18.5178C17.8697 18.8729 17.2482 19.173 16.5945 19.4236C16.552 19.4401 16.533 19.4904 16.5538 19.532C16.9143 20.2414 17.3258 20.9169 17.7789 21.5576C17.7978 21.5847 17.8319 21.5963 17.8631 21.5866C19.8241 20.9701 21.8126 20.0401 23.8654 18.5081C23.8834 18.4946 23.8948 18.4742 23.8967 18.452C24.3971 13.1911 23.0585 8.6212 20.3482 4.57004C20.3416 4.5565 20.3303 4.54681 20.317 4.54101ZM8.02002 15.6802C6.8375 15.6802 5.86313 14.577 5.86313 13.222C5.86313 11.8671 6.8186 10.7639 8.02002 10.7639C9.23087 10.7639 10.1958 11.8768 10.1769 13.222C10.1769 14.577 9.22141 15.6802 8.02002 15.6802ZM15.9947 15.6802C14.8123 15.6802 13.8379 14.577 13.8379 13.222C13.8379 11.8671 14.7933 10.7639 15.9947 10.7639C17.2056 10.7639 18.1705 11.8768 18.1516 13.222C18.1516 14.577 17.2056 15.6802 15.9947 15.6802Z" fill="#758CA3" />
 
-                                                                </g>
+                                                                                </g>
 
-                                                                <defs>
+                                                                                <defs>
 
-                                                                    <clipPath id="clip0_525_68">
+                                                                                    <clipPath id="clip0_525_68">
 
-                                                                        <rect width="24" height="24" fill="white" />
+                                                                                        <rect width="24" height="24" fill="white" />
 
-                                                                    </clipPath>
+                                                                                    </clipPath>
 
-                                                                </defs>
+                                                                                </defs>
+                                                                            </svg>
+                                                                            Discord
+                                                                        </Link>
+                                                                    </Typography>}
+                                                                </>
+                                                            ))
+                                                        }
+                                                    </Box>
+                                                :
+                                                    <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
+                                                        <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                            <Link href="#"><FacebookIcon /> Facebook</Link>
+                                                        </Typography>
+                                                        <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                            <Link href="#" ><YouTubeIcon /> YouTube</Link>
+                                                        </Typography>
+                                                        <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
+                                                            <Link href="#">
+                                                                <svg width="22px" height="22px" viewBox="0 0.5 24 24" id="meteor-icon-kit__regular-discord" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-                                                            </svg>
+                                                                    <g clip-path="url(#clip0_525_68)">
+
+                                                                        <path d="M20.317 4.54101C18.7873 3.82774 17.147 3.30224 15.4319 3.00126C15.4007 2.99545 15.3695 3.00997 15.3534 3.039C15.1424 3.4203 14.9087 3.91774 14.7451 4.30873C12.9004 4.02808 11.0652 4.02808 9.25832 4.30873C9.09465 3.90905 8.85248 3.4203 8.64057 3.039C8.62448 3.01094 8.59328 2.99642 8.56205 3.00126C6.84791 3.30128 5.20756 3.82678 3.67693 4.54101C3.66368 4.54681 3.65233 4.5565 3.64479 4.56907C0.533392 9.29283 -0.31895 13.9005 0.0991801 18.451C0.101072 18.4733 0.11337 18.4946 0.130398 18.5081C2.18321 20.0401 4.17171 20.9701 6.12328 21.5866C6.15451 21.5963 6.18761 21.5847 6.20748 21.5585C6.66913 20.9179 7.08064 20.2424 7.43348 19.532C7.4543 19.4904 7.43442 19.441 7.39186 19.4246C6.73913 19.173 6.1176 18.8662 5.51973 18.5178C5.47244 18.4897 5.46865 18.421 5.51216 18.3881C5.63797 18.2923 5.76382 18.1926 5.88396 18.0919C5.90569 18.0736 5.93598 18.0697 5.96153 18.0813C9.88928 19.9036 14.1415 19.9036 18.023 18.0813C18.0485 18.0687 18.0788 18.0726 18.1015 18.091C18.2216 18.1916 18.3475 18.2923 18.4742 18.3881C18.5177 18.421 18.5149 18.4897 18.4676 18.5178C17.8697 18.8729 17.2482 19.173 16.5945 19.4236C16.552 19.4401 16.533 19.4904 16.5538 19.532C16.9143 20.2414 17.3258 20.9169 17.7789 21.5576C17.7978 21.5847 17.8319 21.5963 17.8631 21.5866C19.8241 20.9701 21.8126 20.0401 23.8654 18.5081C23.8834 18.4946 23.8948 18.4742 23.8967 18.452C24.3971 13.1911 23.0585 8.6212 20.3482 4.57004C20.3416 4.5565 20.3303 4.54681 20.317 4.54101ZM8.02002 15.6802C6.8375 15.6802 5.86313 14.577 5.86313 13.222C5.86313 11.8671 6.8186 10.7639 8.02002 10.7639C9.23087 10.7639 10.1958 11.8768 10.1769 13.222C10.1769 14.577 9.22141 15.6802 8.02002 15.6802ZM15.9947 15.6802C14.8123 15.6802 13.8379 14.577 13.8379 13.222C13.8379 11.8671 14.7933 10.7639 15.9947 10.7639C17.2056 10.7639 18.1705 11.8768 18.1516 13.222C18.1516 14.577 17.2056 15.6802 15.9947 15.6802Z" fill="#758CA3" />
+
+                                                                    </g>
+
+                                                                    <defs>
+
+                                                                        <clipPath id="clip0_525_68">
+
+                                                                            <rect width="24" height="24" fill="white" />
+
+                                                                        </clipPath>
+
+                                                                    </defs>
+
+                                                                </svg>
 
 
-                                                            Discord
-                                                        </Link>
-                                                    </Typography>
-                                                </Box>
+                                                                Discord
+                                                            </Link>
+                                                        </Typography>
+                                                    </Box>
+                                                }
                                             </Item>
                                         </Box>
                                     </Container>
@@ -471,55 +520,52 @@ export default function ChannelName(props) {
                                                     {/* <Grid className='desktop5'> */}
 
                                                     {showAllRecentBroadcast ?
-                                                        <Carousel swipeable={false} responsive={responsive}>
-                                                            {recentLiveStreamVideos.slice(0, 10).map((streamsInfo, index) => (
-                                                                <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
-                                                                    <Card sx={{ maxWidth: 345 }}>
-                                                                        <div style={{ position: 'relative' }}>
-                                                                            <CardMedia
-                                                                                sx={{ height: 140 }}
-                                                                                image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                            >
-                                                                            </CardMedia>
+                                                        // <Carousel swipeable={false} responsive={responsive}>
+                                                        //     {recentLiveStreamVideos.slice(0, 10).map((streamsInfo, index) => (
+                                                        //         <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
+                                                        //             <Card sx={{ maxWidth: 345 }}>
+                                                        //                 <div style={{ position: 'relative' }}>
+                                                        //                     <CardMedia
+                                                        //                         sx={{ height: 140 }}
+                                                        //                         image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                        //                     >
+                                                        //                     </CardMedia>
 
-                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                                            </div>
+                                                        //                     <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                        //                         <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                        //                     </div>
 
 
-                                                                        </div>
-                                                                        <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                            <Grid item>
-                                                                                <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                            </Grid>
-                                                                            <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                <Typography gutterBottom variant="h5" component="div">
-                                                                                    <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
-                                                                                </Typography>
-                                                                                <Typography gutterBottom variant="p" component="div">
-                                                                                    <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                </Typography>
-                                                                                {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                    {streamsInfo.tags.map((tag, index) => (
-                                                                                        <li key={index}>
-                                                                                            <Link href="/tags/">{tag}</Link>
-                                                                                        </li>
-                                                                                    ))}
-                                                                                </ul> : null}
-                                                                            </Grid>
-                                                                        </Grid>
-                                                                    </Card>
-                                                                </Grid>
-                                                            ))}
-                                                        </Carousel> :
-
-                                                        // <Box sx={{display:'flex', flexWrap: 'wrap'}}>
-
+                                                        //                 </div>
+                                                        //                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                        //                     <Grid item>
+                                                        //                         <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                        //                     </Grid>
+                                                        //                     <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                        //                         <Typography gutterBottom variant="h5" component="div">
+                                                        //                             <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                        //                         </Typography>
+                                                        //                         <Typography gutterBottom variant="p" component="div">
+                                                        //                             <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                        //                         </Typography>
+                                                        //                         {streamsInfo.tags ? <ul className='videoTags'>
+                                                        //                             {streamsInfo.tags.map((tag, index) => (
+                                                        //                                 <li key={index}>
+                                                        //                                     <Link href="/tags/">{tag}</Link>
+                                                        //                                 </li>
+                                                        //                             ))}
+                                                        //                         </ul> : null}
+                                                        //                     </Grid>
+                                                        //                 </Grid>
+                                                        //             </Card>
+                                                        //         </Grid>
+                                                        //     ))}
+                                                        // </Carousel> 
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
-                                                                {recentLiveStreamVideos.map((streamsInfo, index) => (
-                                                                    <Grid item xs={2} sm={4} md={4} lg={6} key={index}>
+                                                                {recentLiveStreamVideos.slice(0, 5).map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
                                                                         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                             <div style={{ position: 'relative' }}>
                                                                                 <CardMedia
@@ -529,8 +575,57 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                    <div className='viewers12122121'>{countLiveViewing(streamsInfo.views)} viewers</div>
-                                                                                    <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                    <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                </div>                                                                               
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                <Grid item>
+                                                                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                </Grid>
+                                                                                <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                    <Typography gutterBottom variant="h5" component="div">
+                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                    </Typography>
+                                                                                    <Typography gutterBottom variant="p" component="div">
+                                                                                        <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                    </Typography>
+                                                                                    {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                        {streamsInfo.tags.map((tag, index) => (
+                                                                                            <li key={index}>
+                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                    </ul> : null}
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        </Card>
+                                                                    </Grid>
+                                                                ))}
+                                                            </Grid>
+                                                        </Box>
+                                                        :
+
+                                                        // <Box sx={{display:'flex', flexWrap: 'wrap'}}>
+
+                                                        <Box sx={{ width: '100%' }}>
+                                                            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
+                                                                {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
+                                                                {recentLiveStreamVideos.map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                        <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                            <div style={{ position: 'relative' }}>
+                                                                                <CardMedia
+                                                                                    sx={{ height: 140 }}
+                                                                                    image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                >
+
+                                                                                </CardMedia>
+                                                                                <Typography variant="body1" component="div" sx={{}}>
+                                                                                <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                    <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                </div>
                                                                                 </Typography>
                                                                             </div>
                                                                             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
@@ -612,51 +707,51 @@ export default function ChannelName(props) {
 
                                                 <Box sx={{ paddingTop: '5px' }}>
                                                     {showAllVideos ?
-                                                        <Carousel swipeable={false} responsive={responsive}>
-                                                            {allVideos.slice(0, 10).map((streamsInfo, index) => (
-                                                                <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
-                                                                    <Card sx={{ maxWidth: 345 }}>
-                                                                        <div style={{ position: 'relative' }}>
-                                                                            <CardMedia
-                                                                                sx={{ height: 140 }}
-                                                                                image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                            >
-                                                                            </CardMedia>
-                                                                            <Typography variant="body1" component="div" sx={{}}>
-                                                                                <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                    <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                                                </div>
+                                                        // <Carousel swipeable={false} responsive={responsive}>
+                                                        //     {allVideos.slice(0, 10).map((streamsInfo, index) => (
+                                                        //         <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
+                                                        //             <Card sx={{ maxWidth: 345 }}>
+                                                        //                 <div style={{ position: 'relative' }}>
+                                                        //                     <CardMedia
+                                                        //                         sx={{ height: 140 }}
+                                                        //                         image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                        //                     >
+                                                        //                     </CardMedia>
+                                                        //                     <Typography variant="body1" component="div" sx={{}}>
+                                                        //                         <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                        //                             <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                        //                         </div>
 
-                                                                            </Typography>
-                                                                        </div>
-                                                                        <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                            <Grid item>
-                                                                                <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                            </Grid>
-                                                                            <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                <Typography gutterBottom variant="h5" component="div">
-                                                                                    <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
-                                                                                </Typography>
-                                                                                <Typography gutterBottom variant="p" component="div">
-                                                                                    <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                </Typography>
-                                                                                {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                    {streamsInfo.tags.map((tag, index) => (
-                                                                                        <li key={index}>
-                                                                                            <Link href="/tags/">{tag}</Link>
-                                                                                        </li>
-                                                                                    ))}
-                                                                                </ul> : null}
-                                                                            </Grid>
-                                                                        </Grid>
-                                                                    </Card>
-                                                                </Grid>
-                                                            ))}
-                                                        </Carousel> :
+                                                        //                     </Typography>
+                                                        //                 </div>
+                                                        //                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                        //                     <Grid item>
+                                                        //                         <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                        //                     </Grid>
+                                                        //                     <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                        //                         <Typography gutterBottom variant="h5" component="div">
+                                                        //                             <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                        //                         </Typography>
+                                                        //                         <Typography gutterBottom variant="p" component="div">
+                                                        //                             <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                        //                         </Typography>
+                                                        //                         {streamsInfo.tags ? <ul className='videoTags'>
+                                                        //                             {streamsInfo.tags.map((tag, index) => (
+                                                        //                                 <li key={index}>
+                                                        //                                     <Link href="/tags/">{tag}</Link>
+                                                        //                                 </li>
+                                                        //                             ))}
+                                                        //                         </ul> : null}
+                                                        //                     </Grid>
+                                                        //                 </Grid>
+                                                        //             </Card>
+                                                        //         </Grid>
+                                                        //     ))}
+                                                        // </Carousel> 
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
-                                                                {allVideos.map((streamsInfo, index) => (
-                                                                    <Grid item xs={2} sm={4} md={4} lg={6} key={index}>
+                                                                {allVideos.slice(0, 5).map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
                                                                         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                             <div style={{ position: 'relative' }}>
                                                                                 <CardMedia
@@ -666,8 +761,53 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                    <div className=''>{countLiveViewing(streamsInfo.views)} viewers</div>
-                                                                                    <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                    <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                        <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                    </div>
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                <Grid item>
+                                                                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                </Grid>
+                                                                                <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                    <Typography gutterBottom variant="h5" component="div">
+                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                    </Typography>
+                                                                                    <Typography gutterBottom variant="p" component="div">
+                                                                                        <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                    </Typography>
+                                                                                    {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                        {streamsInfo.tags.map((tag, index) => (
+                                                                                            <li key={index}>
+                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                    </ul> : null}
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        </Card>
+                                                                    </Grid>
+                                                                ))}
+                                                            </Grid>
+                                                        </Box>
+                                                        :
+                                                        <Box sx={{ width: '100%' }}>
+                                                            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
+                                                                {allVideos.map((streamsInfo, index) => (
+                                                                    <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                        <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                            <div style={{ position: 'relative' }}>
+                                                                                <CardMedia
+                                                                                    sx={{ height: 140 }}
+                                                                                    image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                >
+
+                                                                                </CardMedia>
+                                                                                <Typography variant="body1" component="div" sx={{}}>
+                                                                                    <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                        <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                    </div>
                                                                                 </Typography>
                                                                             </div>
                                                                             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
@@ -756,6 +896,10 @@ export async function getStaticProps({ params }) {
                     location
                     createdAt
                     userId
+                    socialLinks {
+                        platform
+                        url
+                    }
                 }
             }
         `,
