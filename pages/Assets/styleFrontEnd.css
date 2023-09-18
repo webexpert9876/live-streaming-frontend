@@ -171,7 +171,7 @@ ul.videoTags {
 .stickyHeader {
     position: fixed;
     z-index: 99999;
-    border-radius: 0;
+    border-radius: 0 !important;
 }
 
 /* .MuiBox-root.css-k008qs {
@@ -251,4 +251,15 @@ input.ReactTags__tagInputField {
 }
 .ReactTags__selected button.ReactTags__remove {
     margin: 5px;
+}
+body .css-13mxmup {
+    height: 90px;
+}
+.socialShareLink a {
+    display: flex;
+    gap: 10px;
+    color: #fff;
+}
+.socialShareLink path {
+    fill: #fff;
 }

@@ -107,7 +107,7 @@ console.log('homeData', homeData)
 
 
   return (
-    <Box sx={{ display: 'flex' }} style={{padding: "90px 0 0 0", background: "#0c1028", marginTop:"90px"}}>
+    <Box sx={{ display: 'flex' }} style={{padding: "90px 0 0 0", background: "#0c1028", marginTop:"70px"}}>
       <CssBaseline />
       <LeftMenu />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>

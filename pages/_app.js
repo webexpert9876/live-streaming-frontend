@@ -98,7 +98,7 @@ function TokyoApp({ Component, ...rest  }) {
         <SidebarProvider>
           <ThemeProvider>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <CssBaseline />xdfsdf
+              <CssBaseline />
                 <Layout style={bodyColor}>
                   {getLayout(
                       <Component {...pageProps} />

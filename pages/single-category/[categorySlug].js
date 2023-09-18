@@ -204,7 +204,7 @@ export default function Category(props) {
                       {tattooCategories.viewers} 69K Viewers
                     </Grid>
                     <Grid item gap={"15px"}>
-                      {countFollower.countFollower} Followers
+                      {countFollower.countFollower} Followers 
                     </Grid>
 
                     <Grid item gap={"15px"}>
