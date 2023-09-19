@@ -26,8 +26,7 @@ import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from '../../../../../store/slices/authSlice';
 import { setAuthUser, setAuthState } from '../../../../../store/slices/authSlice';
-
-
+import axios from 'axios';
 
 
 const UserBoxButton = styled(Button)(
@@ -67,6 +66,7 @@ const UserBoxDescription = styled(Typography)(
 
 function HeaderUserbox() {
   const dispatch = useDispatch();
+  const [roleInfo , setRoleInfo] = useState({});
 
   const nextRouter = useRouter();
 
@@ -83,6 +83,19 @@ function HeaderUserbox() {
     }
   }, [])
   const authState = useSelector(selectAuthUser);
+  
+  useEffect(()=>{
+    if(authState != undefined || authState != null){
+      if(authState.role != null){
+
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${authState.role}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
+          setRoleInfo(data.data.role);
+          console.log('data.data.role', data.data.role)
+        });
+      }
+    }
+  }, [authState]);
+
   const user = {
     name: 'Catherine Pike',
     avatar: '/static/images/avatars/1.jpg',
@@ -167,12 +180,20 @@ function HeaderUserbox() {
               <ListItemText primary="Messenger" />
             </ListItem>
           </NextLink>
-          <NextLink href="/management/profile/settings" passHref>
+          
+          {roleInfo.role == 'artist' && <NextLink href="/management/channel/settings" passHref>
             <ListItem button>
               <AccountTreeTwoToneIcon fontSize="small" />
               <ListItemText primary="Account Settings" />
             </ListItem>
           </NextLink>
+          }
+          {roleInfo.role == 'user' && <NextLink href="/management/profile/settings" passHref>
+            <ListItem button>
+              <AccountTreeTwoToneIcon fontSize="small" />
+              <ListItemText primary="Account Settings" />
+            </ListItem>
+          </NextLink>}
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>          
