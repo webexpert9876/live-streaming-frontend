@@ -290,7 +290,7 @@ function UserSidebarMenu(){
                                         onClick={closeSidebar}
                                         startIcon={<TableChartTwoToneIcon />}
                                     >
-                                        Add tattoo Category
+                                        Tattoo Category
                                     </Button>
                                 </NextLink>
                             </ListItem>

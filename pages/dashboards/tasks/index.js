@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PageHeader from 'src/content/Dashboards/Tasks/PageHeader';
 import Footer from 'src/components/Footer';
 import {
@@ -23,6 +23,8 @@ import Projects from 'src/content/Dashboards/Tasks/Projects';
 import Checklist from 'src/content/Dashboards/Tasks/Checklist';
 import Profile from 'src/content/Dashboards/Tasks/Profile';
 import TaskSearch from 'src/content/Dashboards/Tasks/TaskSearch';
+import client from "../../../graphql";
+import { gql } from "@apollo/client";
 
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
@@ -110,11 +112,48 @@ function DashboardTasks() {
   const theme = useTheme();
 
   const [currentTab, setCurrentTab] = useState('analytics');
+  const [userData, setUserData] = useState([]);
 
   const tabs = [
     { value: 'analytics', label: 'Analytics Overview' },
     { value: 'taskSearch', label: 'Task Search' }
   ];
+
+  useEffect(()=>{
+
+    let userId = JSON.parse(localStorage.getItem('authUser'));
+    function getUserAllDetails(){
+      client.query({
+        variables: {
+          usersId: userId._id
+        },
+        query: gql`
+            query Query($usersId: ID) {
+                users(id: $usersId) {
+                    _id
+                    firstName
+                    lastName
+                    username
+                    email
+                    password
+                    profilePicture
+                    urlSlug
+                    jwtToken
+                    role
+                    channelId
+                    interestedStyleDetail {
+                        title
+                        _id
+                    }
+                }
+            }
+        `,
+      }).then((result) => {
+          setUserData(result.data.users);
+        });
+    }
+    getUserAllDetails();
+  },[])
 
   const handleTabsChange = (_event, value) => {
     setCurrentTab(value);
@@ -122,109 +161,114 @@ function DashboardTasks() {
 
   return (
     <>
-      <Head>
-        <title>Tasks Dashboard</title>
-      </Head>
-      <PageTitleWrapper>
-        <PageHeader />
-      </PageTitleWrapper>
-      <Container maxWidth="lg">
-        <TabsContainerWrapper>
-          <Tabs
-            onChange={handleTabsChange}
-            value={currentTab}
-            variant="scrollable"
-            scrollButtons="auto"
-            textColor="primary"
-            indicatorColor="primary"
-          >
-            {tabs.map((tab) => (
-              <Tab key={tab.value} label={tab.label} value={tab.value} />
-            ))}
-          </Tabs>
-        </TabsContainerWrapper>
-        <Card variant="outlined">
-          <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="stretch"
-            spacing={0}
-          >
-            {currentTab === 'analytics' && (
-              <>
-                <Grid item xs={12}>
-                  <Box p={4}>
-                    <TeamOverview />
-                  </Box>
-                </Grid>
-                <Grid item xs={12}>
-                  <Divider />
-                  <Box
-                    p={4}
-                    sx={{
-                      background: `${theme.colors.alpha.black[5]}`
-                    }}
-                  >
-                    <Grid container spacing={4}>
-                      <Grid item xs={12} sm={6} md={8}>
-                        <TasksAnalytics />
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={4}>
-                        <Performance />
-                      </Grid>
+      {userData.length > 0?
+        <SidebarLayout userData={userData}>
+          <Head>
+            <title>Tasks Dashboard</title>
+          </Head>
+          <PageTitleWrapper>
+            <PageHeader />
+          </PageTitleWrapper>
+          <Container maxWidth="lg">
+            <TabsContainerWrapper>
+              <Tabs
+                onChange={handleTabsChange}
+                value={currentTab}
+                variant="scrollable"
+                scrollButtons="auto"
+                textColor="primary"
+                indicatorColor="primary"
+              >
+                {tabs.map((tab) => (
+                  <Tab key={tab.value} label={tab.label} value={tab.value} />
+                ))}
+              </Tabs>
+            </TabsContainerWrapper>
+            <Card variant="outlined">
+              <Grid
+                container
+                direction="row"
+                justifyContent="center"
+                alignItems="stretch"
+                spacing={0}
+              >
+                {currentTab === 'analytics' && (
+                  <>
+                    <Grid item xs={12}>
+                      <Box p={4}>
+                        <TeamOverview />
+                      </Box>
                     </Grid>
-                  </Box>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box p={4}>
-                    <Projects />
-                  </Box>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box
-                    sx={{
-                      background: `${theme.colors.alpha.black[5]}`
-                    }}
-                  >
-                    <Grid container spacing={0}>
-                      <Grid item xs={12} md={6}>
-                        <Box
-                          p={4}
-                          sx={{
-                            background: `${theme.colors.alpha.white[70]}`
-                          }}
-                        >
-                          <Checklist />
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Box p={4}>
-                          <Profile />
-                        </Box>
-                      </Grid>
+                    <Grid item xs={12}>
+                      <Divider />
+                      <Box
+                        p={4}
+                        sx={{
+                          background: `${theme.colors.alpha.black[5]}`
+                        }}
+                      >
+                        <Grid container spacing={4}>
+                          <Grid item xs={12} sm={6} md={8}>
+                            <TasksAnalytics />
+                          </Grid>
+                          <Grid item xs={12} sm={6} md={4}>
+                            <Performance />
+                          </Grid>
+                        </Grid>
+                      </Box>
+                      <Divider />
                     </Grid>
-                  </Box>
-                </Grid>
-              </>
-            )}
-            {currentTab === 'taskSearch' && (
-              <Grid item xs={12}>
-                <Box p={4}>
-                  <TaskSearch />
-                </Box>
+                    <Grid item xs={12}>
+                      <Box p={4}>
+                        <Projects />
+                      </Box>
+                      <Divider />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box
+                        sx={{
+                          background: `${theme.colors.alpha.black[5]}`
+                        }}
+                      >
+                        <Grid container spacing={0}>
+                          <Grid item xs={12} md={6}>
+                            <Box
+                              p={4}
+                              sx={{
+                                background: `${theme.colors.alpha.white[70]}`
+                              }}
+                            >
+                              <Checklist />
+                            </Box>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <Box p={4}>
+                              <Profile />
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {currentTab === 'taskSearch' && (
+                  <Grid item xs={12}>
+                    <Box p={4}>
+                      <TaskSearch />
+                    </Box>
+                  </Grid>
+                )}
               </Grid>
-            )}
-          </Grid>
-        </Card>
-      </Container>
-      <Footer />
+            </Card>
+          </Container>
+          <Footer />
+        </SidebarLayout>
+      : null}
+
     </>
   );
 }
 
-DashboardTasks.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
+// DashboardTasks.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
 
 export default DashboardTasks;
