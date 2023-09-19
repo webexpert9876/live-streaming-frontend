@@ -140,7 +140,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
 
     }, [])
 
-    useEffect(()=>{
+    useEffect(async()=>{
         if(isUpdatingVideoInfo){
 
             const formData = new FormData();
@@ -153,31 +153,52 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                 formData.append('files', selectedPreviewPic[0]);
             }
 
+            let tagInfoArray = [];
             tags.forEach((tag) => {
                 formData.append('tags', tag.text);
+                tagInfoArray.push(tag.text);
             });
 
-            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-                // console.log('data.data updated data', data.data);
-                let videoNewInfo = data.data.videoData;
+            let tagResult;
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/new/tags`, {tagNames: tagInfoArray}, {headers: {'x-access-token': userInfo.jwtToken}
+                }).then((data)=>{
+                    tagResult = data.data.success        
+                }).catch((error)=>{
+                    console.log('error', error);
+                    setApiMessageType('error')
+                    const errorMessage = error.response.data.message;
+                    
+                    handleMessageBoxOpen()
+                    setApiResponseMessage(errorMessage);
+                    setIsUpdatingVideoInfo(false)
+                    setLoading(false);
+                });
 
-                setApiMessageType('success')
-                setApiResponseMessage('Video detail update successfully');
-                setIsUpdatingVideoInfo(false);
-                setVideoDetails(videoNewInfo);
-                videoUpdateFunction(videoNewInfo._id, videoNewInfo)
-                setLoading(false);
-                handleMessageBoxOpen()
-            }).catch((error)=>{
-                console.log('error', error);
-                setApiMessageType('error')
-                const errorMessage = error.response.data.message;
-                
-                handleMessageBoxOpen()
-                setApiResponseMessage(errorMessage);
-                setIsUpdatingVideoInfo(false)
-                setLoading(false);
-            });
+            if(tagResult){
+
+                axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+                    // console.log('data.data updated data', data.data);
+                    let videoNewInfo = data.data.videoData;
+    
+                    setApiMessageType('success')
+                    setApiResponseMessage('Video detail update successfully');
+                    setIsUpdatingVideoInfo(false);
+                    setVideoDetails(videoNewInfo);
+                    videoUpdateFunction(videoNewInfo._id, videoNewInfo)
+                    setLoading(false);
+                    handleMessageBoxOpen()
+                }).catch((error)=>{
+                    console.log('error', error);
+                    setApiMessageType('error')
+                    const errorMessage = error.response.data.message;
+                    
+                    handleMessageBoxOpen()
+                    setApiResponseMessage(errorMessage);
+                    setIsUpdatingVideoInfo(false)
+                    setLoading(false);
+                });
+            }
+
         }
     }, [isUpdatingVideoInfo])
 

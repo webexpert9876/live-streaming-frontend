@@ -217,7 +217,7 @@ const Video = () => {
     getUserAllDetails();
   },[])
 
-    useEffect(()=>{
+    useEffect(async ()=>{
         if(isAddingVideo){
             // console.log('videoInput===========', videoInput)
 
@@ -234,16 +234,34 @@ const Video = () => {
             formData.append('files', selectedPreviewPic[0]);
             formData.append('files', selectedVideo[0]);
 
+            let tagInfoArray = [];
             tags.forEach((tag) => {
                 formData.append('tags', tag.text);
+                tagInfoArray.push(tag.text);
             });
             
-            axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/create/video`, formData,
-                {
-                    onUploadProgress: data => {
-                        setProgress(Math.round((100 * data.loaded) / data.total))
-                    },
-                    headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}
+            let tagResult;
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/new/tags`, {tagNames: tagInfoArray}, {headers: {'x-access-token': userData[0].jwtToken}
+                }).then((data)=>{
+                    tagResult = data.data.success        
+                }).catch((error)=>{
+                    console.log('error', error);
+                    setApiMessageType('error')
+                    const errorMessage = error.response.data.message;
+                    
+                    handleMessageBoxOpen()
+                    setApiResponseMessage(errorMessage);
+                    setIsAddingVideo(false)
+                    setLoading(false);
+                });
+
+            if(tagResult){
+                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/create/video`, formData,
+                    {
+                        onUploadProgress: data => {
+                            setProgress(Math.round((100 * data.loaded) / data.total))
+                        },
+                        headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}
                 }).then((data)=>{
 
                     setApiMessageType('success')
@@ -285,7 +303,7 @@ const Video = () => {
                     setIsAddingVideo(false)
                     setLoading(false);
                 });
-            
+            }
         }
     },[isAddingVideo])
     

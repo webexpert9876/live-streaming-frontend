@@ -65,6 +65,10 @@ const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const prvVideoBanner = {
+  width: '500px',
+  height: '334px'
+}
 
 function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData}) {  
   const authState = useSelector(selectAuthUser)
@@ -193,7 +197,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   }, [])
 
 // -------------------------------------------Stream detail updaing api call -------------------------------------------
-  useEffect(()=>{
+  useEffect( async()=>{
 
     if(streamInfoSubmit){
 
@@ -202,28 +206,47 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       formData.append('description', streamInput.description);
       formData.append('streamCategory', streamInput.streamCategory);
 
+      let tagInfoArray = [];
       tags.forEach((tag) => {
         formData.append('tags', tag.text);
+        tagInfoArray.push(tag.text);
       });
 
-      axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/stream/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+      let tagResult;
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/new/tags`, {tagNames: tagInfoArray}, {headers: {'x-access-token': userInfo.jwtToken}
+          }).then((data)=>{
+              tagResult = data.data.success        
+          }).catch((error)=>{
+              console.log('error', error);
+              setApiMessageType('error')
+              const errorMessage = error.response.data.message;
+              
+              handleMessageBoxOpen()
+              setApiResponseMessage(errorMessage);
+              setStreamInfoSubmit(false)
+              setLoading(false);
+          });
 
-        setApiMessageType('success')
-        setApiResponseMessage('Stream detail update successfully');
-        setStreamInfoSubmit(false);
-        setStreamInfo(data.data.streamData);
-        setLoading(false);
-        handleMessageBoxOpen()
-      }).catch((error)=>{
-        console.log('error', error);
-        setApiMessageType('error')
-        const errorMessage = error.response.data.message;
-        
-        handleMessageBoxOpen()
-        setApiResponseMessage(errorMessage);
-        setStreamInfoSubmit(false)
-        setLoading(false);
-      });
+      if(tagResult){
+        axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/stream/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+
+          setApiMessageType('success')
+          setApiResponseMessage('Stream detail update successfully');
+          setStreamInfoSubmit(false);
+          setStreamInfo(data.data.streamData);
+          setLoading(false);
+          handleMessageBoxOpen()
+        }).catch((error)=>{
+          console.log('error', error);
+          setApiMessageType('error')
+          const errorMessage = error.response.data.message;
+          
+          handleMessageBoxOpen()
+          setApiResponseMessage(errorMessage);
+          setStreamInfoSubmit(false)
+          setLoading(false);
+        });
+      }
     }
   },[streamInfoSubmit])
   
@@ -423,15 +446,16 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                     :
                       <Typography sx={{marginTop: '10px'}}>
                         {userUploadedImage?
-                          <img style={{width: '150px', height: '150px'}} src={userUploadedImage}/> 
+                          <img style={prvVideoBanner} src={userUploadedImage}/> 
                         :
                           userProfilePic? 
-                            <img style={{width: '150px', height: '150px'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                            <img style={prvVideoBanner} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
                           : 
                             <Avatar
                             variant='rounded'
                             src={picture.croppedImg}
-                            sx={{ width: 500, height: 500, padding: "5" }}
+                            style={prvVideoBanner}
+                            sx={{ padding: "5" }}
                           />
                         }
                       </Typography>
@@ -445,12 +469,13 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
                         <AvatarEditor
                           ref={setEditorRef}
                           image={picture.img}
-                          width={800}
-                          height={800}
+                          width={1600}
+                          height={890}
                           border={50}
                           color={[255, 255, 255, 0.6]} // RGBA
                           rotate={0}
                           scale={picture.zoom}
+                          style={prvVideoBanner}
                         />
                         <Slider
                           aria-label="raceSlider"
