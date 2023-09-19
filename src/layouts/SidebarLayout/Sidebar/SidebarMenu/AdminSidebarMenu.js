@@ -277,6 +277,23 @@ function UserSidebarMenu(){
                                     </Button>
                                 </NextLink>
                             </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/management/category/add" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/category/add'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<TableChartTwoToneIcon />}
+                                    >
+                                        Add tattoo Category
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
                         </List>
                     </SubMenuWrapper>
                 </List>

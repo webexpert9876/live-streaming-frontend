@@ -118,7 +118,7 @@ function HeaderUserbox() {
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+        <Avatar variant="rounded" alt={authState?.firstName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`} />
         <Hidden mdDown>
           <UserBoxText>            
             <UserBoxLabel variant="body1">{authState?.firstName} {authState?.lastName}</UserBoxLabel>
@@ -145,7 +145,7 @@ function HeaderUserbox() {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+          <Avatar variant="rounded" alt={authState?.firstName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`}/>
           <UserBoxText>
             <UserBoxLabel variant="body1">{authState?.firstName} {authState?.lastName}</UserBoxLabel>
             <UserBoxDescription variant="body2">
