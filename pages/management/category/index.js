@@ -48,45 +48,35 @@ import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
-import VideoEditCard from "../../../src/components/VideoEdit/VideoEditCard";
+import CategoryEdit from "../../../src/components/category/CategoryEdit";
+import AddCategory from "../../../src/components/category/AddCategory";
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 
 
-const Video = () => {
+function TattooCategory() {
   const [userData, setUserData] = useState([]);
 
-//  For pagination and video status filter  
+//  For pagination
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(5);
-  const [filters, setFilters] = useState({
-    status: null
-  });
-  const [privacyFilters, setPrivacyFilters] = useState({
-    status: null
-  });
-  const [allVideoDetails, setAllVideoDetails]= useState([])
-  const [showAllVideoDetails, setShowAllVideoDetails]= useState([])
-  const [isCheckStatusChange, setIsCheckStatusChange]= useState(false)
-  const [filteredVideoList, setFilteredVideoList]= useState([])
+  const [showAllCategoriesDetails, setShowAllCategoriesDetails]= useState([])
+  const [isCheckPaginationChange, setIsCheckPaginationChange]= useState(false)
 
-
-  const [userInfo, setUserInfo]= useState({});
   const authState = useSelector(selectAuthUser)
   const router = useRouter();
 
-  const [openVideoEditDialog, setOpenVideoEditDialog] = useState(false);
-  const [openDeleteDialog, setOpenVideoDeleteDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const [isVideoEditing, setIsVideoEditing] = useState(true);
-  const [selectedRowVideoDetails, setSelectedRowVideoDetails] = useState({});
+  const [isTattooCategoryEditing, setIsTattooCategoryEditing] = useState(true);
+  const [isAddingTattooCategory, setIsAddingTattooCategory] = useState(false);
+  const [selectedRowDetails, setSelectedRowDetails] = useState({});
   
   const [tattooCategoryList, setTattooCategoryList] = useState([]);
   const [tagList, setTagList] = useState([]);
 
-  const [isVideoPrivacyChange, setIsVideoPrivacyChange] = useState(false);
-
-  const [isDeletingVideo, setIsDeletingVideo] = useState(false);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
   const [deleteInputValue, setDeleteInputValue] = useState('');
 
   // -------------------------Error state------------------------
@@ -94,33 +84,6 @@ const Video = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
-  
-  const handleClickOpen = (dialogType, video) => {
-    switch(dialogType){
-        case 'tattooCategoryEdit':
-            // setOpenVideoEditDialog(true);
-            // router.push({pathname: '/components/videos/edit'})
-            // console.log('selected row video', video)
-            setSelectedRowVideoDetails(video)
-            setIsVideoEditing(false)
-            break;
-        case 'tattooCategoryDelete':
-            setSelectedRowVideoDetails(video)
-            setOpenVideoDeleteDialog(true);
-            break;
-    }
-  };
-
-  const handleClose = (dialogType) => {
-    switch(dialogType){
-        case 'tattooCategoryEdit':
-            setOpenVideoEditDialog(false);
-            break;
-        case 'tattooCategoryDelete':
-            setOpenVideoDeleteDialog(false);
-            break;
-    }
-  };
 
   useEffect(()=>{
     // if(userInfo.length == 0){
@@ -156,92 +119,44 @@ const Video = () => {
                     profilePicture
                     tags
                 }
+                tagForStream {
+                    text
+                    id
+                }
             }
         `,
       }).then((result) => {
-        //   console.log('video page result', result.data)
+
           setUserData(result.data.users);
-        //   setAllVideoDetails(result.data.videos);
-        //   setShowAllVideoDetails(result.data.videos);
-        //   setFilteredVideoList(result.data.videos);
           setTattooCategoryList(result.data.tattooCategories);
-        //   setTagList(result.data.tagForStream)
-        //   setIsCheckStatusChange(true)
-        //   setIsVideoPrivacyChange(true)
+          setShowAllCategoriesDetails(result.data.tattooCategories);
+          setTagList(result.data.tagForStream)
+          setIsCheckPaginationChange(true)
         });
     }
     getUserAllDetails();
   },[])
 
   useEffect(()=>{
-    if(isCheckStatusChange){
-        // if(filters.status == 'all' || filters.status == null && privacyFilters.status == 'all' || privacyFilters.status == null ){
+    if(isCheckPaginationChange){
 
-            const filteredVideo = applyFilters(allVideoDetails, filters, privacyFilters);
-            
-            setFilteredVideoList(filteredVideo)
-    
-            const paginatedVideo = applyPagination(
-                filteredVideo,
-                page,
-                limit
-            );
-        // } else {
-        //     const filteredVideo = applyFilters(showAllVideoDetails, filters, privacyFilters);
-            
-        //     setFilteredVideoList(filteredVideo)
-    
-        //     const paginatedVideo = applyPagination(
-        //         filteredVideo,
-        //         page,
-        //         limit
-        //     );
-        // }
-        setIsCheckStatusChange(false)
+        applyPagination(
+            tattooCategoryList,
+            page,
+            limit
+        );
+        setIsCheckPaginationChange(false)
     }
-  },[isCheckStatusChange])
+  },[isCheckPaginationChange])
   
   useEffect(()=>{
-    if(isVideoPrivacyChange){
+    if(isDeletingCategory){
 
-        // if(filters.status == 'all' || filters.status == null && privacyFilters.status == 'all' || privacyFilters.status == null ){
-
-            const filteredVideo = applyPrivacyFilters(allVideoDetails, privacyFilters, filters);
-            
-            setFilteredVideoList(filteredVideo)
-    
-            const paginatedVideo = applyPagination(
-                filteredVideo,
-                page,
-                limit
-            );
-        // } else {
-
-        //     const filteredVideo = applyPrivacyFilters(showAllVideoDetails, privacyFilters, filters);
-            
-        //     setFilteredVideoList(filteredVideo)
-    
-        //     const paginatedVideo = applyPagination(
-        //         filteredVideo,
-        //         page,
-        //         limit
-        //     );
-        // }
-        setIsVideoPrivacyChange(false)
-    }
-  },[isVideoPrivacyChange])
-  
-  useEffect(()=>{
-    if(isDeletingVideo){
-
-        // console.log('selectedRowVideoDetails', selectedRowVideoDetails);
-
-        axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/delete/video/${selectedRowVideoDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-            // console.log('delete data ', data)
-            setApiMessageType('success')
-            setApiResponseMessage('Video deleted successfully');
-            removeVideoFromList(selectedRowVideoDetails._id)
-            setIsDeletingVideo(false);
+        axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/delete/category/${selectedRowDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+            setApiMessageType('danger')
+            setApiResponseMessage('Tattoo Category deleted successfully');
+            removeCategoryFromList(selectedRowDetails._id)
+            setIsDeletingCategory(false);
             setLoading(false);
             handleMessageBoxOpen()
         }).catch((error)=>{
@@ -251,12 +166,37 @@ const Video = () => {
             
             handleMessageBoxOpen()
             setApiResponseMessage(errorMessage);
-            setIsDeletingVideo(false)
+            setIsDeletingCategory(false)
             setLoading(false);
         });
 
     }
-  },[isDeletingVideo])
+  },[isDeletingCategory])
+
+    
+    const handleClickOpen = (dialogType, category) => {
+        switch(dialogType){
+            case 'tattooCategoryEdit':
+                setSelectedRowDetails(category)
+                setIsTattooCategoryEditing(false)
+                break;
+            case 'tattooCategoryDelete':
+                setSelectedRowDetails(category)
+                setOpenDeleteDialog(true);
+                break;
+        }
+    };
+
+    const handleClose = (dialogType) => {
+        switch(dialogType){
+            case 'tattooCategoryEdit':
+                setOpenEditDialog(false);
+                break;
+            case 'tattooCategoryDelete':
+                setOpenDeleteDialog(false);
+                break;
+        }
+    };
 
     const handleMessageBoxClose = () => {
         setOpen(false);
@@ -267,190 +207,69 @@ const Video = () => {
         setOpen(true);
     };
 
-    const removeVideoFromList = (id)=>{
+    const removeCategoryFromList = (id)=>{
         
-        const updatedArray  = allVideoDetails.filter(obj => obj._id !== id);
+        const updatedArray  = tattooCategoryList.filter(obj => obj._id !== id);
         
-        setAllVideoDetails(updatedArray)
-        let selectedVideo = updatedArray.slice(page * limit, page * limit + limit);
+        setTattooCategoryList(updatedArray)
+        let selectedCategory = updatedArray.slice(page * limit, page * limit + limit);
 
-        setShowAllVideoDetails(selectedVideo);
+        setShowAllCategoriesDetails(selectedCategory);
     }
-
-    const statusOptions = [
-        {
-            id: 'all',
-            name: 'All'
-        },
-        {
-            id: true,
-            name: 'Publish'
-        },
-        {
-            id: false,
-            name: 'Draft'
-        },
-    ];
-
-    const videoPrivacyOption = [
-        {
-            id: 'all',
-            name: 'All'
-        },
-        {
-            id: 'public',
-            name: 'Public'
-        },
-        {
-            id: 'private',
-            name: 'Private'
-        },
-        {
-            id: 'subscriber',
-            name: 'Subscriber'
-        }
-    ];
-
-
-    const applyFilters = (allVideos, filters, privacyFilterParam) => {
-        return allVideos.filter((video) => {
-            let matches = true;
-            
-            if(privacyFilterParam.status != null ){
-                matches = false
-
-                if(filters.status == false){
     
-                    if ( video.isPublished == filters.status && privacyFilterParam.status == video.videoPreviewStatus) {
-                        matches = true;
-                    }
-                } else if(filters.status == true) {
-                    
-                    if (filters.status && video.isPublished == filters.status && privacyFilterParam.status == video.videoPreviewStatus) {
-                        matches = true;
-                    }
-                } else if(filters.status == null) {
-                    
-                    if (privacyFilterParam.status == video.videoPreviewStatus) {
-                        matches = true;
-                    }
-                }
-
-            } else {
-                if(filters.status == false){
-    
-                    if ( video.isPublished !== filters.status) {
-                        matches = false;
-                    }
-                } else if(filters.status == true) {
-                    
-                    if (filters.status && video.isPublished !== filters.status) {
-                        matches = false;
-                    }
-                } else if(filters.status == null) {
-                    
-                    if (filters.status && video.isPublished !== filters.status) {
-                        matches = false;
-                    }
-                }
-            }
-    
-            return matches;
-        });
-    };
-    
-    const applyPagination = (allVideos, page, limit) => {
-        let selectedVideo = allVideos.slice(page * limit, page * limit + limit);
-        setShowAllVideoDetails(selectedVideo);
-    };
-
-
-    const applyPrivacyFilters = (allVideos, filters, publistStatusParam) => {
-        return allVideos.filter((video) => {
-            let matches = true;
-
-            if(publistStatusParam.status !== null){
-                matches = false
-
-                    if(filters.status == null){
-                        if (video.videoPreviewStatus !== filters.status && video.isPublished == publistStatusParam.status) {
-                            matches = true;
-                        }
-                    } else if ( video.isPublished == publistStatusParam.status && filters.status == video.videoPreviewStatus) {
-                        matches = true;
-                    }
-            } else {
-                if (filters.status && video.videoPreviewStatus !== filters.status && video.isPublished !== publistStatusParam.status) {
-                    matches = false;
-                }
-            }
-    
-            return matches;
-        });
-    };
-
-    const handleStatusChange = (e) => {
-        let value = null;
-
-        if (e.target.value !== 'all') {
-            value = e.target.value;
-        }
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            status: value
-        }));
-        setIsCheckStatusChange(true)
-    };
-    
-    const handlePrivacyChange = (e) => {
-        let value = null;
-
-        if (e.target.value !== 'all') {
-            value = e.target.value;
-        }
-        setPrivacyFilters((prevFilters) => ({
-            ...prevFilters,
-            status: value
-        }));
-        setIsVideoPrivacyChange(true)
+    const applyPagination = (allTattooCategory, page, limit) => {
+        let selectedCategories = allTattooCategory.slice(page * limit, page * limit + limit);
+        setShowAllCategoriesDetails(selectedCategories);
     };
 
     const handlePageChange = (_event, newPage) => {
         setPage(newPage);
-        setIsCheckStatusChange(true)
+        setIsCheckPaginationChange(true)
     };
 
     const handleLimitChange = (event) => {
         setLimit(parseInt(event.target.value));
-        setIsCheckStatusChange(true)
+        setIsCheckPaginationChange(true)
     };
 
     const handleCancelBtnFunction = ()=>{
-        setIsVideoEditing(true);
+        setIsTattooCategoryEditing(true);
+        setIsAddingTattooCategory(false);
+    }
+    
+    const handleTagListUpdate = (tags)=>{
+        setTagList(tags);
+    }
+    
+    const handleAddingCategory = ()=>{
+        setIsTattooCategoryEditing(false);
+        setIsAddingTattooCategory(true);
     }
 
-    const handleListVideoUpdate = (id, videoData)=>{
+    const handleListCategoryUpdate = (id, categoryData)=>{
           
-        const updatedArray = allVideoDetails.map(obj => {
+        const updatedArray = tattooCategoryList.map(obj => {
             if (obj._id === id) {
-            //   return { ...obj, ...videoData }; 
-                return { ...videoData }; 
+                return { ...categoryData }; 
             }
-            return obj; // Keep other objects unchanged
+            return obj;
         });
         
-        setAllVideoDetails(updatedArray)
-        let selectedVideo = updatedArray.slice(page * limit, page * limit + limit);
-        setShowAllVideoDetails(selectedVideo);
+        setTattooCategoryList(updatedArray)
+        let selectedCategory = updatedArray.slice(page * limit, page * limit + limit);
+        setShowAllCategoriesDetails(selectedCategory);
+    }
+
+    const handleAddNewCategory = (newCategory)=>{
+        setTattooCategoryList([...tattooCategoryList, newCategory]);
+        setShowAllCategoriesDetails([...tattooCategoryList, newCategory]);
     }
 
     const theme = useTheme();
 
-    // console.log(video)
-
-    const handleDeleteVideo= ()=>{
+    const handleDeleteCategory= ()=>{
         if(deleteInputValue.toLowerCase() == 'delete'){
-            setIsDeletingVideo(true)
+            setIsDeletingCategory(true)
             handleClose('tattooCategoryDelete')
         }
     }
@@ -461,13 +280,13 @@ const Video = () => {
             {userData.length > 0?
                 <SidebarLayout userData={userData}>
                     <Head>
-                        <title>All Videos</title>
+                        <title>All Tattoo Category</title>
                     </Head>
                     {
-                        isVideoEditing?
+                        isTattooCategoryEditing?
                             <>
                                 <PageTitleWrapper>
-                                    <PageHeader />
+                                    <PageHeader categoryAddFunction={handleAddingCategory}/>
                                 </PageTitleWrapper>
                                 <Container maxWidth="lg">
                                     <Grid
@@ -479,43 +298,7 @@ const Video = () => {
                                     >
                                         <Grid item xs={12}></Grid>
                                         <Card style={{width: "97%"}}>
-                                            <CardHeader
-                                                // action={
-                                                //     <Box width={300} sx={{display: 'flex'}}>
-                                                //         <FormControl fullWidth variant="outlined" sx={{mr:1}}>
-                                                //             <InputLabel>Status</InputLabel>
-                                                //             <Select
-                                                //                 value={filters.status == null ? 'all': filters.status ? true: false}
-                                                //                 onChange={handleStatusChange}
-                                                //                 label="Status"
-                                                //                 autoWidth
-                                                //             >
-                                                //                 {statusOptions.map((statusOption) => (
-                                                //                     <MenuItem key={statusOption.id} value={statusOption.id}>
-                                                //                         {statusOption.name}
-                                                //                     </MenuItem>
-                                                //                 ))}
-                                                //             </Select>
-                                                //         </FormControl>
-                                                //         <FormControl fullWidth variant="outlined">
-                                                //             <InputLabel>Video Privacy</InputLabel>
-                                                //             <Select
-                                                //                 value={privacyFilters.status || 'all'}
-                                                //                 onChange={handlePrivacyChange}
-                                                //                 label=" Video privacy"
-                                                //                 autoWidth
-                                                //             >
-                                                //                 {videoPrivacyOption.map((statusOption) => (
-                                                //                     <MenuItem key={statusOption.id} value={statusOption.id}>
-                                                //                         {statusOption.name}
-                                                //                     </MenuItem>
-                                                //                 ))}
-                                                //             </Select>
-                                                //         </FormControl>
-                                                //     </Box>
-                                                // }
-                                                title="Videos"
-                                            />
+                                            <CardHeader title="Tattoo Categories" />
                                             <Divider />
                                             <TableContainer>
                                                 <Table>
@@ -529,7 +312,7 @@ const Video = () => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {tattooCategoryList.map((category) => {
+                                                        {showAllCategoriesDetails.map((category) => {
                                                             return (
                                                                 <TableRow hover key={category._id}>
                                                                     <TableCell>
@@ -610,7 +393,7 @@ const Video = () => {
                                             <Box p={2}>
                                                 <TablePagination
                                                     component="div"
-                                                    count={allVideoDetails.length}
+                                                    count={tattooCategoryList.length}
                                                     onPageChange={handlePageChange}
                                                     onRowsPerPageChange={handleLimitChange}
                                                     page={page}
@@ -621,12 +404,12 @@ const Video = () => {
                                         </Card>
                                     </Grid>
                                     
-                {/* ---------------------------------------Video Delete box---------------------------------- */}
+                {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
                                     <Dialog open={openDeleteDialog} onClose={()=>handleClose('tattooCategoryDelete')}>
-                                        <DialogTitle>Delete Video Details</DialogTitle>
+                                        <DialogTitle>Delete Tattoo Category Details</DialogTitle>
                                         <DialogContent>
                                             <DialogContentText>
-                                                Are you sure? You want delete this video. If you want to delete this video type delete in input box.
+                                                Are you sure? You want delete this Category. If you want to delete this Category type delete in input box.
                                             </DialogContentText>
                                             <TextField
                                                 autoFocus
@@ -642,52 +425,34 @@ const Video = () => {
                                         </DialogContent>
                                         <DialogActions>
                                             <Button onClick={()=>handleClose('tattooCategoryDelete')}>Cancel</Button>
-                                            <Button onClick={handleDeleteVideo}>Delete</Button>
+                                            <Button onClick={handleDeleteCategory}>Delete</Button>
                                         </DialogActions>
                                     </Dialog>
-
-                    {/* ---------------------------------------Video edit box---------------------------------- */}
-                                    {/* <Dialog open={openVideoEditDialog} onClose={()=>handleClose('videoEdit')}>
-                                        <DialogTitle>Edit Video Details</DialogTitle>
-                                        <DialogContent>
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="title"
-                                                label="Video Title"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                            />
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="description"
-                                                label="Video description"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                            />
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={()=>handleClose('videoEdit')}>Cancel</Button>
-                                            <Button >Update</Button>
-                                        </DialogActions>
-                                    </Dialog> */}
-
                                 </Container >
                             </>
                         :
-                            (userData && selectedRowVideoDetails && tattooCategoryList && tagList) ? 
-                                <VideoEditCard 
-                                    userData={userData} 
-                                    videoDetail={selectedRowVideoDetails} 
-                                    tattooCategoryList={tattooCategoryList} 
+                            isAddingTattooCategory?
+                                userData && tagList &&
+                                <AddCategory 
+                                    userData={userData}
                                     tagData={tagList}
                                     cancelBtnFunction={handleCancelBtnFunction}
-                                    videoUpdateFunction={handleListVideoUpdate}
-                                /> 
-                                : null
+                                    tagUpdateFunction={handleTagListUpdate}
+                                    newCategoryAddFunction={handleAddNewCategory}
+                                />
+                            :
+                                // (userData && selectedRowDetails && tattooCategoryList && tagList) ? 
+                                (userData && selectedRowDetails && tagList) ? 
+                                    <CategoryEdit 
+                                        userData={userData} 
+                                        tattooCategoryDetail={selectedRowDetails}
+                                        // tattooCategoryList={tattooCategoryList}
+                                        tagData={tagList}
+                                        cancelBtnFunction={handleCancelBtnFunction}
+                                        categoryUpdateFunction={handleListCategoryUpdate}
+                                        tagUpdateFunction={handleTagListUpdate}
+                                    /> 
+                                    : null
                     }
 
                 {/* --------------------------------------------------------Error or success message------------------------------------------ */}
@@ -711,14 +476,4 @@ const Video = () => {
     );
 };
 
-// Video.propTypes = {
-//     cryptoOrders: PropTypes.array.isRequired
-// };
-
-// Video.defaultProps = {
-//     cryptoOrders: []
-// };
-// Video.getLayout = (page) => (
-//     <SidebarLayout>{page}</SidebarLayout>
-// );
-export default Video;
+export default TattooCategory;

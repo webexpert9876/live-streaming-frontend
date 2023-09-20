@@ -90,7 +90,6 @@ function HeaderUserbox() {
 
         axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${authState.role}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
           setRoleInfo(data.data.role);
-          console.log('data.data.role', data.data.role)
         });
       }
     }

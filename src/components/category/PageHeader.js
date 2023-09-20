@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 
-function PageHeader() {
+function PageHeader({categoryAddFunction}) {
     const dispatch = useDispatch();
     const nextRouter = useRouter();
 
@@ -40,7 +40,8 @@ function PageHeader() {
                     sx={{ mt: { xs: 2, md: 0 } }}
                     variant="contained"
                     startIcon={<AddTwoToneIcon fontSize="small" />}
-                    onClick={()=>{nextRouter.push('/management/video/add')}}
+                    // onClick={()=>{nextRouter.push('/management/video/add')}}
+                    onClick={categoryAddFunction}
                 >
                     Add Tattoo Category
                 </Button>

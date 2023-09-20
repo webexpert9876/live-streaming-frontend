@@ -30,7 +30,7 @@ import { subDays } from 'date-fns';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
-import client from "../../../../graphql";
+import client from "../../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
@@ -38,7 +38,7 @@ import { WithContext as ReactTags } from 'react-tag-input';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import Text from '../../../../src/components/Text'
+import Text from '../Text'
 
 const prvVideoBanner = {
     width: '400px',
@@ -51,9 +51,9 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-function AddCategory(){
+function AddCategory({userData, tagData, cancelBtnFunction, tagUpdateFunction, newCategoryAddFunction}){
 
-    const [userData, setUserData] = useState([]);
+    const [userInfo, setUserInfo] = useState([]);
 
     const [categoryInput, setCategoryInput] = useState({
         title: '',
@@ -95,50 +95,56 @@ function AddCategory(){
     const [isAddingTattooCategory, setIsAddingTattooCategory] = useState(false);
 
     useEffect(()=>{
-        let userId = JSON.parse(localStorage.getItem('authUser'));
-        function getUserAllDetails(){
-          client.query({
-            variables: {
-              usersId: userId._id,
-              artistId: userId._id,
-            },
-            query: gql`
-                query Query($usersId: ID) {
-                    users(id: $usersId) {
-                        _id
-                        firstName
-                        lastName
-                        username
-                        email
-                        password
-                        profilePicture
-                        urlSlug
-                        jwtToken
-                        role
-                        channelId
-                        interestedStyleDetail {
-                            title
-                            _id
-                        }
-                    }
-                    tagForStream {
-                        text
-                        id
-                    }
-                }
-            `,
-          }).then((result) => {
-            //   console.log('video page result', result.data)
-              setUserData(result.data.users);
-              setSuggestions(result.data.tagForStream);
-            });
+        // let userId = JSON.parse(localStorage.getItem('authUser'));
+        // function getUserAllDetails(){
+        //   client.query({
+        //     variables: {
+        //       usersId: userId._id,
+        //       artistId: userId._id,
+        //     },
+        //     query: gql`
+        //         query Query($usersId: ID) {
+        //             users(id: $usersId) {
+        //                 _id
+        //                 firstName
+        //                 lastName
+        //                 username
+        //                 email
+        //                 password
+        //                 profilePicture
+        //                 urlSlug
+        //                 jwtToken
+        //                 role
+        //                 channelId
+        //                 interestedStyleDetail {
+        //                     title
+        //                     _id
+        //                 }
+        //             }
+        //             tagForStream {
+        //                 text
+        //                 id
+        //             }
+        //         }
+        //     `,
+        //   }).then((result) => {
+        //     //   console.log('video page result', result.data)
+        //       setUserInfo(result.data.users);
+        //       setSuggestions(result.data.tagForStream);
+        //     });
+        // }
+        // getUserAllDetails();
+        if(userData.length > 0){
+            setUserInfo(userData);
         }
-        getUserAllDetails();
+        
+        if(tagData.length > 0){
+            setSuggestions(tagData);
+        }
     },[]);
 
     useEffect(async ()=>{
         if(isAddingTattooCategory){
-            // console.log('videoInput===========', videoInput)
 
             const formData = new FormData();
             formData.append('title', categoryInput.title);
@@ -152,9 +158,9 @@ function AddCategory(){
             });
 
             let tagResult;
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/new/tags`, {tagNames: tagInfoArray}, {headers: {'x-access-token': userData[0].jwtToken}
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/new/tags`, {tagNames: tagInfoArray}, {headers: {'x-access-token': userInfo[0].jwtToken}
                 }).then((data)=>{
-                    tagResult = data.data.success        
+                    tagResult = data.data.success
                 }).catch((error)=>{
                     console.log('error', error);
                     setApiMessageType('error')
@@ -167,12 +173,11 @@ function AddCategory(){
                 });
             
             if(tagResult){
-                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/create/tattoo/category`, formData, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}
+                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/create/tattoo/category`, formData, {headers: {'x-access-token': userInfo[0].jwtToken, 'Content-Type': 'multipart/form-data'}
                 }).then((data)=>{
-    
+                    
                     setApiMessageType('success');
                     setApiResponseMessage('New tattoo category added successfully');
-                    
                     setCategoryInput({
                         title: '',
                         description: ''
@@ -187,12 +192,25 @@ function AddCategory(){
                         croppedImg:
                         "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
                     });
-    
+                    
+                    newCategoryAddFunction(data.data.tattooCategory);
+                    tags.forEach(tag => {
+                        // Check if the value does not exist in the objectArray
+                        if (!suggestions.some(obj => obj.text === tag.text)) {
+
+                            // Create a new object and add it to the array
+                            let newObj = { id: tag.text, text: tag.text };
+                            setSuggestions([...suggestions, newObj]);
+                            tagUpdateFunction([...suggestions, newObj])
+                        }
+                    });
+                    // tagUpdateFunction([...suggestions, ...tags])
+
                     setUserUploadedImage('');
                     setHideAvatarImage(false);
                     setTags([]);
                     imageInputRef.current.value = '';
-    
+                    
                     setIsAddingTattooCategory(false)
                     setLoading(false);
                     handleMessageBoxOpen()
@@ -289,7 +307,6 @@ function AddCategory(){
             } else {
                 
                 setOpenTitleError(true)
-                // setTitleErrorMessage('Video title is required');
             }
         } else if(e.target.name == 'description'){
             setCategoryInput((prevState)=>({
@@ -301,16 +318,12 @@ function AddCategory(){
                 setOpenDescriptionError(false)
             } else {
                 setOpenDescriptionError(true)
-                // setDescriptionErrorMessage('Video description is required');
             }
         }
     }
 
     const handleFormSubmit = (e)=>{
         e.preventDefault();
-        console.log('categoryInput', categoryInput)
-        console.log('categoryInput', tags)
-        console.log('selectedPreviewPic', selectedPreviewPic)
         if(!categoryInput.title){
             setOpenTitleError(true)
         } 
@@ -378,8 +391,8 @@ function AddCategory(){
     
     return(
         <>
-            {userData.length > 0?
-                <SidebarLayout userData={userData}>
+            {userInfo.length > 0?
+                <>
                     <Head>
                         <title>Add tattoo category</title>
                     </Head>
@@ -402,11 +415,11 @@ function AddCategory(){
                             {/* <Grid item xs={12}></Grid> */}
                             <Card style={{width: "97%"}}>
                                 <Box sx={{display: 'flex'}}>
-                                    {/* <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={()=>{router.push('/components/videos')}}>
+                                    <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={cancelBtnFunction}>
                                         <IconButton color="primary" sx={{ p: 2 }}>
                                             <ArrowBackTwoToneIcon />
                                         </IconButton>
-                                    </Tooltip> */}
+                                    </Tooltip>
                                     <CardHeader
                                         title="Add tattoo category"
                                     />
@@ -494,7 +507,7 @@ function AddCategory(){
                                                 </Grid>
                                                 <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                                     <Box pr={3} pb={2}>
-                                                        Video Preview Image:
+                                                        Category Preview Image:
                                                     </Box>
                                                 </Grid>
                                                 <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
@@ -564,8 +577,8 @@ function AddCategory(){
                                             </Grid>
                                         </Typography>
                                         <Typography sx={{textAlign: 'end'}}>
-                                            <Button onClick={()=>{router.push('/components/videos')}} disabled={loading}>Cancel</Button>
-                                            <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Video...' : 'Add Video'}</Button>
+                                            <Button onClick={cancelBtnFunction} disabled={loading}>Cancel</Button>
+                                            <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Category...' : 'Add Category'}</Button>
                                         </Typography>
                                     </CardContent>
                                 </Box>
@@ -585,9 +598,7 @@ function AddCategory(){
                         </Snackbar>
                     </Stack>
 
-
-                    <Footer />
-                </SidebarLayout>
+                </>
             : null}
         </>
     )
