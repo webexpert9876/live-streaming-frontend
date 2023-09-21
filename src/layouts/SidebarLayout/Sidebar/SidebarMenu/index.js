@@ -207,9 +207,9 @@ function SidebarMenu({userData}) {
 
   return (
     <>
-      {roleInfo.role == 'admin' && <AdminSidebarMenu/>}
-      {roleInfo.role == 'artist' && <ArtistSidebarMenu/>}
-      {roleInfo.role == 'user' && <UserSidebarMenu/>}
+      {roleInfo.role == 'admin' && <AdminSidebarMenu userData={userInfo}/>}
+      {roleInfo.role == 'artist' && <ArtistSidebarMenu userData={userInfo}/>}
+      {roleInfo.role == 'user' && <UserSidebarMenu userData={userInfo}/>}
     </>
   );
 }

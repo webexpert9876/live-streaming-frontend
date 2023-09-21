@@ -179,8 +179,9 @@ const MenuWrapper = styled(Box)(
   `
 );
 
-function UserSidebarMenu(){
-
+function UserSidebarMenu({userData}){
+    console.log('useState userData', userData)
+    const [userInfo, setUserInfo] = useState({});
     const { closeSidebar } = useContext(SidebarContext);
     const router = useRouter();
     const currentRoute = router.pathname;

@@ -179,12 +179,18 @@ const MenuWrapper = styled(Box)(
   `
   );
 
-function UserSidebarMenu(){
-
+function UserSidebarMenu({userData}){
+    console.log('useState userData', userData)
+    const [userInfo, setUserInfo] = useState({});
     const { closeSidebar } = useContext(SidebarContext);
     const router = useRouter();
     const currentRoute = router.pathname;
 
+    useEffect(()=>{
+        if(userData){
+            setUserInfo(userData)
+        }
+    }, [])
     return (
         <>
             <MenuWrapper>
@@ -278,10 +284,10 @@ function UserSidebarMenu(){
                                 </NextLink>
                             </ListItem>
                             <ListItem component="div">
-                                <NextLink href="/management/category/add" passHref>
+                                <NextLink href="/management/category" passHref>
                                     <Button
                                         className={
-                                            currentRoute === '/management/category/add'
+                                            currentRoute === '/management/category'
                                                 ? 'active'
                                                 : ''
                                         }

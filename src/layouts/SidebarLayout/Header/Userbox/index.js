@@ -94,12 +94,6 @@ function HeaderUserbox() {
       }
     }
   }, [authState]);
-
-  const user = {
-    name: 'Catherine Pike',
-    avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Project Manager'
-  };
   // console.log(authState)
 
   const ref = useRef(null);
@@ -130,12 +124,12 @@ function HeaderUserbox() {
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={authState?.firstName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`} />
+        <Avatar variant="rounded" alt={authState?.firstName} src={authState.profilePicture?`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`: ''} />
         <Hidden mdDown>
           <UserBoxText>            
             <UserBoxLabel variant="body1">{authState?.firstName} {authState?.lastName}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {roleInfo.role}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -157,11 +151,11 @@ function HeaderUserbox() {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={authState?.firstName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`}/>
+          <Avatar variant="rounded" alt={authState?.firstName} src={authState.profilePicture?`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`: null}/>
           <UserBoxText>
             <UserBoxLabel variant="body1">{authState?.firstName} {authState?.lastName}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {roleInfo.role}
             </UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>

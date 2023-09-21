@@ -225,9 +225,6 @@ function CategoryEditCard({userData, tattooCategoryDetail, tagData, cancelBtnFun
 
     const handleFormSubmit = (e)=>{
         e.preventDefault();
-        console.log('categoryInput', categoryInput)
-        console.log('categoryInput', tags)
-        console.log('selectedPreviewPic', selectedPreviewPic)
         if(!categoryInput.title){
             setOpenTitleError(true)
         } 

@@ -16,6 +16,7 @@ import { SidebarContext } from 'src/contexts/SidebarContext';
 import DesignServicesTwoToneIcon from '@mui/icons-material/DesignServicesTwoTone';
 import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
 import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
+import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
 
 const MenuWrapper = styled(Box)(
     ({ theme }) => `
@@ -159,11 +160,18 @@ const MenuWrapper = styled(Box)(
   `
   );
 
-function UserSidebarMenu(){
-
+function UserSidebarMenu({userData}){
+  console.log('useState userData', userData)
+    const [userInfo, setUserInfo] = useState({});
     const { closeSidebar } = useContext(SidebarContext);
     const router = useRouter();
     const currentRoute = router.pathname;
+
+    useEffect(()=>{
+      if(userData){
+          setUserInfo(userData)
+      }
+    }, [])
 
     return (
         <>
@@ -229,7 +237,29 @@ function UserSidebarMenu(){
                         </Button>
                         </NextLink>
                     </ListItem>
-                    </List>
+
+                    {userInfo?
+                      !userInfo.channelId && <ListItem component="div">
+                        <NextLink href="/channel/request" passHref>
+                          <Button
+                              className={
+                              currentRoute === '/channel/request'
+                                  ? 'active'
+                                  : ''
+                              }
+                              disableRipple
+                              component="a"
+                              onClick={closeSidebar}
+                              startIcon={<PersonalVideoIcon />}
+                          >
+                              Apply for channel
+                          </Button>
+                        </NextLink>
+                      </ListItem>
+                      :
+                      null
+                    }
+                  </List>
                 </SubMenuWrapper>
                 </List>
                 <List
