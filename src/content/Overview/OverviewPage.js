@@ -104,13 +104,16 @@ console.log('homeData', homeData)
       background: '#f000'
     }
   };
+  const headerMargin = {
+      marginTop: "90px"
+  }
 
 
   return (
-    <Box sx={{ display: 'flex' }} style={{padding: "90px 0 0 0", background: "#0c1028", marginTop:"70px"}}>
+    <Box sx={{ display: 'flex' }} style={{padding: "50px 0 0 0",  background: "#0c1028"}}>
       <CssBaseline />
       <LeftMenu />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }} style={headerMargin}>
         <SimpleSlider sliderData={sliderData}/>
         {/* <Recommended channels = {channels} />         */}
         <LiveStreamings liveStreamings={liveStreamings} />

@@ -102,8 +102,7 @@ const handleUserLeftChat = () => {
 }
   return (
     
-    <Drawer sx={{
-      marginTop: '20px',
+    <Drawer sx={{      
       '& .MuiDrawer-paper': {
         position: 'relative'
       },

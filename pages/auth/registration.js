@@ -23,6 +23,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -67,6 +68,8 @@ export default function SignInSide() {
   const [errorMessage, setErrorMessage] = useState('');  
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
 
 
 
@@ -329,7 +332,11 @@ export default function SignInSide() {
               </FormControl>
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <Link href="/auth/login" variant="body2">
+                  <Link 
+                  onClick={()=> router.push("/auth/login")}
+                  variant="body2"
+                  style={{cursor: "pointer"}}
+                  >
                     Already have an account? Sign in
                   </Link>
                 </Grid>

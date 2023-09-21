@@ -166,12 +166,20 @@ const LoginForm = () => {
                   </Button>
                   <Grid container>
                     <Grid item xs>
-                      <Link href="/auth/forgot" variant="body2">
+                      <Link                       
+                      onClick={()=> router.push("/auth/forgot")}
+                      variant="body2"
+                      style={{cursor: "pointer"}}
+                      >
                         Forgot password?
                       </Link>
                     </Grid>
                     <Grid item>
-                      <Link href="/auth/registration" variant="body2">
+                      <Link 
+                      onClick={()=> router.push("/auth/registration")}
+                      variant="body2"
+                      style={{cursor: "pointer"}}
+                      >
                         {"Don't have an account? Sign Up"}
                       </Link>
                     </Grid>

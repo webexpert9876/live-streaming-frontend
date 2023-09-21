@@ -28,6 +28,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
+import { useRouter } from 'next/router';
 // import BiLogoDiscord from 'react-icons/fa';
 // import { FaBeer } from "@react-icons/fa";
 
@@ -65,6 +66,7 @@ export default function ChannelName(props) {
     // console.log('authUser userDetails', userDetails);
     const [userDetail, setUserDetail] = useState(userDetails);
     const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
+    const router = useRouter();
 
     // console.log('currentBroadcast', currentBroadcast)
     React.useEffect(() => {
@@ -258,11 +260,13 @@ export default function ChannelName(props) {
     //     width: "90%",
     //     overflow: "hidden"
     // }
-
+    const headerMargin = {
+        marginTop: "90px"
+    }
 
     return (
         <>
-            <Box sx={{ display: 'flex', marginTop: "70px" }}>
+            <Box sx={{ display: 'flex' }} style={headerMargin}>
                 <LeftMenu />
                 <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
                     {currentBroadcast ?
@@ -332,11 +336,17 @@ export default function ChannelName(props) {
                                     {currentBroadcast ? <Typography variant="body1" component={'div'} sx={{}}>
                                         <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '15px', marginTop: '8px' }} align="left">{currentBroadcast.description}</Typography>
                                         <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '5px' }}>
-                                            <Link href={`/single-category/${currentBroadcast.tattooCategoryDetails[0].urlSlug}`} sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Link>
+                                            <Link
+
+                                                onClick={() => router.push(`/single-category/${currentBroadcast.tattooCategoryDetails[0].urlSlug}`)}
+
+                                                sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}testtttttttt</Link>
                                             {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
                                             {currentBroadcast.tags.map((tag, index) => {
                                                 return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>
-                                                    <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link>
+                                                    <Link
+                                                        onClick={() => router.push("/tags/")}
+                                                        sx={{ color: '#fff' }}>{tag}</Link>
                                                 </Button>)
                                             })}
                                         </Typography>
@@ -383,19 +393,19 @@ export default function ChannelName(props) {
                             <TabContext value={value}>
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider', paddingBottom: '10px' }}>
                                     <TabList onChange={handleChange} aria-label="lab API tabs example">
-                                        <Tab label="Home" value="1" onClick={closeChat} />
-                                        <Tab label="About" value="2" onClick={closeChat} />
-                                        <Tab label="Videos" value="3" onClick={closeChat} />
+                                        {/* <Tab label="Home" value="1" onClick={closeChat} /> */}
+                                        <Tab label="About" value="1" onClick={closeChat} />
+                                        <Tab label="Videos" value="2" onClick={closeChat} />
                                         <Tab label="Chat" onClick={handleChatClick} />
                                     </TabList>
                                 </Box>
                                 {/* Home tab section */}
-                                <TabPanel value="1">
+                                {/* <TabPanel value="1">
 
-                                </TabPanel>
+                                </TabPanel> */}
 
                                 {/* About tab section */}
-                                <TabPanel value="2">
+                                <TabPanel value="1">
                                     <Container maxWidth="lg" sx={{ padding: '20px' }}>
                                         <Box
                                             sx={{
@@ -410,20 +420,20 @@ export default function ChannelName(props) {
                                                     <Typography variant="h5" component={"h5"} sx={{ fontSize: '25px' }}>
                                                         About {channelDetails.channelName}
                                                     </Typography>
-                                                    <Typography variant="h5" component={"h5"} sx={{ fontSize: '15px', marginTop: '8px' }}>
+                                                    <Typography variant="h5" component={"h5"} sx={{ fontSize: '15px', marginTop: '8px', fontWeight: "500" }}>
                                                         {countLiveViewing(channelTotalFollower.countFollower)} followers
                                                     </Typography>
-                                                    <Typography variant="h5" component={"h5"} sx={{ fontSize: '15px', marginTop: '8px' }}>
+                                                    <Typography variant="h5" component={"h5"} sx={{ fontSize: '15px', marginTop: '8px', fontWeight: "500" }}>
                                                         {channelDetails.description}
                                                     </Typography>
                                                 </Box>
                                             </Item>
 
                                             <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
-                                                {channelDetails.socialLinks.length > 0?
+                                                {channelDetails.socialLinks.length > 0 ?
                                                     <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
                                                         {
-                                                            channelDetails.socialLinks.map((links)=>(
+                                                            channelDetails.socialLinks.map((links) => (
                                                                 <>
                                                                     {links.platform == 'facebook' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
                                                                         <Link target="_blank" href={`https://${links.url}`}><FacebookIcon /> Facebook</Link>
@@ -464,7 +474,7 @@ export default function ChannelName(props) {
                                                             ))
                                                         }
                                                     </Box>
-                                                :
+                                                    :
                                                     <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
                                                         <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
                                                             <Link href="#"><FacebookIcon /> Facebook</Link>
@@ -507,13 +517,13 @@ export default function ChannelName(props) {
 
                                 {/* Videos tab section */}
 
-                                <TabPanel value="3" sx={{ padding: '20px 0px', textAlign: 'left' }}>
+                                <TabPanel value="2" sx={{ padding: '20px 0px', textAlign: 'left' }}>
                                     {(recentLiveStreamVideos.length != 0 && recentUploadedVideos.length != 0) ? <>
                                         <Box>
                                             {recentLiveStreamVideos.length != 0 ? <>
                                                 <Typography variant="body1" component="div" sx={{ display: 'flex', alignItems: 'baseline' }}>
-                                                    <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '17px', marginRight: "10px" }}>Recent Broadcasts</Typography>
-                                                    {showAllRecentBroadcast ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View less</Button>}
+                                                    <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '17px', marginRight: "10px", paddingBottom: "12px" }}>Recent Broadcasts</Typography>
+                                                    {/* {showAllRecentBroadcast ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View less</Button>} */}
                                                 </Typography>
 
                                                 <Box sx={{ paddingTop: '5px' }}>
@@ -575,9 +585,9 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                    <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                                                </div>                                                                               
+                                                                                    <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                        <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                    </div>
                                                                                 </Typography>
                                                                             </div>
                                                                             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
@@ -586,7 +596,11 @@ export default function ChannelName(props) {
                                                                                 </Grid>
                                                                                 <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                     <Typography gutterBottom variant="h5" component="div">
-                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        <Link
+
+                                                                                            // href={`/video/${streamsInfo._id}`}
+                                                                                            onClick={() => router.push(`/video/${streamsInfo._id}`)}
+                                                                                            color={'white'}>{streamsInfo.description}</Link>
                                                                                     </Typography>
                                                                                     <Typography gutterBottom variant="p" component="div">
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
@@ -594,7 +608,12 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                                <Link
+                                                                                                    // href="/tags/"
+                                                                                                    onClick={() => router.push("/tags")}
+                                                                                                >
+                                                                                                    {tag}
+                                                                                                </Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
@@ -623,9 +642,9 @@ export default function ChannelName(props) {
 
                                                                                 </CardMedia>
                                                                                 <Typography variant="body1" component="div" sx={{}}>
-                                                                                <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                    <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                                                </div>
+                                                                                    <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                        <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
+                                                                                    </div>
                                                                                 </Typography>
                                                                             </div>
                                                                             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>

@@ -141,7 +141,7 @@ export default function Videos(props){
 
     return (
         <>
-            <Box sx={{ display: 'flex', marginTop:"90px" }}>
+            <Box sx={{ display: 'flex'}}>
                 <LeftMenu />
                 <Box component="main" sx={{ flexGrow: 1, marginTop: '-8px', width: '100%'  }}>
                     <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>

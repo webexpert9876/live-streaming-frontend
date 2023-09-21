@@ -25,6 +25,13 @@ import MenuTwoToneIcon from '@mui/icons-material/MenuTwoTone';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 
+
+// import Dropdown from '@mui/joy/Dropdown';
+// import Menu from '@mui/joy/Menu';
+// import MenuButton from '@mui/joy/MenuButton';
+// import MenuItem from '@mui/joy/MenuItem';
+
+
 import HeaderButtons from '../../layouts/SidebarLayout/Header/Buttons';
 import HeaderUserbox from '../../layouts/SidebarLayout/Header/Userbox';
 import HeaderMenu from '../../layouts/SidebarLayout/Header/Menu';
@@ -78,7 +85,7 @@ const Header = () => {
         let check = localStorage.getItem("authState")
         // console.log('authState', check)
         let authUser = JSON.parse(localStorage.getItem('authUser'))
-        let authState = JSON.parse(localStorage.getItem('authState'))    
+        let authState = JSON.parse(localStorage.getItem('authState'))
         if (authUser) {
             dispatch(setAuthUser(authUser));
             dispatch(setAuthState(authState));
@@ -99,7 +106,7 @@ const Header = () => {
             {router.pathname.includes('/auth') ? null : (isLoggedIn ? (<HeaderWrapperLogin
                 display="flex"
                 alignItems="center"
-                style={{left:"0"}}
+                style={{ left: "0" }}
                 sx={{
                     boxShadow:
                         theme.palette.mode === 'dark'
@@ -116,7 +123,7 @@ const Header = () => {
                             )}`
                 }}
             >
-                
+
                 <Stack
                     direction="row"
                     divider={<Divider orientation="vertical" flexItem />}
@@ -159,14 +166,36 @@ const Header = () => {
                         >
                             <Box />
                             <Box>
-                                <Button
+                                {/* <Button
                                     component={Link}
                                     href="/auth/login"
                                     variant="contained"
                                     sx={{ ml: 2 }}
                                 >
                                     Login
+                                </Button> */}
+
+                                <Button
+                                    component={Link}
+                                    // href="/auth/login"
+                                    variant="contained"
+                                    sx={{ ml: 2 }}
+                                    onClick={()=> router.push("/auth/login")}
+                                >
+                                    Login
                                 </Button>
+
+                                {/* 
+                                <Dropdown>
+                                    <MenuButton>Dashboard...</MenuButton>
+                                    <Menu>
+                                        <MenuItem>Profile</MenuItem>
+                                        <MenuItem>My account</MenuItem>
+                                        <MenuItem>Logout</MenuItem>
+                                    </Menu>
+                                </Dropdown> */}
+
+
                             </Box>
                         </Box>
                     </Box>
