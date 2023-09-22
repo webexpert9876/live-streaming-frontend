@@ -186,11 +186,6 @@ function UserSidebarMenu({userData}){
     const router = useRouter();
     const currentRoute = router.pathname;
 
-    useEffect(()=>{
-        if(userData){
-            setUserInfo(userData)
-        }
-    }, [])
     return (
         <>
             <MenuWrapper>

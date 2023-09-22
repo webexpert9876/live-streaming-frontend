@@ -26,7 +26,7 @@ const TabsWrapper = styled(Tabs)(
 `
 );
 
-function ManagementUserSettings() {
+function ManagementChannelSettings() {
   const [currentTab, setCurrentTab] = useState('edit_profile');
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   const [userData, setUserData] = useState([]);
@@ -200,7 +200,7 @@ function ManagementUserSettings() {
   );
 }
 
-// ManagementUserSettings.getLayout = (page) => {
+// ManagementChannelSettings.getLayout = (page) => {
 //   <SidebarLayout>{page}</SidebarLayout>}
 // ;
 
@@ -278,4 +278,4 @@ function ManagementUserSettings() {
 //   }
 // }
 
-export default ManagementUserSettings;
+export default ManagementChannelSettings;

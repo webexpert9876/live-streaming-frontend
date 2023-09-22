@@ -105,11 +105,10 @@ function ManagementChannelProfile() {
             </Head>
             <Container sx={{ mt: 3 }} maxWidth="lg">
                 <Grid
-                container
-                direction="row"
-                justifyContent="center"
-                alignItems="stretch"
-                spacing={3}
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="stretch"
+                    spacing={3}
                 >
                 <Grid item xs={12} md={8}>
                     <ProfileCover channelInfo={channelInfo} channelTotalFollowers={channelTotalFollowers}/>
@@ -120,7 +119,7 @@ function ManagementChannelProfile() {
                 {channelFollower.length > 0? <Grid item xs={12} md={8}>
                     <Feed channelFollower={channelFollower}/>
                 </Grid>: null}
-                <Grid item xs={12} md={8}>
+                <Grid item xs={12} md={8} mt={5}>
                     <SubscriberList />
                 </Grid>
                 {/* <Grid item xs={12} md={4}>

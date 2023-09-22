@@ -100,7 +100,7 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
         </Box>
       </Box>
       <CardCover>
-        {Object.keys(channelInfo).length > 0 ?<CardMedia image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: <CardMedia image={`No image found`} />}
+        {Object.keys(channelInfo).length > 0 ?<CardMedia sx={{height: '400px !important'}} image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: <CardMedia image={`No image found`} />}
         {/* <CardCoverAction>
           <Input accept="image/*" id="change-cover" multiple type="file" />
           <label htmlFor="change-cover">

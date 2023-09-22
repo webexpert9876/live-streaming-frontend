@@ -60,6 +60,7 @@ const defaultTheme = createTheme();
 export default function SignInSide() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [promotions, setPromotions] = useState('');
@@ -79,6 +80,10 @@ export default function SignInSide() {
 
   const handleLastNameChange = (event) => {
     setLastName(event.target.value);
+  };
+  
+  const handleUserNameChange = (event) => {
+    setUsername(event.target.value);
   };
 
   const handleEmailChange = (event) => {
@@ -106,6 +111,7 @@ export default function SignInSide() {
       .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`, {
         firstName,
         lastName,
+        username,
         email,
         password,
         promotions,
@@ -249,6 +255,17 @@ export default function SignInSide() {
                       label="Last Name"
                       name="lastName"
                       autoComplete="family-name"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="username"
+                      value={username}
+                      onChange={handleUserNameChange}
+                      label="username"
+                      name="username"
                     />
                   </Grid>
                   <Grid item xs={12}>
