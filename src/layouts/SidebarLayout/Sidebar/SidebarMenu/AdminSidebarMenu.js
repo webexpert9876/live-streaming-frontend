@@ -279,10 +279,10 @@ function UserSidebarMenu({userData}){
                                 </NextLink>
                             </ListItem>
                             <ListItem component="div">
-                                <NextLink href="/management/category" passHref>
+                                <NextLink href="/management/admin/category/list" passHref>
                                     <Button
                                         className={
-                                            currentRoute === '/management/category'
+                                            currentRoute === '/management/admin/category/list'
                                                 ? 'active'
                                                 : ''
                                         }
@@ -292,6 +292,23 @@ function UserSidebarMenu({userData}){
                                         startIcon={<TableChartTwoToneIcon />}
                                     >
                                         Tattoo Category
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/management/admin/channel/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/admin/channel/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<TableChartTwoToneIcon />}
+                                    >
+                                        Manage channels
                                     </Button>
                                 </NextLink>
                             </ListItem>

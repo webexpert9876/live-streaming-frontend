@@ -1,10 +1,7 @@
 import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import numeral from 'numeral';
-import PropTypes from 'prop-types';
-import PageHeader from '../../../src/components/category/PageHeader';
+import PageHeader from 'src/components/category/PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import { Grid, Container } from '@mui/material';
 import {
@@ -41,15 +38,14 @@ import Label from 'src/components/Label';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import Footer from 'src/components/Footer';
-import { subDays } from 'date-fns';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
-import client from "../../../graphql";
+import client from "../../../../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
-import CategoryEdit from "../../../src/components/category/CategoryEdit";
-import AddCategory from "../../../src/components/category/AddCategory";
+import CategoryEdit from "src/components/category/CategoryEdit";
+import AddCategory from "src/components/category/AddCategory";
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 

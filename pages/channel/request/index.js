@@ -512,9 +512,10 @@ function ChannelRequest(){
                                                                 margin="dense"
                                                                 id="description"
                                                                 multiline
+                                                                minRows={3}
                                                                 type="text"
                                                                 fullWidth
-                                                                variant="standard"
+                                                                // variant="standard"
                                                                 name='description'
                                                                 value={channelProfileInput.description}
                                                                 onChange={handleFormChange}
@@ -584,7 +585,7 @@ function ChannelRequest(){
                                                             Location:
                                                         </Box>
                                                     </Grid>
-                                                    <Grid item xs={12} sm={8} md={9} mt={4}>
+                                                    <Grid item xs={12} sm={8} md={9} mt={2}>
                                                         <Typography width={250} color="black">
                                                             <TextField
                                                                 autoFocus
@@ -692,8 +693,8 @@ function ChannelRequest(){
                                                 </Grid>
                                             </Typography>
                                             <Typography sx={{textAlign: 'end'}}>
-                                                <Button >Cancel</Button>
-                                                <Button onClick={handleFormSubmit}>Apply</Button>
+                                                {/* <Button disabled={loading}>Cancel</Button> */}
+                                                <Button onClick={handleFormSubmit} disabled={loading}>{loading?'Requesting':'Apply'}</Button>
                                             </Typography>
                                         </>
                                     }
