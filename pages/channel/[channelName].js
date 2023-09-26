@@ -340,7 +340,7 @@ export default function ChannelName(props) {
 
                                                 onClick={() => router.push(`/single-category/${currentBroadcast.tattooCategoryDetails[0].urlSlug}`)}
 
-                                                sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}testtttttttt</Link>
+                                                sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Link>
                                             {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
                                             {currentBroadcast.tags.map((tag, index) => {
                                                 return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>
@@ -647,6 +647,7 @@ export default function ChannelName(props) {
                                                                                     </div>
                                                                                 </Typography>
                                                                             </div>
+                                                                            <div className=""></div>
                                                                             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
                                                                                 <Grid item>
                                                                                     <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
