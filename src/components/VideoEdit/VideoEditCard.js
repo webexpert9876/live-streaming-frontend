@@ -394,7 +394,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
 
     return(
         <>
-            <Container maxWidth="lg" >
+            <Container maxWidth="lg">
                 <Grid
                     container
                     direction="row"

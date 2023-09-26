@@ -138,7 +138,7 @@ function ManagementChannelSettings() {
       <PageTitleWrapper>
         <PageHeader />
       </PageTitleWrapper>
-      <Container maxWidth="lg">
+      <Container maxWidth="false" className='tttttttttttttttttddd'>
         <Grid
           container
           direction="row"

@@ -103,7 +103,7 @@ function ManagementChannelProfile() {
             <Head>
                 <title>Channel Details - Management</title>
             </Head>
-            <Container sx={{ mt: 3 }} maxWidth="lg">
+            <Container sx={{ mt: 3 }} maxWidth="false">
                 <Grid
                     direction="row"
                     justifyContent="center"
