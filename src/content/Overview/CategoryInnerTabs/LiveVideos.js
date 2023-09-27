@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import { Container, Divider, Link } from '@mui/material';
 import { borders, Box } from '@mui/system';
 import { styled } from '@mui/system';
-
+import { useRouter } from 'next/router';
 
 const recommendedStyle = {
     display: 'grid',
@@ -23,6 +23,7 @@ const recommendedStyle = {
 const LiveVideos = ({ liveVideosInfo }) => {
     const [showCount, setShowCount] = React.useState(5);
     const [selectedTag, setSelectedTag] = useState(null);
+    const router = useRouter();
 
     const handleShowMore = () => {
         setShowCount(prevCount => prevCount + 5);
@@ -105,18 +106,35 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                         </Grid>
                                         <Grid item ml={"15px"} style={{ width: "75%" }}>
                                             <Typography gutterBottom variant="h5" component="div">
-                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'white'}>{channel.description}</Link>
+                                                <Link 
+                                                // href={`/channel/${channel.channelDetails[0].urlSlug}`}
+                                                style={{cursor: pointer}}
+                                                onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
+                                                
+                                                color={'white'}>{channel.description}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
-                                                <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'#999'}>{channel.channelDetails[0].channelName}</Link>
+                                                <Link 
+                                                // href={`/channel/${channel.channelDetails[0].urlSlug}`}
+                                                onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
+                                                style={{cursor: pointer}}
+                                                color={'#999'}>{channel.channelDetails[0].channelName}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
-                                                <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
+                                                <Link
+                                                // href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`}
+                                                onClick={()=> router.push(`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`)}
+                                                style={{cursor: pointer}}
+                                                color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                             </Typography>
                                             {channel.tags && channel.tags ? <ul className='videoTags'>
                                                 {channel.tags && channel.tags.map((tag) => (
                                                     <li key={tag}>
-                                                        <Link href="/tags/">{tag}</Link>
+                                                        <Link 
+                                                        href="/tags/"
+                                                        style={{cursor: pointer}}
+                                                        // onClick={()=> router.push(`/channel/${channel.channelDetails[0].tags}`)}
+                                                        >{tag}</Link>
                                                     </li>
                                                 ))}
                                             </ul> : null}

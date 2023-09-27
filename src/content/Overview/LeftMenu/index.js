@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { useRouter } from 'next/router';
 import {
   useTheme,
   createTheme,
@@ -92,42 +93,43 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const LiveStreamingSkeletonItem = ({ open }) => {
+
   return (
-    <SkeletonTheme color="#222956" highlightColor="#222956" style={{background:"#222956"}}> {/* Set background color to #f00 */}
-      
-    <Grid
-      container
-      className="tooltip"
-      direction="row"
-      alignItems="center"
-      mt={"0px"}
-      ml={"8px"}
-      pb={"15px"}
-      style={{ display: "flex", alignItems: "flex-start" }}
-    >
-      <Grid item>
-        <Skeleton
-          className='br100 listChannelIconSize'
-          style={{ width: "30px", color:"#000", backgroundColor: '#0c1028' }} // Set background color here
-          height={30}
-        />
+    <SkeletonTheme color="#222956" highlightColor="#222956" style={{ background: "#222956" }}> {/* Set background color to #f00 */}
+
+      <Grid
+        container
+        className="tooltip"
+        direction="row"
+        alignItems="center"
+        mt={"0px"}
+        ml={"8px"}
+        pb={"15px"}
+        style={{ display: "flex", alignItems: "flex-start" }}
+      >
+        <Grid item>
+          <Skeleton
+            className='br100 listChannelIconSize'
+            style={{ width: "30px", color: "#000", backgroundColor: '#0c1028' }} // Set background color here
+            height={30}
+          />
+        </Grid>
+        <Grid item ml={"15px"} style={{ width: "74%" }}>
+          <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
+            <div className='channelListChannelName'>
+              <Skeleton height={16} width={100} highlightColor="#222956" style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
+            </div>
+            <Skeleton height={16} width={100} highlightColor="#222956" style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
+            <span className="tooltiptext" style={{ textAlign: "left", padding: "10px", backgroundColor: '#0c1028' }}> {/* Set background color here */}
+              <Skeleton height={16} width={100} highlightColor="#222956" style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
+            </span>
+            <div style={liveChannelViewersStyle}>
+              <div style={liveChannelStatus}></div>
+              <Skeleton height={16} width={50} highlightColor="#222956" style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
+            </div>
+          </ListItemText>
+        </Grid>
       </Grid>
-      <Grid item ml={"15px"} style={{ width: "74%" }}>
-        <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
-          <div className='channelListChannelName'>
-            <Skeleton height={16} width={100} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
-          </div>
-          <Skeleton height={16} width={100}  highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
-          <span className="tooltiptext"  style={{ textAlign: "left", padding: "10px", backgroundColor: '#0c1028' }}> {/* Set background color here */}
-            <Skeleton height={16} width={100} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
-          </span>
-          <div style={liveChannelViewersStyle}>
-            <div style={liveChannelStatus}></div>
-            <Skeleton height={16} width={50} highlightColor="#222956"  style={{ backgroundColor: '#0c1028' }} /> {/* Set background color here */}
-          </div>
-        </ListItemText>
-      </Grid>
-    </Grid>
     </SkeletonTheme>
   );
 };
@@ -150,6 +152,7 @@ export default function LeftMenu(props) {
   const [channels, setChannels] = useState([]);
   const [tattooCategories, setTattooCategories] = useState([]);
   const [liveStreamings, setLiveStreamings] = useState([]);
+  const router = useRouter();
   // console.log('props', props)
 
   const handleDrawerOpen = () => {
@@ -237,15 +240,15 @@ export default function LeftMenu(props) {
   });
 
   const countLiveViewing = (viewers) => {
-    if(viewers > 999 && viewers < 1000000){
+    if (viewers > 999 && viewers < 1000000) {
       const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
       return viewing
-    } else if(viewers > 999999){
+    } else if (viewers > 999999) {
       const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";
       return viewing
     } else {
       return `${viewers}`
-    } 
+    }
   }
 
   // function LeftMenu() {
@@ -256,7 +259,7 @@ export default function LeftMenu(props) {
           <Drawer variant="permanent" open={open} className='topmargin' style={{ backgroundColor: '#0c1028' }}> {/* Set the background color of the Drawer */}
             <DrawerHeader sx={{ mt: '1000', }} className='minHeightTitleMenu'>
               <IconButton onClick={handleDrawerClose}>
-                <div style={{ fontSize: "12px", color:"#fff" }}>RECOMMENDED CHANNELS</div> {theme.direction === 'rtl' ? <ChevronRightIcon style={{color:"#fff"}} /> : <ChevronLeftIcon style={{color:"#fff"}} />}
+                <div style={{ fontSize: "12px", color: "#fff" }}>RECOMMENDED CHANNELS</div> {theme.direction === 'rtl' ? <ChevronRightIcon style={{ color: "#fff" }} /> : <ChevronLeftIcon style={{ color: "#fff" }} />}
               </IconButton>
               <IconButton
                 color="inherit"
@@ -267,7 +270,7 @@ export default function LeftMenu(props) {
                   marginRight: 5,
                   ...(open && { display: 'none' }),
                 }}
-                style={{color:"#fff"}}>
+                style={{ color: "#fff" }}>
                 <ChevronRightIcon />
               </IconButton>
             </DrawerHeader>
@@ -285,27 +288,34 @@ export default function LeftMenu(props) {
                     direction="row"
                     alignItems="center"
                     mt={"0px"}
-                    ml={"8px"}
+                    ml={"12px"}
                     pb={"15px"}
                     style={{ display: "flex", alignItems: "flex-start", alignContent: "center", alignItems: "center" }}
                   >
                     <Grid item>
                       <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelList.channelDetails[0].channelPicture}`} className='br100 listChannelIconSize' style={{ width: "30px" }} />
                     </Grid>
-                    <Grid item ml={"15px"} style={{ width: "74%" }}>
+                    <Grid item ml={"15px"} style={{ width: "70%" }}>
                       <ListItemText sx={{ display: open ? "block" : "none" }} style={{ position: "relative" }}>
-                        <div className='channelListChannelName' style={{marginBottom: "-6px"}}>
-                          <Link href={`/channel/${channelList.channelDetails[0].urlSlug}`} style={{ color: 'white', textDecoration:"none" }}>
+                        <div className='channelListChannelName' style={{ marginBottom: "-6px" }}>
+                          <Link
+                            // href={`/channel/${channelList.channelDetails[0].urlSlug}`}
+                            onClick={() => router.push(`/channel/${channelList.channelDetails[0].urlSlug}`)}
+
+                            style={{ color: 'white', textDecoration: "none" }}>
                             {channelList.channelDetails[0].channelName.slice(0, 15)}
                           </Link>
                         </div>
-                        <Link href={`/single-category/${channelList.tattooCategoryDetails[0].urlSlug}`} style={{ color: 'white', fontSize:"12px", textDecoration:"none" }}>
-                        {channelList.tattooCategoryDetails[0].title.length > 20
-                          ? `${channelList.tattooCategoryDetails[0].title.slice(0, 15)}...`
-                          : channelList.tattooCategoryDetails[0].title}
+                        <Link
+                          // href={`/single-category/${channelList.tattooCategoryDetails[0].urlSlug}`}
+                          onClick={() => router.push(`/single-category/${channelList.tattooCategoryDetails[0].urlSlug}`)}
+                          style={{ color: 'white', fontSize: "12px", textDecoration: "none" }}>
+                          {channelList.tattooCategoryDetails[0].title.length > 20
+                            ? `${channelList.tattooCategoryDetails[0].title.slice(0, 15)}...`
+                            : channelList.tattooCategoryDetails[0].title}
                         </Link>
 
-                        <span className="tooltiptext" style={{ textAlign: "left", padding: "10px"}}>
+                        <span className="tooltiptext" style={{ textAlign: "left", padding: "10px" }}>
                           {channelList.channelDetails[0].channelName}<br />
                           {channelList.tattooCategoryDetails[0].title.length > 20
                             ? `${channelList.tattooCategoryDetails[0].title}`
@@ -314,9 +324,9 @@ export default function LeftMenu(props) {
                         <div style={liveChannelViewersStyle}>
                           <div style={liveChannelStatus}>
                           </div>
-                          <span style={{color:"#fff"}}>
+                          <span style={{ color: "#fff" }}>
                             {/* {channelList.viewers.length >= 4 && channelList.viewers.length <= 6 ? `${channelList.viewers}K`:} */}
-                            {channelList.viewers? countLiveViewing(channelList.viewers): 0}
+                            {channelList.viewers ? countLiveViewing(channelList.viewers) : 0}
                             {/* {channelList.viewers} */}
                           </span>
                         </div>
