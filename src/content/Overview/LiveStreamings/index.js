@@ -125,7 +125,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                                                 // href={`/channel/${channel.channelDetails[0].urlSlug}`}
                                                 onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
                                                 style={{cursor: "pointer"}}
-                                                color={'white'}>{channel.description}hi</Link>
+                                                color={'white'}>{channel.description}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
                                                 <Link 
