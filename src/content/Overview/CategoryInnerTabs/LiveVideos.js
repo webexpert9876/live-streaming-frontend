@@ -108,7 +108,7 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                             <Typography gutterBottom variant="h5" component="div">
                                                 <Link 
                                                 // href={`/channel/${channel.channelDetails[0].urlSlug}`}
-                                                style={{cursor: pointer}}
+                                                style={{cursor: "pointer"}}
                                                 onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
                                                 
                                                 color={'white'}>{channel.description}</Link>
@@ -117,14 +117,14 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                                 <Link 
                                                 // href={`/channel/${channel.channelDetails[0].urlSlug}`}
                                                 onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
-                                                style={{cursor: pointer}}
+                                                style={{cursor: "pointer"}}
                                                 color={'#999'}>{channel.channelDetails[0].channelName}</Link>
                                             </Typography>
                                             <Typography gutterBottom variant="p" component="div">
                                                 <Link
                                                 // href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`}
                                                 onClick={()=> router.push(`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`)}
-                                                style={{cursor: pointer}}
+                                                style={{cursor: "pointer"}}
                                                 color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link>
                                             </Typography>
                                             {channel.tags && channel.tags ? <ul className='videoTags'>
@@ -132,7 +132,7 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                                     <li key={tag}>
                                                         <Link 
                                                         href="/tags/"
-                                                        style={{cursor: pointer}}
+                                                        style={{cursor: "pointer"}}
                                                         // onClick={()=> router.push(`/channel/${channel.channelDetails[0].tags}`)}
                                                         >{tag}</Link>
                                                     </li>
