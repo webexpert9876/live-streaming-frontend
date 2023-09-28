@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { FormControl } from '@mui/material';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -28,18 +29,7 @@ const validationSchema = Yup.object().shape({
 
 
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 const defaultTheme = createTheme();
 
@@ -47,6 +37,7 @@ export default function SignInSide() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
+  const router = useRouter();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -86,10 +77,18 @@ export default function SignInSide() {
           setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
         setLoading(false);
       })
-
-
-   
   };
+
+  function Copyright(props) {
+    return (
+      <Typography variant="body2" color="text.secondary" align="center" {...props}>
+        <Button variant="contained"
+        // onClick={()=> router.push("/")}
+        ><a href="javascript:window.history.go(-1)" style={{color:"#fff", textDecoration:"none"}}>Back to login</a></Button>
+        
+      </Typography>
+    );
+  }
 
   return (
     <ThemeProvider>
