@@ -22,18 +22,7 @@ import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
 
 
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -85,6 +74,16 @@ const LoginForm = () => {
   const mapStateToProps = (state) => ({
     authUser: state.auth.authUser, // Replace 'auth' with the key where your authUser is stored in the Redux store
   });
+
+  function Copyright(props) {
+    return (
+      <Typography variant="body2" color="text.secondary" align="center" {...props}>
+        <Button variant="contained"
+        onClick={()=> router.push("/")}
+        >Home</Button>
+      </Typography>
+    );
+  }
 
   return (
     <ThemeProvider>

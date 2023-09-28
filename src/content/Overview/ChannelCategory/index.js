@@ -8,7 +8,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Container, Link, ListItemText, styled } from '@mui/material';
-
+import { useRouter } from 'next/router';
 
 
 const recommendedStyle = {
@@ -68,6 +68,7 @@ const CategoryItemSkeletonItem = () => {
 const ChannelCategory = ({ tattooCategories }) => {
     const [showCount, setShowCount] = React.useState(6);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
 
     const handleShowMore = () => {
@@ -86,7 +87,11 @@ const ChannelCategory = ({ tattooCategories }) => {
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>
-                <h2><Link href="#">Categories</Link> we think you’ll like</h2>
+                <h2><Link 
+                // href="#"
+                onClick={()=> router.push(`#`)}
+                style={{cursor: "pointer"}}
+                >Categories</Link> we think you’ll like</h2>
     
                 {isLoading ? (
                     <Grid sx={recommendedStyle} className='desktop5'>
@@ -109,14 +114,21 @@ const ChannelCategory = ({ tattooCategories }) => {
                                     </div>
                                     <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }} >
                                         <Typography gutterBottom variant="h5" component="div" style={{ width: "100%" }}>
-                                            <Link href={`/single-category/${channelCat.urlSlug}`} color={'white'}>{channelCat.title.slice(0, 20)}</Link>
+                                            <Link 
+                                            // href={`/single-category/${channelCat.urlSlug}`}
+                                            onClick={()=> router.push(`/single-category/${channelCat.urlSlug}`)}
+                                            style={{cursor: "pointer"}}
+                                            color={'white'}>{channelCat.title.slice(0, 20)}</Link>
                                         </Typography>
                                         <div className='cateBadge'> New</div>
 
                                         {channelCat.tags && channelCat.tags ? <ul className='videoTags'>
                                                 {channelCat.tags && channelCat.tags.map((tag) => (
                                                     <li key={tag}>
-                                                        <Link href="#" style={{ fontSize: "10px" }}>{tag}</Link>
+                                                        <Link 
+                                                        // href="#"
+                                                        onClick={()=> router.push("#")}                                                        
+                                                        style={{ fontSize: "10px", cursor: "pointer"}}>{tag}</Link>
                                                     </li>
                                                 ))}
                                             </ul> : null

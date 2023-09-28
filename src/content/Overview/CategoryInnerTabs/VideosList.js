@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Link } from '@mui/material';
 import { Box } from '@mui/system';
+import { useRouter } from 'next/router';
 
 
 
@@ -23,6 +24,7 @@ const VideosList = (props) => {
     const [selectedTag, setSelectedTag] = useState(null);
     const [videosListInfo, setVideosListInfo] = useState(props.videosListInfo)
     // console.log('videosListInfo', videosListInfo);
+    const router = useRouter();
     const handleShowMore = () => {
         setShowCount(prevCount => {
             if((prevCount + 5) > videosListInfo.length){
@@ -97,10 +99,16 @@ const VideosList = (props) => {
                                     </Grid>
                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                         <Typography gutterBottom variant="h5" component="div">
-                                            <Link href={`/video/${channel._id}`} color={'white'}>{channel.description}</Link>
+                                            <Link 
+                                            onClick={()=> router.push(`/video/${channel._id}`)}
+                                            // href={`/video/${channel._id}`}                                            
+                                            color={'white'}>{channel.description}</Link>
                                         </Typography>
                                         <Typography gutterBottom variant="p" component="div">
-                                            <Link href={`/channel/${channel.channelDetails[0].urlSlug}`} color={'#999'}>{channel.channelDetails[0].channelName}</Link>
+                                            <Link 
+                                            // href={`/channel/${channel.channelDetails[0].urlSlug}`}
+                                            onClick={()=> router.push(`/channel/${channel.channelDetails[0].urlSlug}`)}
+                                            color={'#999'}>{channel.channelDetails[0].channelName}</Link>
                                         </Typography>
                                         <Typography gutterBottom variant="p" component="div">
                                             {/* <Link href={`/single-category/${channel.tattooCategoryDetails[0].urlSlug}`} color={'#999'}>{channel.tattooCategoryDetails[0].title}</Link> */}
@@ -108,7 +116,10 @@ const VideosList = (props) => {
                                         {channel.tags && channel.tags ? <ul className='videoTags'>
                                             {channel.tags && channel.tags.map((tag) => (
                                                 <li key={tag}>
-                                                    <Link href="/tags/">{tag}</Link>
+                                                    <Link 
+                                                    // href="/tags/"
+                                                    onClick={()=> router.push("/tags")}
+                                                    >{tag}</Link>
                                                 </li>
                                             ))} </ul> : null
                                         }
