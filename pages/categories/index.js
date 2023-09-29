@@ -77,7 +77,7 @@ function CategoryList(props) {
         // Simulate a delay to show the skeleton animation
         setTimeout(() => {
             setIsLoading(false);
-        }, 10000);
+        }, 2000);
     }, []);
 
     return(
@@ -87,7 +87,7 @@ function CategoryList(props) {
     
                 {isLoading ? (
                     <Grid sx={recommendedStyle} className='desktop5'>
-                        {Array.from({ length: 12 }).map((_, index) => (
+                        {Array.from({ length: 6 }).map((_, index) => (
                             <CategoryItemSkeletonItem key={index} />
                         ))}
                     </Grid>
