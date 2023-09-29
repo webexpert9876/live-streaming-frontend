@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import Head from 'next/head';
-import SidebarLayout from 'src/layouts/SidebarLayout';
-import PageHeader from 'src/content/Management/Users/settings/PageHeader';
-import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Container, Tabs, Tab, Grid, Link, ListItemText, Card, CardMedia, Typography } from '@mui/material';
-import Footer from 'src/components/Footer';
+import { Container, Grid, Link, ListItemText, Card, CardMedia, Typography, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../graphql";
 import { gql } from "@apollo/client";
 
@@ -84,7 +77,9 @@ function CategoryList(props) {
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "120px" }}>
                 <Typography sx={{fontSize: '50px !important', color: '#8162d2', fontWeight: 800}} mb={2}>Tattoo Categories</Typography>
-    
+                    <Box mb={1}>
+                        <img src='https://placehold.co/1843x400'></img>
+                    </Box>
                 {isLoading ? (
                     <Grid sx={recommendedStyle} className='desktop5'>
                         {Array.from({ length: 6 }).map((_, index) => (
