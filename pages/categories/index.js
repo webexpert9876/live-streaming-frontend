@@ -90,11 +90,10 @@ function CategoryList(props) {
                     </Box>
                 :
                     <Container style={{ width: "100%", maxWidth: "100%", marginBottom: '50px' }}>
-                        <Card sx={{marginBottom: '20px'}}>
+                        {/* <Card sx={{marginBottom: '20px'}}>
                             <CardHeader title={<Typography variant="h2" component={'h2'} sx={{color: '#8C7CF0'}}>Tattoo Categories</Typography>}>
-                                {/* <Typography variant="h2" component={'h2'} mb={2} sx={{color: '#8C7CF0'}}>{slug}</Typography> */}
                             </CardHeader>
-                        </Card>
+                        </Card> */}
                         {/* <Typography sx={{fontSize: '50px !important', color: '#8162d2', fontWeight: 800}} mb={2}>Tattoo Categories</Typography> */}
                             <Box mb={4}>
                                 <img width={'100%'} src='https://placehold.co/1784x250'/>

@@ -89,13 +89,27 @@ function HeaderSearch() {
 
   return (
     <>
-      <Tooltip arrow title="Search">
+      {/* <Tooltip arrow title="Search"> */}
         <IconButton color="primary" onClick={handleClickOpen}>
-          <SearchTwoToneIcon />
+          {/* <SearchTwoToneIcon /> */}
+          <SearchInputWrapper
+            value={searchValue}
+            autoFocus={true}
+            onChange={handleSearchChange}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchTwoToneIcon />
+                </InputAdornment>
+              )
+            }}
+            placeholder="Search channel..."
+            fullWidth
+          />
         </IconButton>
-      </Tooltip>
+      {/* </Tooltip> */}
 
-      <DialogWrapper
+      {/* <DialogWrapper
         open={open}
         TransitionComponent={Transition}
         keepMounted
@@ -265,7 +279,7 @@ function HeaderSearch() {
             </Box>
           </DialogContent>
         )}
-      </DialogWrapper>
+      </DialogWrapper> */}
     </>
   );
 }

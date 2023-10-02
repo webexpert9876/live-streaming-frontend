@@ -7,7 +7,7 @@ import {
     Container, 
     Typography, 
     Grid, 
-    Card, 
+    Card,
     CardMedia, 
     Link, 
     CardHeader,
@@ -35,6 +35,8 @@ function TagSlug(){
     const [isFetchingVideos, setIsFetchingVideos] = useState(false);
     const [totalVideoCount, setTotalVideoCount]= useState(0);
     const [isPageLoading, setIsPageLoading]= useState(true);
+    const [filterValue, setFilterValue] = useState('');
+    // const [isFilter, setFilterValue] = useState('');
 
     useEffect(async ()=>{
         if(!router.query.slug) {
@@ -148,14 +150,14 @@ function TagSlug(){
                 :
                     <Box sx={{ width: '100%' }} ml={2}>
                         <Box width={'98.4%'}>
-                            <Card sx={{marginBottom: '20px'}}>
+                            {/* <Card sx={{marginBottom: '20px'}}>
                                 <CardHeader title={<Typography variant="h2" component={'h2'} sx={{color: '#8C7CF0'}}>Tag: {slug}</Typography>}>
                                 </CardHeader>
-                            </Card>
+                            </Card> */}
                             <Box mb={4}>
                                 <img style={{width: '100%'}} src='https://placehold.co/1784x250'/>
                             </Box>
-                            <Typography mb={2} component={'h3'} variant={'h3'}>Search result for Tag - </Typography>
+                            <Typography mb={2} component={'h3'} variant={'h3'}>Search result for Tag - {slug}</Typography>
                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                 {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
                                 {videoList.length>0?
@@ -183,7 +185,7 @@ function TagSlug(){
                                                         </Grid>
                                                         <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                             <Typography gutterBottom variant="h5" component="div">
-                                                                <Link onClick={()=> router.push(`/video/${video._id}`)} color={'white'}>{video.description}</Link>
+                                                                <Link onClick={()=> router.push(`/video/${video._id}`)} color={'white'}>{video.description.slice(0, 30)}..</Link>
                                                             </Typography>
                                                             <Typography gutterBottom variant="p" component="div">
                                                                 <Link onClick={()=> router.push(`/channel/${video.channelDetails[0].urlSlug}`)} color={'#999'}>{video.channelDetails[0].channelName}</Link>
