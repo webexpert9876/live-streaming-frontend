@@ -205,16 +205,16 @@ export default function LeftMenu(props) {
   }, [])
 
   const scrollBar = {
-    '&::-webkitScrollbar': {
+    '&::webkitScrollbar': {
       width: '1px'
     },
-    '&::-webkitScrollbarTrack': {
+    '&::webkitScrollbarTrack': {
       background: '#f00'
     },
-    '&::-webkitScrollbarThumb': {
+    '&::webkitScrollbarThumb': {
       background: '#f00'
     },
-    '&::-webkitScrollbarThumb:hover': {
+    '&::webkitScrollbarThumb:hover': {
       background: '#f000'
     }
   };

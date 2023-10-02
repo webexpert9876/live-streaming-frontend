@@ -146,7 +146,7 @@ const LiveStreamings = ({ liveStreamings }) => {
                                                     <li key={tag}>
                                                         <Link 
                                                         // href={`/tags/`}
-                                                        onClick={()=> router.push(`/tags/`)}
+                                                        onClick={()=> router.push(`/tag/${tag}`)}
                                                         style={{cursor: "pointer"}} 
                                                         >{tag}</Link>
                                                     </li>

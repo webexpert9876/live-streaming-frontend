@@ -131,7 +131,7 @@ const LiveVideos = ({ liveVideosInfo }) => {
                                                 {channel.tags && channel.tags.map((tag) => (
                                                     <li key={tag}>
                                                         <Link 
-                                                        href="/tags/"
+                                                        onClick={() => router.push(`/tag/${tag}`)}
                                                         style={{cursor: "pointer"}}
                                                         // onClick={()=> router.push(`/channel/${channel.channelDetails[0].tags}`)}
                                                         >{tag}</Link>

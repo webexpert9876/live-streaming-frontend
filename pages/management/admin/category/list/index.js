@@ -343,7 +343,7 @@ function TattooCategory() {
                                                                             noWrap
                                                                         >
                                                                             {category.tags.slice(0,2).map((tag, index)=>{
-                                                                                return(<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
+                                                                                return(<Button key={index} variant="contained" onClick={()=> router.push(`/tag/${tag}`)} sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
                                                                                 {/* <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link> */}{tag}
                                                                             </Button>)
                                                                             })}

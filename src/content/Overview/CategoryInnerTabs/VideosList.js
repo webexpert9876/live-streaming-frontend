@@ -118,7 +118,7 @@ const VideosList = (props) => {
                                                 <li key={tag}>
                                                     <Link 
                                                     // href="/tags/"
-                                                    onClick={()=> router.push("/tags")}
+                                                    onClick={()=> router.push(`/tag/${tag}`)}
                                                     >{tag}</Link>
                                                 </li>
                                             ))} </ul> : null

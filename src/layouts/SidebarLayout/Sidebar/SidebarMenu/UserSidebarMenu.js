@@ -262,7 +262,7 @@ function UserSidebarMenu({userData}){
                   </List>
                 </SubMenuWrapper>
                 </List>
-                <List
+                {/* <List
                 component="div"
                 subheader={
                     <ListSubheader component="div" disableSticky>
@@ -289,7 +289,7 @@ function UserSidebarMenu({userData}){
                     </ListItem>
                     </List>
                 </SubMenuWrapper>
-                </List>
+                </List> */}
             
             </MenuWrapper>
         </>

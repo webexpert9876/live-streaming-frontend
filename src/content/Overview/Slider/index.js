@@ -19,6 +19,7 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
+import { useRouter } from 'next/router';
 
 // const data = new Array(10).fill({ coverImage: 'https://images6.alphacoders.com/679/thumb-1920-679459.jpg', video: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' });
 // let sliderLiveData = null; 
@@ -28,6 +29,10 @@ const recommendedStyle = {
   gridTemplateColumns: 'auto auto auto auto auto',
   gap: '15px',
 };
+
+const cursorStyle = {
+  cursor: 'pointer'
+}
 
 const SliderItemSkeletonItem = () => {
   return (
@@ -66,8 +71,9 @@ const SliderItemSkeletonItem = () => {
 
 export default function SimpleSlider({sliderData}) {
   const ref = useRef();
+  const router = useRouter();
   
-console.log('sliderData', sliderData);
+// console.log('sliderData', sliderData);
 
   return (
     <div className='twitch twitch-width'>
@@ -198,7 +204,7 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
           {loaded && (
             <div className='detail fill'>
               <div className='video-player'>
-                <Link href={`/channel/${channelDetails[0].urlSlug}`}>
+                <Link sx={cursorStyle} onClick={()=> router.push(`/channel/${channelDetails[0].urlSlug}`)}>
                   <VideoJS options={{
                     autoplay: true,
                     controls: true,
@@ -219,10 +225,10 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
                   </Grid>
                   <Grid item ml={"15px"} style={{ width: "74%" }}>
                     <Typography className='sliveVideoTitle'>
-                      <Link href={`/channel/${channelDetails[0].urlSlug}`} >{channelDetails[0].channelName}</Link>
+                      <Link sx={cursorStyle} onClick={()=> router.push(`/channel/${channelDetails[0].urlSlug}`)} >{channelDetails[0].channelName}</Link>
                     </Typography>
                     <Typography sx={{textWrap: 'balance'}} className='sliveVideoChannelName'>
-                      <Link href={`/single-category/${tattooCategoryDetails[0].urlSlug}`} >{tattooCategoryDetails[0].title}</Link>
+                      <Link sx={cursorStyle} onClick={()=> router.push(`/single-category/${tattooCategoryDetails[0].urlSlug}`)}>{tattooCategoryDetails[0].title}</Link>
                     </Typography>
                     <Typography className='sliveVideoLiveViewers' color={'#000'}>
                       {/* <Link href="#" color={"black"}>{countLiveViewing(viewers)} Viewers</Link> */}
@@ -233,8 +239,8 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
                 {tags.length > 0 ? (
                   <Stack direction="row" ml={"12px"} spacing={1} className='sliveVideoTags'>
                     {tags.map((tag) => (
-                      <Link href={`/tags/`} key={tag}>
-                        <Chip label={tag} style={{ background: "#ddd", color: "#000", fontSize: "12px", height: "25px" }} />
+                      <Link onClick={()=> router.push(`/tag/${tag}`)} key={tag}>
+                        <Chip sx={cursorStyle} label={tag} style={{ background: "#ddd", color: "#000", fontSize: "12px", height: "25px" }} />
                       </Link>
                     ))}
                   </Stack>

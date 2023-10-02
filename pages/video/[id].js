@@ -18,6 +18,7 @@ import Image from 'next/image'
 import LiveStreamChat from '../../src/content/Channel/LiveStreamChat'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import { useRouter } from "next/router";
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -48,6 +49,7 @@ export default function Videos(props){
     // const [isClickOnChannel, setIsClickOnChannel] = useState(false);
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState(videoPageInfo.chatMessages);
     const [value, setValue] = React.useState('1');
+    const router = useRouter();
 
     const playerRef = React.useRef(null);
 
@@ -174,7 +176,7 @@ export default function Videos(props){
                         </Typography>
                         <Typography variant="h4" component={"h4"} sx={{fontSize: '20px'}}>{videoDetails.description}</Typography>
                         <Box sx={{display: 'flex', marginTop: '5px'}}>
-                            <Link href={`/single-category/${videoDetails.tattooCategoryDetails[0].urlSlug}`} sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(167 157 233)'}}>{videoDetails.tattooCategoryDetails[0].title}</Link>
+                            <Link onClick={()=> router.push(`/single-category/${videoDetails.tattooCategoryDetails[0].urlSlug}`)} sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(167 157 233)'}}>{videoDetails.tattooCategoryDetails[0].title}</Link>
                             {/* <Typography sx={{fontWeight: 400, marginRight: '10px', color: 'rgb(112, 99, 192)'}}>{videoDetails.tattooCategoryDetails[0].title}</Typography> */}
                             <Typography>- {countLiveViewing(videoDetails.views)} Views</Typography>
                         </Box>
@@ -197,7 +199,7 @@ export default function Videos(props){
                                     <Typography>
                                         <Typography variant="body1" component={'div'} sx={{ gap: "15px", display: "flex" }}>
                                             {/* <Typography variant="h3" component="h3" sx={{ fontWeight: 600, fontSize: '20px', cursor: 'pointer' }} align="left">{channelDetails.channelName}</Typography> */}
-                                            {channelDetails?<Link sx={{ fontWeight: 600, fontSize: '20px', color: '#CBCCD2'}} align="left" href={`/channel/${channelDetails.urlSlug}`}>{channelDetails.channelName}</Link>: <Typography sx={{ fontWeight: 600, fontSize: '18px', color: '#CBCCD2'}} align="left">No Channel name found</Typography>}
+                                            {channelDetails?<Link sx={{ fontWeight: 600, fontSize: '20px', color: '#CBCCD2'}} align="left" onClick={() => router.push(`/channel/${channelDetails.urlSlug}`)}>{channelDetails.channelName}</Link>: <Typography sx={{ fontWeight: 600, fontSize: '18px', color: '#CBCCD2'}} align="left">No Channel name found</Typography>}
                                             {/* <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button> */}
                                         </Typography>
                                         {currentBroadcastVideo? <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', textAlign: 'left', marginTop: '5px' }}>

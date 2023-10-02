@@ -1,5 +1,6 @@
 import { Box, styled, Tooltip } from '@mui/material';
 import Link from 'src/components/Link';
+import { useRouter } from 'next/router';
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `
@@ -101,8 +102,10 @@ const LogoText = styled(Box)(
 );
 
 function Logo() {
+  const router = useRouter();
+
   return (
-    <LogoWrapper href="/">
+    <LogoWrapper onClick={() => router.push(`/`)} >
       <LogoSignWrapper>
         <LogoSign>
           <LogoSignInner />

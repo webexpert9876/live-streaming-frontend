@@ -238,7 +238,7 @@ export default function Category(props) {
                           <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={()=>handleFollow(false)}>Following</Button> 
                           : 
                           ( Object.keys(userDetail).length === 0? 
-                            <Tooltip title={<React.Fragment>Please <Link href={`/auth/login`}>login</Link> to follow this tattoo category</React.Fragment>} placement="right-start">
+                            <Tooltip title={<React.Fragment>Please <Link onClick={()=> router.push(`/auth/login`)}>login</Link> to follow this tattoo category</React.Fragment>} placement="right-start">
                               <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Follow</Button>
                             </Tooltip>
                           : 

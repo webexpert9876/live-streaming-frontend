@@ -67,7 +67,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function OverviewPage({homeData}) {
-console.log('homeData', homeData)
+// console.log('homeData', homeData)
   const theme = useTheme();
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(true);

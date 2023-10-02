@@ -345,7 +345,7 @@ export default function ChannelName(props) {
                                             {currentBroadcast.tags.map((tag, index) => {
                                                 return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>
                                                     <Link
-                                                        onClick={() => router.push("/tags/")}
+                                                        onClick={() => router.push(`/tag/${tag}`)}
                                                         sx={{ color: '#fff' }}>{tag}</Link>
                                                 </Button>)
                                             })}
@@ -610,7 +610,7 @@ export default function ChannelName(props) {
                                                                                             <li key={index}>
                                                                                                 <Link
                                                                                                     // href="/tags/"
-                                                                                                    onClick={() => router.push("/tags")}
+                                                                                                    onClick={() => router.push(`/tag/${tag}`)}
                                                                                                 >
                                                                                                     {tag}
                                                                                                 </Link>
@@ -654,7 +654,7 @@ export default function ChannelName(props) {
                                                                                 </Grid>
                                                                                 <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                     <Typography gutterBottom variant="h5" component="div">
-                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
                                                                                     </Typography>
                                                                                     <Typography gutterBottom variant="p" component="div">
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
@@ -662,7 +662,7 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                                <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
@@ -792,7 +792,7 @@ export default function ChannelName(props) {
                                                                                 </Grid>
                                                                                 <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                     <Typography gutterBottom variant="h5" component="div">
-                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
                                                                                     </Typography>
                                                                                     <Typography gutterBottom variant="p" component="div">
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
@@ -800,7 +800,7 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                                <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
@@ -836,7 +836,7 @@ export default function ChannelName(props) {
                                                                                 </Grid>
                                                                                 <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                     <Typography gutterBottom variant="h5" component="div">
-                                                                                        <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
                                                                                     </Typography>
                                                                                     <Typography gutterBottom variant="p" component="div">
                                                                                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
@@ -844,7 +844,7 @@ export default function ChannelName(props) {
                                                                                     {streamsInfo.tags ? <ul className='videoTags'>
                                                                                         {streamsInfo.tags.map((tag, index) => (
                                                                                             <li key={index}>
-                                                                                                <Link href="/tags/">{tag}</Link>
+                                                                                                <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
                                                                                             </li>
                                                                                         ))}
                                                                                     </ul> : null}
