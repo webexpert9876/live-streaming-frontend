@@ -25,6 +25,7 @@ import { styled } from '@mui/material/styles';
 import { TransitionProps } from '@mui/material/transitions';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import FindInPageTwoToneIcon from '@mui/icons-material/FindInPageTwoTone';
+import { useRouter } from 'next/router';
 
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 
@@ -64,6 +65,7 @@ const DialogTitleWrapper = styled(DialogTitle)(
 function HeaderSearch() {
   const [openSearchResults, setOpenSearchResults] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const router = useRouter();
 
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
@@ -80,7 +82,9 @@ function HeaderSearch() {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
-    setOpen(true);
+    console.log('click')
+    router.push(`/search?searchString=${searchValue}`)
+    // setOpen(true);
   };
 
   const handleClose = () => {
@@ -90,7 +94,7 @@ function HeaderSearch() {
   return (
     <>
       {/* <Tooltip arrow title="Search"> */}
-        <IconButton color="primary" onClick={handleClickOpen}>
+        {/* <IconButton color="primary" onClick={handleClickOpen}> */}
           {/* <SearchTwoToneIcon /> */}
           <SearchInputWrapper
             value={searchValue}
@@ -99,14 +103,14 @@ function HeaderSearch() {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <SearchTwoToneIcon />
+                  <SearchTwoToneIcon onClick={handleClickOpen}/>
                 </InputAdornment>
               )
             }}
-            placeholder="Search channel..."
+            placeholder="Search here..."
             fullWidth
           />
-        </IconButton>
+        {/* </IconButton> */}
       {/* </Tooltip> */}
 
       {/* <DialogWrapper

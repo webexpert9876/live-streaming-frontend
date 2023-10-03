@@ -4,9 +4,9 @@ import HeaderNotifications from './Notifications';
 
 function HeaderButtons() {
   return (
-    <Box sx={{ mr: 1 }}>
+    <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
       <HeaderSearch />
-      <Box sx={{ mx: 0.5 }} component="span">
+      <Box sx={{ mr: 0.5, ml: 3 }} component="span">
         <HeaderNotifications />
       </Box>
     </Box>

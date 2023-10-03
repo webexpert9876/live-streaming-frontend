@@ -46,7 +46,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function ChannelName(props) {
     const channelInfo = JSON.parse(props.channelInfo);
-    console.log('channelInfo', channelInfo)
+    // console.log('channelInfo', channelInfo)
     const [channelDetails, setChannelDetails] = useState(...channelInfo.channels);
     const [recentLiveStreamVideos, setRecentLiveStreamVideos] = useState(channelInfo.recentLiveStreamVideos);
     const [recentUploadedVideos, setRecentUploadedVideos] = useState(channelInfo.recentUploadedVideos);

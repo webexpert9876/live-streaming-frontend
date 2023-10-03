@@ -64,7 +64,7 @@ const CategoryItemSkeletonItem = () => {
 };
 
 function CategoryList(props) {
-    const [tattooCategoryList, setTattooCategoryList] = useState(props.tattooCategories.length>0?props.tattooCategories: []);
+    const [tattooCategoryList, setTattooCategoryList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPageLoading, setIsPageLoading]= useState(true);
     const router = useRouter();
@@ -75,6 +75,10 @@ function CategoryList(props) {
             setIsLoading(false);
             setIsPageLoading(false)
         }, 2000);
+
+        if(props.tattooCategories.length > 0){
+            setTattooCategoryList(props.tattooCategories);
+        }
     }, []);
 
     return(
@@ -123,7 +127,7 @@ function CategoryList(props) {
                                                     // href={`/single-category/${channelCat.urlSlug}`}
                                                     onClick={()=> router.push(`/single-category/${channelCat.urlSlug}`)}
                                                     style={{cursor: "pointer"}}
-                                                    color={'white'}>{channelCat.title.slice(0, 20)}</Link>
+                                                    color={'white'}>{channelCat.title.slice(0, 30)}</Link>
                                                 </Typography>
                                                 <div className='cateBadge'> New</div>
 
