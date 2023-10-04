@@ -168,8 +168,8 @@ function SearchString() {
                             <>
                                 <Typography component={'h3'} variant={'h3'} mt={2}>{channelDetail.channelName[0].toUpperCase() + channelDetail.channelName.slice(1)} channel videos -  </Typography>
                                 {videosList.map((video, index)=>(
-                                    <Card sx={{my: 2}}>
-                                        <Box sx={{ display: 'flex', width: '100%', my:2 }} key={index}>
+                                    <Card sx={{my: 2}} key={index}>
+                                        <Box sx={{ display: 'flex', width: '100%', my:2 }}>
                                             <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}}>
                                                 <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${video.videoPreviewImage}`} style={{ borderRadius: '5%', height: '187px', width: '70%', marginTop: '10px' }}></img>
                                             </Typography>
@@ -214,8 +214,8 @@ function SearchString() {
                             <>
                                 <Typography component={'h3'} variant={'h3'} mt={2}>Search result for - {searchQuery} </Typography>
                                 {videosList.map((video, index)=>(
-                                    <Card sx={{my: 2}}>
-                                        <Box sx={{ display: 'flex', width: '100%', my:2 }} key={index}>
+                                    <Card sx={{my: 2}} key={index}>
+                                        <Box sx={{ display: 'flex', width: '100%', my:2 }}>
                                             <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}}>
                                                 <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${video.videoPreviewImage}`} style={{ borderRadius: '5%', height: '187px', width: '70%', marginTop: '10px' }}></img>
                                             </Typography>
