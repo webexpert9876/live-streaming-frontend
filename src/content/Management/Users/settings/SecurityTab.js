@@ -516,7 +516,9 @@ function SecurityTab({userData}) {
         <Snackbar anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'right',
-          }} open={openErrorBox} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+          }} open={openErrorBox}
+          autoHideDuration={6000}
+          onClose={handleMessageBoxClose} >
           <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
             {apiResponseMessage}
           </Alert>

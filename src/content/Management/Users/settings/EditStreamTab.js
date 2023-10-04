@@ -686,7 +686,9 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
         <Snackbar anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'right',
-          }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
+          }} open={open}
+          autoHideDuration={6000}
+          onClose={handleMessageBoxClose} >
           <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
             {apiResponseMessage}
           </Alert>

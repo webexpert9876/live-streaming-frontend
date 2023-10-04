@@ -1,6 +1,6 @@
 import React from 'react';
 import { Autocomplete, TextField } from '@mui/material';
-import CircularProgress from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 // import CommonTextField from './CommonTextField';
 // import CircularProgress from '@material-ui/core/CircularProgress';
 // import TextField from '@material-ui/core/TextField';
