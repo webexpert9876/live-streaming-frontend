@@ -46,7 +46,8 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function ChannelName(props) {
     const channelInfo = JSON.parse(props.channelInfo);
-    // console.log('channelInfo', channelInfo)
+    console.log('channelInfo', channelInfo)
+    console.log('channelInfo props', props)
     const [channelDetails, setChannelDetails] = useState(...channelInfo.channels);
     const [recentLiveStreamVideos, setRecentLiveStreamVideos] = useState(channelInfo.recentLiveStreamVideos);
     const [recentUploadedVideos, setRecentUploadedVideos] = useState(channelInfo.recentUploadedVideos);
@@ -278,8 +279,10 @@ export default function ChannelName(props) {
                                 fluid: true,
                                 className: 'online-video',
                                 sources: [{
-                                    // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                    src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${currentBroadcast.streamUrl}`,
+                                    // src: 'http://18.231.170.3/hls/dd032ddc-8d55-4e98-ac82-adca59b8d44a/index.m3u8',
+                                    // src: 'http://18.231.170.3/live/dd032ddc-8d55-4e98-ac82-adca59b8d44a/index.m3u8',
+                                    // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
+                                    src: `${currentBroadcast.streamUrl}`,
                                     type: 'application/x-mpegURL'
                                 }]
                             }} onReady={handlePlayerReady} />
