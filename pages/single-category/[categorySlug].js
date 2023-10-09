@@ -327,8 +327,8 @@ useEffect(async ()=>{
                       <Grid item gap={"15px"}>
                         {/* {tattooCategories.tags} */}
                         {tattooCategories.tags ? <ul style={{ margin: '0px 0 0 0', padding: 0}} className='videoTags'>
-                          {tattooCategories.tags.map((tag) => (
-                            <li key={tag}>
+                          {tattooCategories.tags.map((tag, index) => (
+                            <li key={index}>
                               <Link href="#">{tag}</Link>
                             </li>
                           ))}

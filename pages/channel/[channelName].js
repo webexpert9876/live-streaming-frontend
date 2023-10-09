@@ -541,8 +541,8 @@ export default function ChannelName() {
                                                 {channelDetails.socialLinks.length > 0 ?
                                                     <Box sx={{ 'textAlign': 'left' }} className="socialShareLink">
                                                         {
-                                                            channelDetails.socialLinks.map((links) => (
-                                                                <>
+                                                            channelDetails.socialLinks.map((links, index) => (
+                                                                <Box key={index}>
                                                                     {links.platform == 'facebook' && links.url != '' && <Typography variant="body1" component={'div'} sx={{ fontSize: '15px', marginTop: '20px' }}>
                                                                         <Link target="_blank" href={`https://${links.url}`}><FacebookIcon /> Facebook</Link>
                                                                     </Typography>}
@@ -570,7 +570,7 @@ export default function ChannelName() {
                                                                             Discord
                                                                         </Link>
                                                                     </Typography>}
-                                                                </>
+                                                                </Box>
                                                             ))
                                                         }
                                                     </Box>
