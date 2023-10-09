@@ -54,8 +54,7 @@ export default function Videos(){
         }
         
         setVideoId(router.query.id);
-        setIsFetchingVideo(true)
-        console.log('router.query.channelName', router.query.id);
+        setIsFetchingVideo(true);
 
     }, [router.query.channelName]);
 
