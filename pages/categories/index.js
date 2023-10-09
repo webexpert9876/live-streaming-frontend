@@ -102,7 +102,7 @@ function CategoryList(props) {
                             <Box mb={4}>
                                 <img width={'100%'} src='https://placehold.co/1784x250'/>
                             </Box>
-                            <Typography mb={2} component={'h3'} variant={'h3'}>Search result for Tattoo Category -</Typography>
+                            <Typography mb={2} component={'h3'} variant={'h3'}>All Categories</Typography>
                         {isLoading ? (
                             <Grid sx={recommendedStyle} className='desktop5'>
                                 {Array.from({ length: 6 }).map((_, index) => (

@@ -89,7 +89,7 @@ const ChannelCategory = ({ tattooCategories }) => {
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>
                 <h2><Link 
                 // href="#"
-                onClick={()=> router.push(`#`)}
+                onClick={()=> router.push(`/categories`)}
                 style={{cursor: "pointer"}}
                 >Categories</Link> we think you’ll like</h2>
     

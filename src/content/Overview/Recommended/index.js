@@ -102,7 +102,7 @@ const Recommended = ({ channels }) => {
                                     </Grid>
                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                         <Typography gutterBottom variant="h5" component="div">
-                                            <Link href="#" color={'white'}>{channel.liveVideoTitle} hi</Link>
+                                            <Link href="#" color={'white'}>{channel.liveVideoTitle}</Link>
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             <Link href="#" color={'#bdbdbd'}>{channel.channelName}</Link>

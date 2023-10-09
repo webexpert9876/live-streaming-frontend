@@ -59,7 +59,7 @@ const LiveStreamingSkeletonItem = () => {
 const LiveStreamings = ({ liveStreamings }) => {
     const [showCount, setShowCount] = useState(5);
     const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
+    const router = useRouter();    
 
     const handleShowMore = () => {
         setShowCount((prevCount) => prevCount + 5);
@@ -89,7 +89,11 @@ const LiveStreamings = ({ liveStreamings }) => {
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
-                <h2><Link href="#">Live channels</Link> we think you’ll like</h2>        
+                <h2><Link
+                // href="#"
+                onClick={()=> router.push(`/live-channels`)}
+                style={{cursor: "pointer"}}                
+                >Live channels</Link> we think you’ll like</h2>        
                 {isLoading ? (
 
                     <Grid sx={recommendedStyle} className='desktop5'>
