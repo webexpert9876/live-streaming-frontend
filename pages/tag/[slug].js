@@ -23,7 +23,7 @@ const liveDaysAgo = {
     paddingLeft: "5px"
 }
 
-const fixedLimit =  10;
+const fixedLimit =  20;
 
 
 function TagSlug(){
@@ -185,15 +185,15 @@ function TagSlug(){
                                                         </Grid>
                                                         <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                             <Typography gutterBottom variant="h5" component="div">
-                                                                <Link onClick={()=> router.push(`/video/${video._id}`)} color={'white'}>{video.description.slice(0, 30)}..</Link>
+                                                                <Link onClick={()=> router.push(`/video/${video._id}`)} color={'white'} style={{cursor: "pointer"}}>{video.description.slice(0, 30)}..</Link>
                                                             </Typography>
                                                             <Typography gutterBottom variant="p" component="div">
-                                                                <Link onClick={()=> router.push(`/channel/${video.channelDetails[0].urlSlug}`)} color={'#999'}>{video.channelDetails[0].channelName}</Link>
+                                                                <Link onClick={()=> router.push(`/channel/${video.channelDetails[0].urlSlug}`)} color={'#999'} style={{cursor: "pointer"}}>{video.channelDetails[0].channelName}</Link>
                                                             </Typography>
                                                             {video.tags ? <ul className='videoTags'>
                                                                 {video.tags.map((tag, index) => (
                                                                     <li key={index}>
-                                                                        <Link onClick={()=> router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                        <Link onClick={()=> router.push(`/tag/${tag}`)} style={{cursor: "pointer"}}>{tag}</Link>
                                                                     </li>
                                                                 ))}
                                                             </ul> : null}
