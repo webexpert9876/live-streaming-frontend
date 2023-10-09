@@ -9,12 +9,8 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import styled from "@emotion/styled";
 import React from 'react';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
 import VideoJS from '../../src/content/Overview/Slider/VideoJS';
 import videojs from 'video.js';
-import Image from 'next/image'
 import LiveStreamChat from '../../src/content/Channel/LiveStreamChat'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
@@ -29,6 +25,7 @@ import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../.
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { useRouter } from 'next/router';
+import CircularProgress from '@mui/material/CircularProgress';
 // import BiLogoDiscord from 'react-icons/fa';
 // import { FaBeer } from "@react-icons/fa";
 
@@ -75,7 +72,7 @@ export default function ChannelName() {
     const router = useRouter();
     const [isFetchingChannel, setIsFetchingChannel] = useState(false);
     const [channelSlug, setChannelSlug ] = useState('');
-
+    const [isPageLoading, setIsPageLoading]= useState(true);
     // console.log('currentBroadcast', currentBroadcast)
 
     useEffect(async ()=>{
@@ -259,6 +256,7 @@ export default function ChannelName() {
                 });
             }
             setIsFetchingChannel(false)
+            setIsPageLoading(false)
         }
     }, [isFetchingChannel])
     
@@ -387,7 +385,14 @@ export default function ChannelName() {
         <>
             <Box sx={{ display: 'flex' }} style={headerMargin}>
                 <LeftMenu />
-                {channelDetails && <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
+                {isPageLoading?
+                    <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                        <CircularProgress />
+                        <Typography>
+                            Loading...
+                        </Typography>
+                    </Box>
+                :channelDetails && <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
                     {currentBroadcast ?
                         <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
                             <VideoJS options={{
