@@ -153,7 +153,6 @@ export default function LeftMenu(props) {
   const [tattooCategories, setTattooCategories] = useState([]);
   const [liveStreamings, setLiveStreamings] = useState([]);
   const router = useRouter();
-  // console.log('props', props)
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -197,9 +196,7 @@ export default function LeftMenu(props) {
       `,
     })
       .then((result) => {
-        // console.log('result.data', result.data)
         setLiveStreamings(result.data.liveStreamings)
-        // console.log('result.data left menu', result.data)
       });
     return () => clearTimeout();
   }, [])

@@ -100,8 +100,6 @@ const Alert = forwardRef(function Alert(props, ref) {
 });
 
 const ProfileCover = ({ userInfo, channelInfo }) => {
-  // console.log('channelInfo', channelInfo)
-  // console.log('channelTotalFollowers', channelTotalFollowers)
   const [userData, setUserData] = useState({});
   const [channelData, setChannelData] = useState({});
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
@@ -152,7 +150,6 @@ const ProfileCover = ({ userInfo, channelInfo }) => {
       formData.append('channelCoverImage', selectedChannelCoverPic);
 
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/channel/cover-image/${channelInfo._id}`, formData, {headers: {'x-access-token': userData.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        // console.log(data)
         setApiMessageType('success')
         setApiResponseMessage('Channel cover image uploaded successfully');
         setChannelData(data.data.channelData);

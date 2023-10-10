@@ -128,7 +128,6 @@ function AddCategory({userData, tagData, cancelBtnFunction, tagUpdateFunction, n
         //         }
         //     `,
         //   }).then((result) => {
-        //     //   console.log('video page result', result.data)
         //       setUserInfo(result.data.users);
         //       setSuggestions(result.data.tagForStream);
         //     });
@@ -248,8 +247,6 @@ function AddCategory({userData, tagData, cancelBtnFunction, tagUpdateFunction, n
     };
 
     const handleTagClick = index => {
-    // console.log('tag click', index)
-    // console.log('The tag at index ' + index + ' was clicked');
     };
     
     const handleMessageBoxClose = () => {
@@ -296,7 +293,6 @@ function AddCategory({userData, tagData, cancelBtnFunction, tagUpdateFunction, n
     const handleFormChange = (e)=>{
 
         if(e.target.name == 'title'){
-            // console.log('e.target.value', e.target.value)
             setCategoryInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value

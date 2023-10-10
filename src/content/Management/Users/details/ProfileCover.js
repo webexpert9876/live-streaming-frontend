@@ -80,8 +80,6 @@ const CardCoverAction = styled(Box)(
 );
 
 const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
-  // console.log('channelInfo', channelInfo)
-  // console.log('channelTotalFollowers', channelTotalFollowers)
   return (
     <>
       <Box display="flex" mb={3}>

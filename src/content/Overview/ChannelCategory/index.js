@@ -82,8 +82,6 @@ const ChannelCategory = ({ tattooCategories }) => {
         }, 2000);
     }, []);
 
-    // console.log("tattooCategories", tattooCategories)
-
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "0px" }}>

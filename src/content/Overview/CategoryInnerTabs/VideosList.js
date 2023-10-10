@@ -23,7 +23,6 @@ const VideosList = (props) => {
     const [showCount, setShowCount] = React.useState(2);
     const [selectedTag, setSelectedTag] = useState(null);
     const [videosListInfo, setVideosListInfo] = useState(props.videosListInfo)
-    // console.log('videosListInfo', videosListInfo);
     const router = useRouter();
     const handleShowMore = () => {
         setShowCount(prevCount => {

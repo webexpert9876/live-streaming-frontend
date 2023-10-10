@@ -85,11 +85,9 @@ function ManagementChannelProfile() {
                     }
                 `,
             }).then((result) => {
-                console.log('result channel user details', result.data)
                 setUserData(result.data.users);
                 setChannelInfo(result.data.users[0].channelDetails[0]);
                 setChannelTotalFollowers(result.data.countChannelTotalFollowers[0].countFollower);
-                console.log('setChannelFollower',result.data.followers )
                 setChannelFollower([...result.data.followers]);
             });
         }

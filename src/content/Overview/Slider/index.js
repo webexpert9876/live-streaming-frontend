@@ -72,8 +72,6 @@ const SliderItemSkeletonItem = () => {
 export default function SimpleSlider({sliderData}) {
   const ref = useRef();
   const router = useRouter();
-  
-// console.log('sliderData', sliderData);
 
   return (
     <div className='twitch twitch-width'>

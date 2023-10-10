@@ -124,8 +124,6 @@ function ChannelRequest(){
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
 
-  // console.log('userInfo userInfo', userInfo);
-
   useEffect(()=>{
     // if(props.channelData.length > 0){
     //   // setUserSocialLinks(props.channelData[0].socialLinks);
@@ -427,7 +425,6 @@ function ChannelRequest(){
     if(channelProfileInput.channelName && channelProfileInput.description && channelProfileInput.experience && channelProfileInput.otherPlatformUrl && channelProfileInput.location) {
         setChannelDetailSubmit(true);
         setLoading(true)
-        console.log('fetching');
     } else {
         setApiMessageType('error')
         setApiResponseMessage('Please enter all the details.');

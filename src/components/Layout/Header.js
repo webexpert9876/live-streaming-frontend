@@ -71,19 +71,13 @@ const Header = () => {
     const router = useRouter()
     const routeInfo = useSelector(selectRouteInfo);
     const [currentRouteInfo, setCurrentRouteInfo] = useState(routeInfo)
-    // console.log('routeInfo', routeInfo);
     const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
     const theme = useTheme();
     const authStateUser = useSelector(selectAuthUser);
-    // console.log('authState', authState);
-    // console.log('authStateUser', authStateUser);
-    // console.log('Header is running');
     const dispatch = useDispatch();
 
     useEffect(() => {
-        // console.log('authState', localStorage.getItem("authState"))
         let check = localStorage.getItem("authState")
-        // console.log('authState', check)
         let authUser = JSON.parse(localStorage.getItem('authUser'))
         let authState = JSON.parse(localStorage.getItem('authState'))
         if (authUser) {

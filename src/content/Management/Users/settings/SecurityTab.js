@@ -108,7 +108,6 @@ function SecurityTab({userData}) {
         setLoading(false);
         setIsPasswordChange(false);
       } else {
-        // console.log('userInfo', userInfo._id)
 
         let passwordData = {
           id: userInfo._id,
@@ -119,7 +118,6 @@ function SecurityTab({userData}) {
 
         axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/password/user`, passwordData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
           
-          // console.log('data', data.data);
           dispatch(setAuthUser(data.data.user));
           localStorage.setItem('authUser', JSON.stringify(data.data.user))
           setSuccessMessage('Your password has been changed');

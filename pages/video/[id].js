@@ -98,7 +98,6 @@ export default function Videos(){
                     "videoId": videoId,
                 }
             }).then((result) => {
-                // console.log('single video details', result.data)
                 return result.data
             });
         
@@ -257,8 +256,6 @@ export default function Videos(){
     const getHoursDiffBetweenDates = (dateFinal) => {
         const videoTime = new Date(parseInt(dateFinal));
         const currentTime = new Date();
-        // console.log('videoTime', videoTime);
-        // console.log('currentTime', currentTime);
         const hours = parseInt((currentTime - videoTime) / (1000 * 3600));
         if(hours == 0){
             return `Last live few minutes ago`

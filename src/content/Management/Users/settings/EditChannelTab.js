@@ -106,8 +106,6 @@ function EditChannelTab(props) {
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
 
-  // console.log('userInfo userInfo', userInfo);
-
   useEffect(()=>{
     if(props.channelData.length > 0){
       // setUserSocialLinks(props.channelData[0].socialLinks);
@@ -160,7 +158,6 @@ function EditChannelTab(props) {
       }
 
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/channel/${channelInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        // console.log('data', data.data);
         setChannelDetailSubmit(false)
         // let userData = data.data.user
         setApiMessageType('success')
@@ -256,18 +253,14 @@ function EditChannelTab(props) {
       // croppedImageBlob.name = imageUniqueName
       // // croppedImageBlob.originalname = imageUniqueName
       // croppedImageBlob.lastModified = Date.now()
-      // console.log('picture.croppedImageBlob', croppedImageBlob)
       // setUserSelectedProfilePic(croppedImageBlob);
       setUserSelectedProfilePic(newFile);
 
       // const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
-      // console.log('picture.croppedImg', croppedImg)
       // let imageUniqueName = `${uuidv4()}.png`
-      // console.log('imageUniqueName', imageUniqueName)
       // croppedImageBlob.name = imageUniqueName
       // croppedImageBlob.originalname = imageUniqueName
       // croppedImageBlob.lastModified = Date.now()
-      // console.log('picture.croppedImageBlob', croppedImageBlob)
       // setUserSelectedProfilePic(croppedImageBlob);
     }
   };
@@ -322,7 +315,6 @@ function EditChannelTab(props) {
     //   // If the platform doesn't exist, create a new object and add it to the array
     //   setSocialInputs([...socialInputs, { platform, url }]);
     // }
-    // console.log(socialInputs);
 
 
     const { value } = e.target;

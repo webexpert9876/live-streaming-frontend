@@ -179,8 +179,6 @@ useEffect(async ()=>{
           "catAllVideos": category._id,
         }
       }).then((result) => {
-          // console.log('category.channels[0].userId', category)
-          // console.log('category.channels[0].userId result', result.data)
           return result.data
         });
 
@@ -199,7 +197,6 @@ useEffect(async ()=>{
             "userId": userDetails._id
           }
         }).then((result) => {
-          // console.log('result.data 4554', result.data)
           setIsCatFollowing(result.data.isTattooCategoryFollowing[0])
           setUserDetail(userDetails);
           setIsPageLoading(false)
@@ -265,11 +262,6 @@ useEffect(async ()=>{
     }
     // let userDetail = useSelector(selectAuthUser);
     // let userIsLogedIn = useSelector(selectAuthState);
-
-    // console.log('authUser', authUser);
-    // console.log('authState', authState);
-    // console.log('userDetail', userDetail);
-    // console.log('userAuthState', userAuthState);
 
   }
 

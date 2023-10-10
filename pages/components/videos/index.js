@@ -90,27 +90,6 @@ const getVideoPrivacyLabel = (videoStatus) => {
     return <Label color={color}>{text}</Label>;
 };
 
-// const applyFilters = (allVideos, filters) => {
-//     console.log('applyFilters allVideos', allVideos)
-//     console.log('applyFilters filters', filters)
-//     return allVideos.filter((video) => {
-//         let matches = true;
-
-//         if (filters.status && video.videoPreviewStatus !== filters.status) {
-//             matches = false;
-//         }
-
-//         return matches;
-//     });
-// };
-
-// const applyPagination = (allVideos, page, limit) => {
-//     console.log('applyPagination allvideos', allVideos)
-//     console.log('applyPagination page', page)
-//     console.log('applyPagination limit', limit)
-//     return allVideos.slice(page * limit, page * limit + limit);
-// };
-
 const Video = () => {
   const [userData, setUserData] = useState([]);
 
@@ -156,9 +135,6 @@ const Video = () => {
   const handleClickOpen = (dialogType, video) => {
     switch(dialogType){
         case 'videoEdit':
-            // setOpenVideoEditDialog(true);
-            // router.push({pathname: '/components/videos/edit'})
-            // console.log('selected row video', video)
             setSelectedRowVideoDetails(video)
             setIsVideoEditing(false)
             break;
@@ -279,7 +255,6 @@ const Video = () => {
             }
         `,
       }).then((result) => {
-        //   console.log('video page result', result.data)
           setUserData(result.data.users);
           setAllVideoDetails(result.data.videos);
           setShowAllVideoDetails(result.data.videos);
@@ -354,10 +329,7 @@ const Video = () => {
   useEffect(()=>{
     if(isDeletingVideo){
 
-        // console.log('selectedRowVideoDetails', selectedRowVideoDetails);
-
         axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/delete/video/${selectedRowVideoDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-            // console.log('delete data ', data)
             setApiMessageType('success')
             setApiResponseMessage('Video deleted successfully');
             removeVideoFromList(selectedRowVideoDetails._id)
@@ -565,8 +537,6 @@ const Video = () => {
     }
 
     const theme = useTheme();
-
-    // console.log(video)
 
     const handleDeleteVideo= ()=>{
         if(deleteInputValue.toLowerCase() == 'delete'){

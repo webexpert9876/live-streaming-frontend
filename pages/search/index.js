@@ -66,8 +66,6 @@ function SearchString() {
                 }
             }).then((result) => {
 
-                console.log('searchString result', result.data.searchBar[0]);
-
                 // let count = Math.ceil(result.data.videoByTagCount[0].count/fixedLimit);
                 // setTotalVideoCount(count);
 
@@ -103,7 +101,6 @@ function SearchString() {
     const countViewing = (viewers) => {
         if (viewers > 999 && viewers < 1000000) {
             const viewing = (Math.floor(viewers / 100) / 10).toFixed(1) + "K";
-            console.log('viewing', viewing)
             return viewing
         } else if (viewers > 999999) {
             const viewing = (Math.floor(viewers / 100000) / 10).toFixed(1) + "M";

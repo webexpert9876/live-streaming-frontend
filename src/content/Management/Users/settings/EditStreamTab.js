@@ -81,7 +81,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   const [streamInfo, setStreamInfo]= useState(isStreamFound? streamData[0]: {});
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   // const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
-  // console.log('props.tattooCategoryList 2', tattooCategoryList)
 
 
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
@@ -124,13 +123,10 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   };
 
   const handleDelete = i => {
-    console.log('delete', i)
-    console.log('delete', tags)
     setTags(tags.filter((tag, index) => index !== i));
   };
 
   const handleAddition = tag => {
-    console.log('add', tag)
     setTags([...tags, tag]);
   };
 
@@ -145,8 +141,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
   };
 
   const handleTagClick = index => {
-    console.log('tag click', index)
-    console.log('The tag at index ' + index + ' was clicked');
   };
   
 
@@ -158,8 +152,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
     croppedImg:
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
-
-  // console.log('userInfo userInfo', userInfo);
 
   useEffect(()=>{
     if(userData.length > 0){
@@ -180,7 +172,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       //     text: tag.name
       //   };
       // });
-      // console.log('tagList', tagList)
       
       const matchingTags = tagData.filter(tagObj => streamData[0].tags.includes(tagObj.text));
 
@@ -287,7 +278,6 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
     if(isRegenerateKey){
       
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/regenerate/stream/key/${streamInfo._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
-        console.log('data stream key', data.data);
 
         setApiMessageType('success')
         setApiResponseMessage('Stream key regenerated successfully');

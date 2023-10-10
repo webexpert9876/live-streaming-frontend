@@ -184,8 +184,6 @@ const SubMenuWrapper = styled(Box)(
 
 function SidebarMenu({userData}) {
   const authUserInfo = useSelector(selectAuthUser);
-  // console.log('authUserInfo', authUserInfo);
-  // console.log('authUserInfo 544545', userData);
   const [userInfo, setUserInfo] = useState(userData?userData[0]:{});
   const [roleInfo, setRoleInfo] = useState(false);
   const { closeSidebar } = useContext(SidebarContext);

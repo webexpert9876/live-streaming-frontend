@@ -59,10 +59,8 @@ function EditProfileTab(props) {
   const [userTattooInterest, setUserTattooInterest] = useState([])
   // const [userInfo, setUserInfo] = useState(userData);
   const [userInfo, setUserInfo]= useState({});
-  // console.log('props.tattooCategoryList', props.tattooCategoryList)
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
-  // console.log('props.tattooCategoryList 2', tattooCategoryList)
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
   const [userProfilePic, setUserProfilePic] = useState(props.userData[0].profilePicture);
   const [userSelectedProfilePic, setUserSelectedProfilePic] = useState([]);
@@ -92,11 +90,7 @@ function EditProfileTab(props) {
       "https://upload.wikimedia.org/wikipedia/commons/0/09/Man_Silhouette.png"
   });
 
-  // console.log('userInfo userInfo', userInfo);
-
   useEffect(()=>{
-    // console.log('authUserDetail', authUserDetail);
-    // console.log('authState', authState);
     // if(userInfo.length == 0){
     //   setUserInfo(authState);
     // }
@@ -124,9 +118,7 @@ function EditProfileTab(props) {
     //         }
     //     `,
     //   }).then((result) => {
-    //       console.log('result', result.data.users)
 
-          // console.log('props.userData', props)
           // User already selected tattoo category list
           if(props.userData.length > 0){
 
@@ -190,7 +182,6 @@ function EditProfileTab(props) {
       });
 
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-        // console.log('data', data.data.user);
         setProfileSubmit(false)
         let userData = data.data.user
         userData.interestedStyleDetail = []
@@ -221,7 +212,6 @@ function EditProfileTab(props) {
       formData.append('email', userNewEmail);
       
       axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/user`, formData, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
-        // console.log('data', data.data.user);
 
         setUserEmail(data.data.user.email);
         setUserNewEmailSubmitted(false);
@@ -249,15 +239,12 @@ function EditProfileTab(props) {
     // } = event;
     
     // const tattooCategoryObj = tattooCategoryList.filter(obj => value.includes(obj.title));
-    // console.log('foundObjects tattooCategoryObj', tattooCategoryObj)
 
     // let selectedTitle = [];
     // for(let selectedTattoo of tattooCategoryObj) {
     //   selectedTitle.push(selectedTattoo._id)
     // }
     // setUserSelectedStyle([...selectedTitle]);
-
-    // console.log('selectedValues', userSelectedStyle)
 
     // setUserTattooInterest(
     //   typeof value === 'string' ? value.split(',') : value,
@@ -335,18 +322,14 @@ function EditProfileTab(props) {
       // croppedImageBlob.name = imageUniqueName
       // // croppedImageBlob.originalname = imageUniqueName
       // croppedImageBlob.lastModified = Date.now()
-      // console.log('picture.croppedImageBlob', croppedImageBlob)
       // setUserSelectedProfilePic(croppedImageBlob);
       setUserSelectedProfilePic(newFile);
 
       // const croppedImageBlob = await fetch(croppedImg).then(res => res.blob());
-      // console.log('picture.croppedImg', croppedImg)
       // let imageUniqueName = `${uuidv4()}.png`
-      // console.log('imageUniqueName', imageUniqueName)
       // croppedImageBlob.name = imageUniqueName
       // croppedImageBlob.originalname = imageUniqueName
       // croppedImageBlob.lastModified = Date.now()
-      // console.log('picture.croppedImageBlob', croppedImageBlob)
       // setUserSelectedProfilePic(croppedImageBlob);
     }
   };

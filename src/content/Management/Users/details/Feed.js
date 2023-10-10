@@ -13,7 +13,6 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { useState } from 'react';
 
 function Feed(props) {
-  console.log('channelFollowerDetails', props);
   const [channelFollowerDetails, setChannelFollowerDetails] = useState(props.channelFollower? props.channelFollower: []);
   const feed = [
     {

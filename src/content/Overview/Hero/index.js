@@ -101,7 +101,6 @@ const NextJsAvatar = styled(Box)(
 
 
 // const atciveTab = atciveTabs(id) (
-//     console.log("get the id")
 // );
 
 function Hero() {

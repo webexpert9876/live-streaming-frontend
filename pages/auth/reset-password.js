@@ -53,7 +53,6 @@ export default function SignInSide() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
-  // console.log('asdfsadf',router.query);
   const { token } = router.query;
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
@@ -85,8 +84,6 @@ export default function SignInSide() {
 
       .then((response) => {
         // Handle the response from the API
-        // console.log(response.data);
-        // console.log("Password send sucsess!")
         setResponseMessage(`Password changed successfully 1`);
         setLoading(false);
       })

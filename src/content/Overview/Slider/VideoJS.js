@@ -18,7 +18,6 @@ export const VideoJS = (props) => {
 
       videoElement.classList.add('vjs-big-play-centered');
       // videoElement.classList.add('vjs-big-play-centered');
-      console.log('options', options)
       if(options.className == 'offline-video'){
         
         videoElement.classList.add('offline-video-player');

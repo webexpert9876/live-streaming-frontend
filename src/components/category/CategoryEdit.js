@@ -195,7 +195,6 @@ function CategoryEditCard({userData, tattooCategoryDetail, tagData, cancelBtnFun
     const handleFormChange = (e)=>{
 
         if(e.target.name == 'title'){
-            // console.log('e.target.value', e.target.value)
             setCategoryInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value
@@ -264,8 +263,6 @@ function CategoryEditCard({userData, tattooCategoryDetail, tagData, cancelBtnFun
     };
 
     const handleTagClick = index => {
-    // console.log('tag click', index)
-    // console.log('The tag at index ' + index + ' was clicked');
     };
     
     const handleMessageBoxClose = () => {

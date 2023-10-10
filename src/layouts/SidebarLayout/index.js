@@ -6,7 +6,6 @@ import Header from './Header';
 
 const SidebarLayout = ({ children, userData }) => {
   const theme = useTheme();
-  // console.log('authUserInfo userData', userData);
 
   return (
     <>

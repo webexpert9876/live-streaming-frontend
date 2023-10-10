@@ -207,7 +207,6 @@ const Video = () => {
             }
         `,
       }).then((result) => {
-        //   console.log('video page result', result.data);
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);
         //   setTagList(result.data.tagForStream);
@@ -219,7 +218,6 @@ const Video = () => {
 
     useEffect(async ()=>{
         if(isAddingVideo){
-            // console.log('videoInput===========', videoInput)
 
             const formData = new FormData();
             formData.append('title', videoInput.title);
@@ -310,13 +308,10 @@ const Video = () => {
     const theme = useTheme();
 
     const handleDelete = i => {
-        // console.log('delete', i)
-        // console.log('delete', tags)
         setTags(tags.filter((tag, index) => index !== i));
     };
 
     const handleAddition = tag => {
-    // console.log('add', tag)
     setTags([...tags, tag]);
     };
 
@@ -331,14 +326,11 @@ const Video = () => {
     };
 
     const handleTagClick = index => {
-    // console.log('tag click', index)
-    // console.log('The tag at index ' + index + ' was clicked');
     };
 
     const handleFormChange = (e)=>{
 
         if(e.target.name == 'title'){
-            // console.log('e.target.value', e.target.value)
             setVideoInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value
@@ -485,7 +477,6 @@ const Video = () => {
     
     const handleVideoFileChange = (e) => {
         
-        // console.log('e.target.files[0]', e.target.files[0])
         if(e.target.files.length == 0 ){
             setSelectedVideo([])
             setOpenVideoError(true)
@@ -523,8 +514,6 @@ const Video = () => {
     const handleMessageBoxOpen = () => {
         setOpen(true);
     };
-
-    // console.log(video)
 
     const prvVideoBanner = {
         width: '600px',

@@ -119,7 +119,6 @@ export default function SignInSide() {
       })
       .then((response) => {
         // Handle the successful registration response from the API
-        // console.log(response.data);
         setSuccessMessage('You are successfuly register!');
         setErrorMessage('');
         // Optionally, you can redirect the user to a success page or perform other actions

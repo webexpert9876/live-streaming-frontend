@@ -82,7 +82,6 @@ function HeaderSearch() {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
-    console.log('click')
     router.push(`/search?searchString=${searchValue}`)
     // setOpen(true);
   };

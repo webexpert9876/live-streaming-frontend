@@ -107,7 +107,6 @@ function ManagementChannelSettings() {
             }
         `,
       }).then((result) => {
-          console.log('result tattoo user', result.data)
           setTagList(result.data.tagForStream)
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);

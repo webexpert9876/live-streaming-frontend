@@ -69,7 +69,6 @@ function ManagementUserSettings() {
             }
         `,
       }).then((result) => {
-          console.log('result tattoo user', result.data)
           setUserData(result.data.users);
           setTattooCategoryList(result.data.tattooCategories);
       });

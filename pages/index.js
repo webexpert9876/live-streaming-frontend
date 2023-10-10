@@ -37,7 +37,6 @@ import 'react-loading-skeleton/dist/skeleton.css'
 function Overview(props) {
   const drawerWidth = 240;
 
-// console.log('props', props)
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
   })(({ theme, open }) => ({

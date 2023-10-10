@@ -177,7 +177,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
             if(tagResult){
 
                 axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-                    // console.log('data.data updated data', data.data);
                     let videoNewInfo = data.data.videoData;
     
                     setApiMessageType('success')
@@ -221,8 +220,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
       };
     
       const handleTagClick = index => {
-        // console.log('tag click', index)
-        // console.log('The tag at index ' + index + ' was clicked');
       };
 
     const handleFormChange = (e)=>{
@@ -231,7 +228,6 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
         //     [e.target.name]: e.target.value
         // }))
         if(e.target.name == 'title'){
-            // console.log('e.target.value', e.target.value)
             setVideoInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value

@@ -65,7 +65,6 @@ export default function ChannelName() {
         
         setChannelSlug(router.query.channelName);
         setIsFetchingChannel(true)
-        console.log('router.query.channelName', router.query.channelName);
 
     }, [router.query.channelName]);
 
@@ -174,9 +173,6 @@ export default function ChannelName() {
             }).then((result) => {
                 return result.data
             });
-            
-            console.log('channelInfo.channels[0].userId', channelInfo)
-            console.log('channelInfo.channels[0].userId result', streamInfo)
 
 
             setChannelDetails(...channelInfo.channels);

@@ -61,7 +61,6 @@ function TokyoApp({ Component, ...rest  }) {
   //   var tawk = new TawkTo(propertyId, tawkId)
 
   //   tawk.onStatusChange((status) => {
-  //     // console.log(status)
   //   })
 
   // }, [])

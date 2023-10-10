@@ -110,7 +110,6 @@ const RecentOrdersTable = () => {
             }
         `,
       }).then((result) => {
-        //   console.log('video page result', result.data)
           setUserData(result.data.users);
           setAllChannelDetails(result.data.channels);
           setShowAllChannelDetails(result.data.channels);
@@ -148,9 +147,7 @@ const RecentOrdersTable = () => {
             color: 'success'
         }
     };
-    console.log('channelStatus', channelStatus)
     let channelCheck = `${channelStatus}` == 'true'? 'approved': 'unapproved';
-    console.log('channelCheck', channelCheck)
 
     const { text, color } = map[channelCheck];
 

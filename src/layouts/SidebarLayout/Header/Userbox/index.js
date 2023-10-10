@@ -94,7 +94,6 @@ function HeaderUserbox() {
       }
     }
   }, [authState]);
-  // console.log(authState)
 
   const ref = useRef(null);
   const [isOpen, setOpen] = useState(false);
@@ -115,7 +114,6 @@ function HeaderUserbox() {
     dispatch(setAuthUser(null));
     dispatch(setAuthState(false));
     router.push('/auth/login');
-    // console.log("Click to logout")
 
   };
 

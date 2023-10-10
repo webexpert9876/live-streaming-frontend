@@ -84,8 +84,6 @@ const LiveStreamings = ({ liveStreamings }) => {
         } 
     }
 
-    // console.log("liveStreamings", liveStreamings)
-
     return (
         <>
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
