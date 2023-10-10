@@ -457,7 +457,11 @@ export default function ChannelName() {
                                         <Button variant="contained" startIcon={<FavoriteIcon />} onClick={() => handleFollow(false)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Following</Button>
                                         :
                                         (Object.keys(userDetail).length === 0 ?
-                                            <Tooltip title={<React.Fragment>Please <Link href={`/auth/login`}>login</Link> to follow channel</React.Fragment>} placement="right-start">
+                                            <Tooltip title={<React.Fragment>Please <Link 
+                                            // href={`/auth/login`}
+                                            onClick={()=> router.push("/auth/login")}
+                                            style={{cursor:"pointer"}}
+                                            >login</Link> to follow channel</React.Fragment>} placement="right-start">
                                                 <Button variant="contained" startIcon={<FavoriteBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
                                             </Tooltip>
                                             :
