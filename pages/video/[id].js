@@ -44,7 +44,7 @@ export default function Videos(){
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
     const [videoId, setVideoId] = useState('');
-    const [isFetchingVideo, setIsFetchingVideo] = useState({});
+    const [isFetchingVideo, setIsFetchingVideo] = useState(false);
     const [isPageLoading, setIsPageLoading]= useState(true);
     const router = useRouter();
 
@@ -52,16 +52,16 @@ export default function Videos(){
         if(!router.query.id) {
             return;
         }
-        
+
         setVideoId(router.query.id);
         setIsFetchingVideo(true);
 
-    }, [router.query.channelName]);
+    }, [router.query.id]);
 
     useEffect(async ()=>{
 
         if(isFetchingVideo){
-
+            setIsFetchingVideo(false)
             let videoInfo = await client.query({
                 query: gql`
                     query Query($videoId: String) {
@@ -210,7 +210,7 @@ export default function Videos(){
             setOldReceivedMessages(videoOtherInfo.chatMessages);
 
 
-            setIsFetchingVideo(false)
+            
             setIsPageLoading(false)
         }
     }, [isFetchingVideo])
@@ -339,8 +339,9 @@ export default function Videos(){
                             >
                                 <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex', alignItems: 'start' }}>
-                                        <Typography variant="body1" component={'div'} sx={{}}>
-                                            {channelDetails?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px' }} alt="Girl in a jacket" width="500" height="600"></img>: <img style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', background: 'aliceblue' }}></img>}
+                                        <Typography variant="body1" component={'div'} sx={{position: "relative"}}>
+                                            {channelDetails?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', border: currentBroadcastVideo? "2px solid red": null }} alt="" width="500" height="600"></img>: <img style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', background: 'aliceblue' }}></img>}
+                                            {currentBroadcastVideo && <Typography variant="h5" component="h5" sx={{ fontSize: '13px', fontWeight: 300 ,backgroundColor: 'red', borderRadius: '5px', width: '50px', position: 'absolute', top: '56px', left: '25px', color: '#fff'}}>Live</Typography>}
                                         </Typography>
         
                                         <Typography variant="body1" component={'div'} sx={{ display: 'flex', alignItems: 'center' }}>
