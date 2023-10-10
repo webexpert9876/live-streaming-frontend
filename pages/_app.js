@@ -87,12 +87,12 @@ function TokyoApp({ Component, ...rest  }) {
 
       <CacheProvider value={emotionCache}>
         <Head>
-          <title>Tokyo Free Black NextJS Javascript Admin Dashboard</title>
+          <title>Live Tattoo Streaming</title>
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
           />
-
+          <link rel="icon" type="image/x-icon" href="/favicon.png"/>
         </Head>
 
         <SidebarProvider>

@@ -12,9 +12,6 @@ import React from 'react';
 import VideoJS from '../../src/content/Overview/Slider/VideoJS';
 import videojs from 'video.js';
 import LiveStreamChat from '../../src/content/Channel/LiveStreamChat'
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
-// import '../../src/content/Overview/Slider/videoPlayer.css'
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -26,12 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { useRouter } from 'next/router';
 import CircularProgress from '@mui/material/CircularProgress';
-// import BiLogoDiscord from 'react-icons/fa';
-// import { FaBeer } from "@react-icons/fa";
 
-
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -42,7 +34,6 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function ChannelName() {
-    // const channelInfo = JSON.parse(props.channelInfo);
     const [channelDetails, setChannelDetails] = useState({});
     const [recentLiveStreamVideos, setRecentLiveStreamVideos] = useState([]);
     const [recentUploadedVideos, setRecentUploadedVideos] = useState([]);
@@ -50,30 +41,20 @@ export default function ChannelName() {
     const [currentBroadcast, setCurrentBroadcast] = useState({});
     const [channelTotalFollower, setChannelTotalFollower] = useState({});
     const [streams, setStreams] = useState({});
-    // const [channelDetails, setChannelDetails] = useState(...channelInfo.channels);
-    // const [recentLiveStreamVideos, setRecentLiveStreamVideos] = useState(channelInfo.recentLiveStreamVideos);
-    // const [recentUploadedVideos, setRecentUploadedVideos] = useState(channelInfo.recentUploadedVideos);
-    // const [allVideos, setAllVideos] = useState(channelInfo.videos);
-    // const [currentBroadcast, setCurrentBroadcast] = useState(...channelInfo.liveStreamings);
-    // const [channelTotalFollower, setChannelTotalFollower] = useState(...channelInfo.countChannelTotalFollowers);
-    // const [streams, setStreams] = useState(channelInfo.streams);
     const [showAllRecentBroadcast, setShowAllRecentBroadcast] = useState(true);
     const [showAllVideos, setShowAllVideos] = useState(true);
-    const [noVideoFound, setNoVideoFound] = useState(false);
     const [isClickOnChannel, setIsClickOnChannel] = useState(false);
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
     const [isChannelFollowing, setIsChannelFollowing] = useState({});
     let userDetails = useSelector(selectAuthUser);
     let userIsLogedIn = useSelector(selectAuthState);
-    // console.log('authUser userDetails', userDetails);
     const [userDetail, setUserDetail] = useState(userDetails);
     const [userAuthState, setUserAuthState] = useState(userIsLogedIn);
     const router = useRouter();
     const [isFetchingChannel, setIsFetchingChannel] = useState(false);
     const [channelSlug, setChannelSlug ] = useState('');
     const [isPageLoading, setIsPageLoading]= useState(true);
-    // console.log('currentBroadcast', currentBroadcast)
 
     useEffect(async ()=>{
         if(!router.query.channelName) {
@@ -438,8 +419,9 @@ export default function ChannelName() {
                     >
                         <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                             <Typography variant="body1" component={'div'} sx={{ display: 'flex' }}>
-                                <Typography variant="body1" component={'div'} sx={{}}>
-                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px' }} width="500" height="600"></img>
+                                <Typography variant="body1" component={'div'} sx={{position: "relative"}}>
+                                    <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"></img>
+                                    {currentBroadcast && <Typography variant="h5" component="h5" sx={{ fontSize: '13px', fontWeight: 300 ,backgroundColor: 'red', borderRadius: '5px', width: '50px', position: 'absolute', top: '65px', left: '25px', color: '#fff'}}>Live</Typography>}
                                 </Typography>
 
                                 <Typography variant="body1" component={'div'} sx={{}}>
@@ -612,54 +594,12 @@ export default function ChannelName() {
                                             {recentLiveStreamVideos.length != 0 ? <>
                                                 <Typography variant="body1" component="div" sx={{ display: 'flex', alignItems: 'baseline' }}>
                                                     <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '17px', marginRight: "10px", paddingBottom: "12px" }}>Recent Broadcasts</Typography>
-                                                    {/* {showAllRecentBroadcast ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleAllRecentBroadcast}>View less</Button>} */}
                                                 </Typography>
 
                                                 <Box sx={{ paddingTop: '5px' }}>
                                                     {/* <Grid className='desktop5'> */}
 
                                                     {showAllRecentBroadcast ?
-                                                        // <Carousel swipeable={false} responsive={responsive}>
-                                                        //     {recentLiveStreamVideos.slice(0, 10).map((streamsInfo, index) => (
-                                                        //         <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
-                                                        //             <Card sx={{ maxWidth: 345 }}>
-                                                        //                 <div style={{ position: 'relative' }}>
-                                                        //                     <CardMedia
-                                                        //                         sx={{ height: 140 }}
-                                                        //                         image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                        //                     >
-                                                        //                     </CardMedia>
-
-                                                        //                     <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                        //                         <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                        //                     </div>
-
-
-                                                        //                 </div>
-                                                        //                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                        //                     <Grid item>
-                                                        //                         <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                        //                     </Grid>
-                                                        //                     <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                        //                         <Typography gutterBottom variant="h5" component="div">
-                                                        //                             <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
-                                                        //                         </Typography>
-                                                        //                         <Typography gutterBottom variant="p" component="div">
-                                                        //                             <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                        //                         </Typography>
-                                                        //                         {streamsInfo.tags ? <ul className='videoTags'>
-                                                        //                             {streamsInfo.tags.map((tag, index) => (
-                                                        //                                 <li key={index}>
-                                                        //                                     <Link href="/tags/">{tag}</Link>
-                                                        //                                 </li>
-                                                        //                             ))}
-                                                        //                         </ul> : null}
-                                                        //                     </Grid>
-                                                        //                 </Grid>
-                                                        //             </Card>
-                                                        //         </Grid>
-                                                        //     ))}
-                                                        // </Carousel> 
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
@@ -761,46 +701,8 @@ export default function ChannelName() {
                                                                     </Grid>
                                                                 ))}
                                                             </Grid>
-                                                            {/* // <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}>
-                                                                        //     <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                        //         <div style={{ position: 'relative' }}>
-                                                                        //             <CardMedia
-                                                                        //                 sx={{ height: 140 }}
-                                                                        //                 image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                        //             >
-                                                                                        
-                                                                        //             </CardMedia>
-                                                                        //             <Typography variant="body1" component="div" sx={{}}>
-                                                                        //                 <div className=''>{streamsInfo.views} viewers</div>
-                                                                        //                 <div className=''>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                                        //             </Typography>
-                                                                        //         </div>
-                                                                        //         <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                        //             <Grid item>
-                                                                        //                 <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                        //             </Grid>
-                                                                        //             <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                        //                 <Typography gutterBottom variant="h5" component="div">
-                                                                        //                     <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
-                                                                        //                 </Typography>
-                                                                        //                 <Typography gutterBottom variant="p" component="div">
-                                                                        //                     <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                        //                 </Typography>
-                                                                        //                 {streamsInfo.tags ? <ul className='videoTags'>
-                                                                        //                     {streamsInfo.tags.map((tag) => (
-                                                                        //                         <li key={tag}>
-                                                                        //                             <Link href="#">{tag}</Link>
-                                                                        //                         </li>
-                                                                        //                     ))}
-                                                                        //                 </ul> : null}
-                                                                        //             </Grid>
-                                                                        //         </Grid>
-                                                                        //     </Card>
-                                                                        // </Grid> */}
-
                                                         </Box>
                                                     }
-                                                    {/* // </Grid> */}
 
                                                 </Box>
                                             </>
@@ -816,47 +718,6 @@ export default function ChannelName() {
 
                                                 <Box sx={{ paddingTop: '5px' }}>
                                                     {showAllVideos ?
-                                                        // <Carousel swipeable={false} responsive={responsive}>
-                                                        //     {allVideos.slice(0, 10).map((streamsInfo, index) => (
-                                                        //         <Grid item xs={12} sm={6} md={4} key={index} style={{ maxWidth: "100%" }}>
-                                                        //             <Card sx={{ maxWidth: 345 }}>
-                                                        //                 <div style={{ position: 'relative' }}>
-                                                        //                     <CardMedia
-                                                        //                         sx={{ height: 140 }}
-                                                        //                         image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                        //                     >
-                                                        //                     </CardMedia>
-                                                        //                     <Typography variant="body1" component="div" sx={{}}>
-                                                        //                         <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                        //                             <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)} days ago</div>
-                                                        //                         </div>
-
-                                                        //                     </Typography>
-                                                        //                 </div>
-                                                        //                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                        //                     <Grid item>
-                                                        //                         <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                        //                     </Grid>
-                                                        //                     <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                        //                         <Typography gutterBottom variant="h5" component="div">
-                                                        //                             <Link href={`/video/${streamsInfo._id}`} color={'white'}>{streamsInfo.description}</Link>
-                                                        //                         </Typography>
-                                                        //                         <Typography gutterBottom variant="p" component="div">
-                                                        //                             <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                        //                         </Typography>
-                                                        //                         {streamsInfo.tags ? <ul className='videoTags'>
-                                                        //                             {streamsInfo.tags.map((tag, index) => (
-                                                        //                                 <li key={index}>
-                                                        //                                     <Link href="/tags/">{tag}</Link>
-                                                        //                                 </li>
-                                                        //                             ))}
-                                                        //                         </ul> : null}
-                                                        //                     </Grid>
-                                                        //                 </Grid>
-                                                        //             </Card>
-                                                        //         </Grid>
-                                                        //     ))}
-                                                        // </Carousel> 
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {allVideos.slice(0, 5).map((streamsInfo, index) => (
@@ -962,154 +823,3 @@ export default function ChannelName() {
         </>
     )
 }
-
-// export async function getStaticPaths() {
-//     let channelData = await client.query({
-//         query: gql`
-//             query Query {
-//                 channels {
-//                     _id
-//                     urlSlug
-//                 }
-//             }
-//         `
-//     }).then((result) => {
-//         let channelIds = result.data.channels.map((item) => {
-//             return {
-//                 params: {
-//                     channelName: `${item.urlSlug}`
-//                 }
-//             }
-//         })
-//         return channelIds;
-//     });
-
-//     return {
-//         paths: channelData,
-//         fallback: false,
-//     };
-// }
-
-// export async function getStaticProps({ params }) {
-
-//     let channelInfo = await client.query({
-//         query: gql`
-//             query Query ($urlSingleSlug: String) {
-//                 channels(urlSlug: $urlSingleSlug) {
-//                     _id
-//                     channelName
-//                     channelPicture
-//                     description
-//                     subscribers
-//                     urlSlug
-//                     location
-//                     createdAt
-//                     userId
-//                     socialLinks {
-//                         platform
-//                         url
-//                     }
-//                 }
-//             }
-//         `,
-//         variables: {
-//             "urlSingleSlug": params.channelName
-//         }
-//     }).then((result) => {
-//         return result.data
-//     });
-
-//     let streamInfo = await client.query({
-//         query: gql`
-//         query Query ($artistId: String!, $recentLiveStreamVideosUserId2: String!, $recentUploadedVideosUserId2: String!, $channelId: String, $channelId2: String!, $userIdForVideo: String) {
-//             streams(artistId: $artistId) {
-//                 title
-//                 streamCategory
-//                 tags
-//                 description
-//             }
-//             recentLiveStreamVideos(userId: $recentLiveStreamVideosUserId2) {
-//                 _id
-//                 title
-//                 description
-//                 videoPreviewImage
-//                 views
-//                 isStreamed
-//                 isUploaded
-//                 tags
-//                 isPublished
-//                 createdAt
-//             }
-//             recentUploadedVideos(userId: $recentUploadedVideosUserId2) {
-//                 _id
-//                 title
-//                 videoPreviewImage
-//                 views
-//                 isStreamed
-//                 isUploaded
-//                 isPublished
-//                 createdAt
-//             }
-//             liveStreamings(channelId: $channelId) {
-//                 title
-//                 description
-//                 _id
-//                 userId
-//                 videoPoster
-//                 channelId
-//                 viewers
-//                 videoId
-//                 tags
-//                 tattooCategory
-//                 streamUrl
-//                 tattooCategoryDetails {
-//                   title
-//                   urlSlug
-//                 }
-//             }
-//             countChannelTotalFollowers(channelId: $channelId2) {
-//                 countFollower
-//             }
-//             videos(userId: $userIdForVideo) {
-//                 _id
-//                 title
-//                 videoPreviewImage
-//                 views
-//                 isPublished
-//                 createdAt
-//                 description
-//                 tags
-//             }
-//         }
-//         `,
-//         variables: {
-//             // "artistId": channelInfo.channels[0].userId,
-//             // "userId": channelInfo.channels[0].userId
-//             // "artistId": "647f15e80d8b7330ed890da6",
-//             // "userId": "647f15e80d8b7330ed890da6",
-//             // "recentLiveStreamVideosUserId2": "647f15e80d8b7330ed890da6",
-//             // "recentUploadedVideosUserId2": "647f15e80d8b7330ed890da6"
-//             "artistId": channelInfo.channels[0].userId,
-//             "userId": channelInfo.channels[0].userId,
-//             "recentLiveStreamVideosUserId2": channelInfo.channels[0].userId,
-//             "recentUploadedVideosUserId2": channelInfo.channels[0].userId,
-//             "channelId": channelInfo.channels[0]._id,
-//             "channelId2": channelInfo.channels[0]._id,
-//             // "channelId": "648174e0bed9a5f8f56950e1",
-//             // "channelId2": "648174e0bed9a5f8f56950e1",
-//             "userIdForVideo": channelInfo.channels[0].userId
-//         }
-//     }).then((result) => {
-//         // console.log('channelInfo.channels[0].userId', channelInfo.channels[0].userId)
-//         // console.log('channelInfo.channels[0].userId result', result.data)
-//         return result.data
-//     });
-
-//     let allData = { ...channelInfo, ...streamInfo };
-//     channelInfo = JSON.stringify(allData);
-//     return {
-//         props: {
-//             channelInfo: channelInfo
-//         },
-//     }
-// }
