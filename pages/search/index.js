@@ -95,7 +95,21 @@ function SearchString() {
         const uploadDateTime = new Date(parseInt(uploadDate));
         const timeDifference = currentDate - uploadDateTime;
         const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        return daysAgo;
+        
+        if (daysAgo === 0) {
+            const hoursAgo = Math.floor(timeDifference / (1000 * 60 * 60));
+            if (hoursAgo === 0) {
+                const minutesAgo = Math.floor(timeDifference / (1000 * 60));
+                if (minutesAgo === 0) {
+                    const secondsAgo = Math.floor(timeDifference / 1000);
+                    return `${secondsAgo} seconds ago`;
+                }
+                return `${minutesAgo} minutes ago`;
+            }
+            return `${hoursAgo} hours ago`;
+        }
+
+        return `${daysAgo} days ago`
     }
 
     const countViewing = (viewers) => {
@@ -174,7 +188,7 @@ function SearchString() {
                                                 <Box sx={{ mt:1, width: '100%' }}>
                                                     <Typography variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
                                                     <Typography variant="h5" component={"h5"} sx={{ fontSize: '14px', marginTop: '8px' }}>
-                                                        {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)} days ago
+                                                        {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)}
                                                     </Typography>
                                                     <Typography variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
                                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '18px' }}>
@@ -220,7 +234,7 @@ function SearchString() {
                                                 <Box sx={{ mt:1, width: '100%' }}>
                                                     <Typography variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
                                                     <Typography variant="h5" component={"h5"} sx={{ fontSize: '14px', marginTop: '8px' }}>
-                                                        {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)} days ago
+                                                        {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)} 
                                                     </Typography>
                                                     <Typography variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
                                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '18px' }}>

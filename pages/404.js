@@ -12,8 +12,9 @@ import {
 } from '@mui/material';
 import Head from 'next/head';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-
+import { useRouter } from 'next/router';
 import BaseLayout from 'src/layouts/BaseLayout';
+import { useState } from 'react';
 
 const MainContent = styled(Box)(
   () => `
@@ -48,12 +49,23 @@ const ButtonSearch = styled(Button)(
 );
 
 function Status404() {
+  const [inputValue, setInputValue] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const router = useRouter();
+  
+  const handleSearchClick =()=>{
+    if(inputValue){
+      router.push(`/search?searchString=${inputValue}`)
+    } else{
+      setErrorMessage('Please enter something to search');
+    }
+  }
   return (
     <>
       <Head>
         <title>Status - 404</title>
       </Head>
-      <MainContent>
+      <MainContent mt={'80px'}>
         <TopWrapper>
           <Container maxWidth="md">
             <Box textAlign="center">
@@ -77,9 +89,13 @@ function Status404() {
                   <OutlinedInputWrapper
                     type="text"
                     placeholder="Search terms here..."
+                    onChange={(e)=>{
+                      setInputValue(e.target.value);
+                      setErrorMessage('');
+                    }}
                     endAdornment={
-                      <InputAdornment position="end">
-                        <ButtonSearch variant="contained" size="small">
+                      <InputAdornment position="end" onClick={handleSearchClick}>
+                        <ButtonSearch variant="contained" size="small" >
                           Search
                         </ButtonSearch>
                       </InputAdornment>
@@ -90,6 +106,7 @@ function Status404() {
                       </InputAdornment>
                     }
                   />
+                  {errorMessage && <Typography sx={{color: 'red', fontWeight: 600}}>{errorMessage}</Typography>}
                 </FormControl>
                 <Divider sx={{ my: 4 }}>OR</Divider>
                 <Button href="/" variant="outlined">

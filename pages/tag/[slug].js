@@ -125,7 +125,21 @@ function TagSlug(){
         const uploadDateTime = new Date(parseInt(uploadDate));
         const timeDifference = currentDate - uploadDateTime;
         const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        return daysAgo;
+        
+        if (daysAgo === 0) {
+            const hoursAgo = Math.floor(timeDifference / (1000 * 60 * 60));
+            if (hoursAgo === 0) {
+                const minutesAgo = Math.floor(timeDifference / (1000 * 60));
+                if (minutesAgo === 0) {
+                    const secondsAgo = Math.floor(timeDifference / 1000);
+                    return `${secondsAgo} seconds ago`;
+                }
+                return `${minutesAgo} minutes ago`;
+            }
+            return `${hoursAgo} hours ago`;
+        }
+
+        return `${daysAgo} days ago`
     }
 
 
@@ -174,7 +188,7 @@ function TagSlug(){
                                                         </CardMedia>
                                                         <Typography variant="body1" component="div" sx={{}}>
                                                             <div className='liveViewCount'>{countLiveViewing(video.views)} viewers
-                                                                <div style={liveDaysAgo}>{calculateDaysAgo(video.createdAt)} days ago</div>
+                                                                <div style={liveDaysAgo}>{calculateDaysAgo(video.createdAt)} </div>
                                                             </div>
                                                         </Typography>
                                                     </div>
