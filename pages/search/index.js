@@ -181,21 +181,19 @@ function SearchString() {
                                 {videosList.map((video, index)=>(
                                     <Card sx={{my: 2}} key={index}>
                                         <Box sx={{ display: 'flex', width: '100%', my:2 }}>
-                                            <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}}>
+                                            <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}} onClick={() => router.push(`/video/${video._id}`)}>
                                                 <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${video.videoPreviewImage}`} style={{ borderRadius: '5%', height: '187px', width: '70%', marginTop: '10px' }}></img>
                                             </Typography>
                                             <Box sx={{display:'flex', width: '100%'}}>
                                                 <Box sx={{ mt:1, width: '100%' }}>
-                                                    <Typography variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
+                                                    <Typography onClick={() => router.push(`/video/${video._id}`)} variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
                                                     <Typography variant="h5" component={"h5"} sx={{ fontSize: '14px', marginTop: '8px' }}>
                                                         {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)}
                                                     </Typography>
-                                                    <Typography variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
+                                                    <Typography onClick={() => router.push(`/channel/${video.channelDetails[0].urlSlug}`)} variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
                                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '18px' }}>
                                                         <Link
-
                                                             onClick={() => router.push(`/single-category/${video.tattooCategoryDetails[0].urlSlug}`)}
-
                                                             sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{video.tattooCategoryDetails[0].title}</Link>
                                                         {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
                                                     </Typography>
@@ -227,21 +225,19 @@ function SearchString() {
                                 {videosList.map((video, index)=>(
                                     <Card sx={{my: 2}} key={index}>
                                         <Box sx={{ display: 'flex', width: '100%', my:2 }}>
-                                            <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}}>
+                                            <Typography variant="body1" component={'div'} sx={{width: '40%', textAlign: 'center'}} onClick={() => router.push(`/video/${video._id}`)}>
                                                 <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${video.videoPreviewImage}`} style={{ borderRadius: '5%', height: '187px', width: '70%', marginTop: '10px' }}></img>
                                             </Typography>
                                             <Box sx={{display:'flex', width: '100%'}}>
                                                 <Box sx={{ mt:1, width: '100%' }}>
-                                                    <Typography variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
+                                                    <Typography onClick={() => router.push(`/video/${video._id}`)} variant="h2" component="h2" sx={{ fontWeight: 600, cursor: 'pointer', }} align="left">{video.title[0].toUpperCase() + video.title.slice(1)}</Typography>
                                                     <Typography variant="h5" component={"h5"} sx={{ fontSize: '14px', marginTop: '8px' }}>
                                                         {countViewing(video.views)} views <span style={{color:"#8C7CF0"}}>~</span> {calculateDaysAgo(video.createdAt)} 
                                                     </Typography>
-                                                    <Typography variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
+                                                    <Typography onClick={() => router.push(`/channel/${video.channelDetails[0].urlSlug}`)} variant="h4" component="h4" sx={{ fontWeight: 600, my: '18px' }} align="left">{video.channelDetails[0].channelName}</Typography>
                                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '18px' }}>
                                                         <Link
-
                                                             onClick={() => router.push(`/single-category/${video.tattooCategoryDetails[0].urlSlug}`)}
-
                                                             sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{video.tattooCategoryDetails[0].title}</Link>
                                                         {/* <Typography variant="h6" component="h6" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '2px 10px 2px 10px' }}>Tattoo</Typography> */}
                                                     </Typography>
