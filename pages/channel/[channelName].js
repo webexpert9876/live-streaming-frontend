@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { useRouter } from 'next/router';
 import CircularProgress from '@mui/material/CircularProgress';
+import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -43,7 +44,7 @@ export default function ChannelName() {
     const [streams, setStreams] = useState({});
     const [showAllRecentBroadcast, setShowAllRecentBroadcast] = useState(true);
     const [showAllVideos, setShowAllVideos] = useState(true);
-    const [isClickOnChannel, setIsClickOnChannel] = useState(false);
+    const [isClickOnChannel, setIsClickOnChannel] = useState(true);
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
     const [isChannelFollowing, setIsChannelFollowing] = useState({});
@@ -55,6 +56,7 @@ export default function ChannelName() {
     const [isFetchingChannel, setIsFetchingChannel] = useState(false);
     const [channelSlug, setChannelSlug ] = useState('');
     const [isPageLoading, setIsPageLoading]= useState(true);
+    const [viewers, setViewers]= useState(0);
 
     useEffect(async ()=>{
         if(!router.query.channelName) {
@@ -182,6 +184,7 @@ export default function ChannelName() {
             setCurrentBroadcast(...streamInfo.liveStreamings);
             setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
             setStreams(streamInfo.streams);
+            setViewers(streamInfo.liveStreamings[0].viewers);
 
             if (streamInfo.liveStreamings.length > 0) {
                 client.query({
@@ -207,6 +210,7 @@ export default function ChannelName() {
                 })
                     .then((result) => {
                         setOldReceivedMessages(result.data.chatMessages)
+                        console.log(' old result.data.chatMessages', result.data.chatMessages)
                     });
             }
 
@@ -335,6 +339,10 @@ export default function ChannelName() {
         } else {
             return `${viewers}`
         }
+    }
+
+    const handleLiveStreamViewers = (viewer) =>{
+        setViewers(viewer);
     }
 
 
@@ -468,8 +476,9 @@ export default function ChannelName() {
                                 <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                             </Typography>
                             <Typography variant="body1" component={'div'} sx={{ gap: "50px", display: "flex", margin: '10px 40px' }}>
-                                <Typography variant="body1" component={'span'}>
-                                    123
+                                <Typography variant="body1" component={'div'} sx={{display: 'flex', alignItems: 'center'}}>
+                                    <PermIdentityIcon/>
+                                    <Typography variant="h5" component={'h5'}>{countLiveViewing(viewers)} viewers</Typography>
                                 </Typography>
                                 <Typography variant="body1" component={'span'}>
                                     123
@@ -818,7 +827,7 @@ export default function ChannelName() {
                     {/* :
                     } */}
                 </Box>}
-                {isClickOnChannel ? <LiveStreamChat oldReceivedMessages={oldReceivedMessages} /> : null}
+                {isClickOnChannel && currentBroadcast && userDetail ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} /> : null}
             </Box >
         </>
     )
