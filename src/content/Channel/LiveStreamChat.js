@@ -1,5 +1,6 @@
 // import * as React from 'react';
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import io from 'socket.io-client';
 import client from "../../../graphql";
 import { gql } from "@apollo/client";
@@ -8,13 +9,15 @@ import {
   styled,
   Button,
   Typography,
+  Box
 } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import { makeStyles } from '@mui/styles';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import EmojiPicker from 'emoji-picker-react';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import {socket} from '../../../socket';
 
 
@@ -73,17 +76,6 @@ const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', b
 
 const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
 
-const useStyles = makeStyles((theme) => ({
-  hoverDiv: {
-    padding: '20px 20px 10px',
-    bottom: 0,
-    width: '100%',
-    transition: 'background-color 0.3s',
-    '&:hover': {
-      backgroundColor: '#a0a0a0',
-    },
-  },
-}));
 
 export default function LiveStreamChat(props) {
 
@@ -99,8 +91,11 @@ export default function LiveStreamChat(props) {
   const [isJoinedChat, setIsJoinedChat] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isChannelRoomJoined, setIsChannelRoomJoined] = useState(false);
+  const [isClickOnEmoji, setIsClickOnEmoji] = useState(false);
+  const [chosenEmoji, setChosenEmoji] = useState({emoji: ''});
   const chatBoxRef = useRef(null);
-  const classes = useStyles();
+  const router = useRouter();
+
 
 
   const handleDrawerOpen = () => {
@@ -214,6 +209,18 @@ export default function LiveStreamChat(props) {
     socket.emit('leaveRoom', roomId, userId);
   }
 
+  const handleLoggedOutUser = () =>{
+    router.push('/auth/login');
+  }
+  
+  const handleEmojiOpen = () =>{
+    setIsClickOnEmoji(!isClickOnEmoji);
+  }
+
+  const onEmojiClick = (event, emojiObject) => {
+    setChosenEmoji(emojiObject);
+  };
+
   return (
 
     <Drawer sx={{
@@ -242,6 +249,7 @@ export default function LiveStreamChat(props) {
       </DrawerHeader>
       <Divider />
       {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
+      <Typography>{chosenEmoji.emoji}</Typography>
       {
         oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
@@ -281,20 +289,24 @@ export default function LiveStreamChat(props) {
                   ))}
                 </Typography>
                 {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
-                <Typography variant="body1" component="div" className={classes.hoverDiv} >
                   {
                     isLoggedIn?
-                      <Typography>
-                        <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-                        <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                      <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                            <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+                            <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                              <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
+                                <InsertEmoticonIcon />
+                              </Typography>
+                              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                            </Box>
+                            { isClickOnEmoji && <EmojiPicker onEmojiClick={onEmojiClick}/> }
                       </Typography>
                     :
-                      <div className="hoverContent">
-                        <Button onClick={handleSendMessage}>Login to join the chat</Button>
-                        <p>All messages you send will appear publicly</p>
-                      </div>
-                  }
-                </Typography>
+                      <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                          <Button variant="contained" onClick={handleLoggedOutUser}>Login to join the chat</Button>
+                          <p>All messages you send will appear publicly</p>
+                      </Typography>
+                }
               </>
               : null}
           </> 
