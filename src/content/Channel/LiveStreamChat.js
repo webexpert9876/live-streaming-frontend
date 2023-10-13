@@ -12,7 +12,7 @@ import {
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-
+import { makeStyles } from '@mui/styles';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {socket} from '../../../socket';
@@ -72,6 +72,19 @@ const showChatBox = { position: 'fixed', margin: '10px 10px 10px 30px', height: 
 const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
 
 const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
+
+const useStyles = makeStyles((theme) => ({
+  hoverDiv: {
+    padding: '20px 20px 10px',
+    bottom: 0,
+    width: '100%',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: '#a0a0a0',
+    },
+  },
+}));
+
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
@@ -87,6 +100,7 @@ export default function LiveStreamChat(props) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isChannelRoomJoined, setIsChannelRoomJoined] = useState(false);
   const chatBoxRef = useRef(null);
+  const classes = useStyles();
 
 
   const handleDrawerOpen = () => {
@@ -98,31 +112,24 @@ export default function LiveStreamChat(props) {
   };
 
   var drawerStyle = open ? { justifyContent: 'left' } : { justifyContent: 'end' }
-  //   const handleSendMessage = () => {
-  //     if (message.trim() !== '') {
-  //       socket.emit('sendMessage', { roomId, message, userId, userName: userName });
-  //       setMessage('');
-  //     }
-  // }
-
-  // const handleUserLeftChat = () => {
-  //     // Emit leaveRoom event to disconnect from a room
-  //     socket.emit('leaveRoom', roomId, userId);
-  // }
 
   useEffect(() => {
     if(props.liveStreamInfo.videoId && props.viewerUser && props.oldReceivedMessages){
+      console.log('3 condition true', props)
       if(props.liveStreamInfo){
+        console.log('1st condition true', props)
         setRoomId(props.liveStreamInfo.videoId);
         if(!isChannelRoomJoined){
+          console.log('is not joined', props)
           console.log('props.liveStreamInfo', props.liveStreamInfo)
           addRoomId(props.liveStreamInfo.videoId, props.liveStreamInfo._id);
           setIsChannelRoomJoined(true);
         }
       }
 
-      console.log('view user ', props)
+      // console.log('view user ', props)
       if( props.viewerUser){
+        console.log('2nd true', props)
         setUserName(`${props.viewerUser.username}`)
         setUserId(`${props.viewerUser._id}`)
         setIsLoggedIn(true);
@@ -132,7 +139,7 @@ export default function LiveStreamChat(props) {
       }
 
       if(props.oldReceivedMessages){
-
+        console.log('props.oldReceivedMessages', props.oldReceivedMessages);
         setOldReceivedMessages(props.oldReceivedMessages);
       }
     }
@@ -178,12 +185,12 @@ export default function LiveStreamChat(props) {
       setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
     });
     // socket.emit('updateLiveStreamingViewerCount', '64be4c9cc1e7b7e58ab24b82', '648174e0bed9a5f8f56950e1');
+    socket.on('viewerCounts', ({ viewerCount }) => {
+      console.log('viewerCount', viewerCount);
+      setViewer(viewerCount)
+      props.funcHandleViewers(viewerCount)
+    })
   }
-  socket.on('viewerCounts', ({ viewerCount }) => {
-    console.log('viewerCount', viewerCount);
-    setViewer(viewerCount)
-    props.funcHandleViewers(viewerCount)
-  })
 
 
   const handleSendMessage = () => {
@@ -191,13 +198,15 @@ export default function LiveStreamChat(props) {
     console.log('userName', userName);
     if(`${userId}` !== 'undefined' && `${userName}` !== `undefined`) {
       if (message.trim() !== '') {
+        console.log('message', message);
         socket.emit('sendMessage', { roomId, message, userId, userName: userName });
-        setMessage('');
+        setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
       }
     } else {
       console.log('else ', userName);
       setIsLoggedIn(false);
     }
+    setMessage('');
   }
 
   const handleUserLeftChat = () => {
@@ -232,62 +241,88 @@ export default function LiveStreamChat(props) {
         </IconButton>
       </DrawerHeader>
       <Divider />
-      {!isLoggedIn && <Typography>Please login first</Typography>}
-      {oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? <>
-        {open ?
+      {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
+      {
+        oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
-            <Typography sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
-              {oldReceivedMessages.map((data, index) => (
-                <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                  <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                  {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                  {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                  <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                  <span>: {data.message}</span>
+            {open ?
+              <>
+                <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
+                  {oldReceivedMessages.map((data, index) => (
+                    data.userDetail[0]._id != userId ?
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                        {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                        <span>: {data.message}</span>
+                      </Typography>
+                    :
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
+                        <span>{data.message} :</span>
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
+                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                      </Typography>
+                  ))}
+                  {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
+                  {receivedMessages.map(({ roomId, message, sender }, index) => (
+                    sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                      {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                      {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                      {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                      <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
+                      <span>: {message}</span>
+                    </Typography>
+                    :
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
+                        <span>{message} :</span>
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
+                      </Typography>
+                  ))}
                 </Typography>
-              ))}
-              {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------- NEW</div> : null : null}
-              {receivedMessages.map(({ roomId, message, sender }, index) => (
-                <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                  {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                  {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                  {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                  <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                  <span>: {message}</span>
+                {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
+                <Typography variant="body1" component="div" className={classes.hoverDiv} >
+                  {
+                    isLoggedIn?
+                      <Typography>
+                        <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+                        <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                      </Typography>
+                    :
+                      <div className="hoverContent">
+                        <Button onClick={handleSendMessage}>Login to join the chat</Button>
+                        <p>All messages you send will appear publicly</p>
+                      </div>
+                  }
                 </Typography>
-              ))}
-            </Typography>
-            <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-              <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-            </Typography>
-          </>
-          : null}
-      </> :
-        // <>
-        //   {open ? <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
-        //     No chat found
-        //         <input type="text" placeholder='Enter room id' value={roomId} onChange={(e) => setRoomId(e.target.value)} /><br/>
-        //         <input style={{marginLeft: '10px'}} type="text" placeholder='Enter user id' value={userId} onChange={(e) => setUserId(e.target.value)} /><br/>
-        //         <input style={{marginLeft: '10px'}} type="text" placeholder='Enter user name' value={userName} onChange={(e) => setUserName(e.target.value)} /><br/>
-        //         <button style={{marginLeft: '10px'}} onClick={addRoomId}>Join room</button>
-        //         <button style={{marginLeft: '10px'}} onClick={handleUserLeftChat}>Leave room</button>
+              </>
+              : null}
+          </> 
+        :
+          // <>
+          //   {open ? <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
+          //     No chat found
+          //         <input type="text" placeholder='Enter room id' value={roomId} onChange={(e) => setRoomId(e.target.value)} /><br/>
+          //         <input style={{marginLeft: '10px'}} type="text" placeholder='Enter user id' value={userId} onChange={(e) => setUserId(e.target.value)} /><br/>
+          //         <input style={{marginLeft: '10px'}} type="text" placeholder='Enter user name' value={userName} onChange={(e) => setUserName(e.target.value)} /><br/>
+          //         <button style={{marginLeft: '10px'}} onClick={addRoomId}>Join room</button>
+          //         <button style={{marginLeft: '10px'}} onClick={handleUserLeftChat}>Leave room</button>
 
-        //   </Typography> : null}
-        // </>
-        <>
-        {open ?
+          //   </Typography> : null}
+          // </>
           <>
-            <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
-              No chat found
-            </Typography>
-            <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-              <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-            </Typography>
-          </>
+          {open ?
+            <>
+              <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
+                No chat found
+              </Typography>
+              <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+                <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+              </Typography>
+            </>
           : null}
-      </>
+        </>
       }
     </Drawer >
   );

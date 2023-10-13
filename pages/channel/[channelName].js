@@ -99,7 +99,7 @@ export default function ChannelName() {
             }).then((result) => {
                 return result.data
             });
-        
+            console.log('channelInfo', channelInfo)
             let streamInfo = await client.query({
                 query: gql`
                 query Query ($artistId: String!, $recentLiveStreamVideosUserId2: String!, $recentUploadedVideosUserId2: String!, $channelId: String, $channelId2: String!, $userIdForVideo: String) {
@@ -175,7 +175,8 @@ export default function ChannelName() {
             }).then((result) => {
                 return result.data
             });
-
+            
+            console.log('streamInfo', streamInfo)
 
             setChannelDetails(...channelInfo.channels);
             setRecentLiveStreamVideos(streamInfo.recentLiveStreamVideos);
@@ -598,7 +599,7 @@ export default function ChannelName() {
                                 {/* Videos tab section */}
 
                                 <TabPanel value="2" sx={{ padding: '20px 0px', textAlign: 'left' }}>
-                                    {(recentLiveStreamVideos.length != 0 && recentUploadedVideos.length != 0) ? <>
+                                    {(recentLiveStreamVideos.length != 0 || recentUploadedVideos.length != 0) ? <>
                                         <Box>
                                             {recentLiveStreamVideos.length != 0 ? <>
                                                 <Typography variant="body1" component="div" sx={{ display: 'flex', alignItems: 'baseline' }}>
@@ -719,10 +720,10 @@ export default function ChannelName() {
                                         </Box>
 
                                         <Box sx={{ marginTop: '25px' }}>
-                                            {recentLiveStreamVideos.length != 0 ? <>
+                                            {recentUploadedVideos.length != 0 ? <>
                                                 <Typography variant="body1" component="div" sx={{ display: 'flex', alignItems: 'baseline' }}>
                                                     <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '17px', marginRight: "10px" }}>All Videos</Typography>
-                                                    {showAllVideos ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View less</Button>}
+                                                    {recentUploadedVideos.length > 5 ? showAllVideos ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View less</Button>: null}
                                                 </Typography>
 
                                                 <Box sx={{ paddingTop: '5px' }}>
