@@ -9,16 +9,26 @@ import {
   styled,
   Button,
   Typography,
-  Box
+  Box,
+  TextField,
 } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import EmojiPicker from 'emoji-picker-react';
+// import EmojiPicker, {Emoji} from 'emoji-picker-react';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import {socket} from '../../../socket';
+
+import dynamic from 'next/dynamic';
+
+const EmojiPicker = dynamic(
+  () => {
+    return import('emoji-picker-react');
+  },
+  { ssr: false }
+);
 
 
 const drawerWidth = 350;
@@ -74,7 +84,8 @@ const showChatBox = { position: 'fixed', margin: '10px 10px 10px 30px', height: 
 
 const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
 
-const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
+// const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
+const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', width: '100%', color: '#000' };
 
 
 export default function LiveStreamChat(props) {
@@ -217,7 +228,13 @@ export default function LiveStreamChat(props) {
     setIsClickOnEmoji(!isClickOnEmoji);
   }
 
-  const onEmojiClick = (event, emojiObject) => {
+  const onEmojiClick = (emojiObject, event) => {
+    console.log('emojiObject', emojiObject);
+    setMessage(
+      (message) =>
+        message + (emojiObject ? emojiObject.emoji : null)
+    );
+    // setSelectedEmoji(emojiData.unified);
     setChosenEmoji(emojiObject);
   };
 
@@ -249,7 +266,6 @@ export default function LiveStreamChat(props) {
       </DrawerHeader>
       <Divider />
       {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
-      <Typography>{chosenEmoji.emoji}</Typography>
       {
         oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
@@ -292,14 +308,16 @@ export default function LiveStreamChat(props) {
                   {
                     isLoggedIn?
                       <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                            <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+                            {/* <Typography>{chosenEmoji.emoji}</Typography> */}
+                            {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
+                            <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
                             <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                               <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
                                 <InsertEmoticonIcon />
                               </Typography>
                               <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
                             </Box>
-                            { isClickOnEmoji && <EmojiPicker onEmojiClick={onEmojiClick}/> }
+                            { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
                       </Typography>
                     :
                       <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
@@ -329,7 +347,7 @@ export default function LiveStreamChat(props) {
                 No chat found
               </Typography>
               <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                <input style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+                <TextField style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
                 <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
               </Typography>
             </>
