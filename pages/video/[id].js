@@ -15,7 +15,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import VideoJS from '../../src/content/Overview/Slider/VideoJS';
 import videojs from 'video.js';
 import Image from 'next/image'
-import LiveStreamChat from '../../src/content/Channel/LiveStreamChat'
+import LiveStreamChatHistory from '../../src/content/Channel/LiveStreamChatHistory'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { useRouter } from "next/router";
@@ -394,7 +394,7 @@ export default function Videos(){
                             } */}
                         </Box>
                         <Box sx={{mt: '90px', position: 'sticky'}}>
-                            <LiveStreamChat oldReceivedMessages={oldReceivedMessages}/>
+                            <LiveStreamChatHistory oldReceivedMessages={oldReceivedMessages}/>
                         </Box>
                     </>
                 }
