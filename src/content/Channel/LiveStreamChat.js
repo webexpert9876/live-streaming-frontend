@@ -11,6 +11,7 @@ import {
   Typography,
   Box,
   TextField,
+  InputAdornment,
 } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
@@ -279,11 +280,11 @@ export default function LiveStreamChat(props) {
                         {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
                         {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
                         <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                        <span>: {data.message}</span>
+                        <span style={{ textWrap: 'wrap'}}>: {data.message}</span>
                       </Typography>
                     :
                       <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span>{data.message} :</span>
+                        <span style={{ textWrap: 'wrap'}}>{data.message} :</span>
                         <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
                         <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
                       </Typography>
@@ -295,11 +296,11 @@ export default function LiveStreamChat(props) {
                       {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
                       {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
                       <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                      <span>: {message}</span>
+                      <span style={{ textWrap: 'wrap'}}>: {message}</span>
                     </Typography>
                     :
                       <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span>{message} :</span>
+                        <span style={{ textWrap: 'wrap'}}>{message} :</span>
                         <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
                       </Typography>
                   ))}
@@ -310,13 +311,19 @@ export default function LiveStreamChat(props) {
                       <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
                             {/* <Typography>{chosenEmoji.emoji}</Typography> */}
                             {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
-                            <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-                            <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                            <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <InsertEmoticonIcon onClick={handleEmojiOpen}/>
+                                </InputAdornment>
+                              )
+                            }}/>
+                              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                            {/* <Box>
                               <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
                                 <InsertEmoticonIcon />
                               </Typography>
-                              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-                            </Box>
+                            </Box> */}
                             { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
                       </Typography>
                     :
