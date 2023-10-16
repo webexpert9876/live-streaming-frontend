@@ -21,6 +21,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 // import EmojiPicker, {Emoji} from 'emoji-picker-react';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import {socket} from '../../../socket';
+import MessageMenu from '../../components/chatBox/messageMenu';
 
 import dynamic from 'next/dynamic';
 
@@ -88,6 +89,7 @@ const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', b
 // const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
 const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', width: '100%', color: '#000' };
 
+const messageDivStyle = { display: 'flex', justifyContent: 'space-between' };
 
 export default function LiveStreamChat(props) {
 
@@ -275,33 +277,50 @@ export default function LiveStreamChat(props) {
                 <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
                     data.userDetail[0]._id != userId ?
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                        {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                        {/* <MessageMenu/> */}
+                        {/* <Box sx={messageDivStyle}> */}
+                            <Box>
+                              <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                              {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                              {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                              <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                              <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                            </Box>
+                            <MessageMenu/>
+                        {/* </Box> */}
                       </Typography>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
-                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                      
+                        <MessageMenu/>
+                        <Box>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
+                          <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                        </Box>
+                      
                       </Typography>
                   ))}
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
                   {receivedMessages.map(({ roomId, message, sender }, index) => (
-                    sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                      {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                      {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                      {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                      <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                      <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
+                    sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                      <Box>
+                        {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                        {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
+                      </Box>
+                      <MessageMenu/>
                     </Typography>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
+                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                        <MessageMenu/>
+                        <Box>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
+                        </Box>
                       </Typography>
                   ))}
                 </Typography>
