@@ -185,11 +185,21 @@ export default function LiveStreamChat(props) {
     console.log('room id', id)
     console.log('stream id', streamId)
     socket.emit('joinLiveViewerRoom', id, {streamId});
-    socket.on('receiveMessage', ({ roomId, message, sender }) => {
-      console.log('received Message', roomId)
+    socket.on('receiveMessage', ({ roomId, message, sender, chatInfo }) => {
+      console.log('received roomId', roomId)
       console.log('received Message', message)
-      console.log('received Message', sender)
-      setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+      console.log('received sender', sender)
+      console.log('received Message chatInfo', chatInfo)
+      const messageInfo = {
+        videoId: roomId,
+        message: message,
+        sender: sender,
+        _id: chatInfo._id,
+        isPinned: chatInfo.isPinned,
+        userId: chatInfo.userId
+      }
+      // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+      setReceivedMessages((prevMessages) => [...prevMessages, messageInfo]);
     });
     // socket.emit('updateLiveStreamingViewerCount', '64be4c9cc1e7b7e58ab24b82', '648174e0bed9a5f8f56950e1');
     socket.on('viewerCounts', ({ viewerCount }) => {
@@ -230,7 +240,7 @@ export default function LiveStreamChat(props) {
   }
 
   const onEmojiClick = (emojiObject, event) => {
-    console.log('emojiObject', emojiObject);
+    // console.log('emojiObject', emojiObject);
     setMessage(
       (message) =>
         message + (emojiObject ? emojiObject.emoji : null)
@@ -274,36 +284,50 @@ export default function LiveStreamChat(props) {
               <>
                 <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
-                    data.userDetail[0]._id != userId ?
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                        {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
-                      </Typography>
+                    `${data.isPinned}` === `true`? <Box>
+                        <Typography>
+                          pinned message :- {data.message}
+                        </Typography>
+                      </Box>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
-                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                      </Typography>
+                      data.userDetail[0]._id != userId ?
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                          <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                          {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                          {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                        </Typography>
+                      :
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
+                          <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                        </Typography>
                   ))}
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
-                  {receivedMessages.map(({ roomId, message, sender }, index) => (
-                    sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                      {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                      {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                      {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                      <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                      <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
-                    </Typography>
+                  {receivedMessages.map(({ roomId, message, sender, isPinned }, index) => (
+                    `${isPinned}` === `true` ? <Box>
+                        <Typography>
+                          pinned message :- {message}
+                        </Typography>
+                      </Box>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
+                      sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                        {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                        {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
                       </Typography>
-                  ))}
+                      :
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
+                        </Typography>
+                    ))
+                  }
+                  
                 </Typography>
                 {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
                   {

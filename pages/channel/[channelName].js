@@ -204,6 +204,10 @@ export default function ChannelName() {
                                 videoId
                                 hours
                                 mins
+                                _id
+                                userId
+                                liveStreamId
+                                isPinned
                             }
         
                         }
