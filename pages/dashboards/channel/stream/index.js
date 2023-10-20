@@ -51,7 +51,7 @@ function ManageLiveStream(params) {
                 // setIsChannelFollowing(result.data.isChannelFollowing[0])
                 // setUserDetail(userDetails);
                 console.log('liveStreamInfo', result.data.liveStreamings[0]);
-                setLiveStreamInfo(result.data.liveStreamings[0]);
+                setLiveStreamInfo(result.data.liveStreamings);
                 return result.data.liveStreamings[0]
             });
             console.log('liveStreamInfo', liveStreamInfo);
@@ -66,6 +66,7 @@ function ManageLiveStream(params) {
                             userDetail {
                                 firstName
                                 lastName
+                                username
                                 _id
                             }
                             message
@@ -98,7 +99,7 @@ function ManageLiveStream(params) {
     return (
         <>
             <Box mt='100px'>
-                {liveStreamInfo && userDetail && oldChatMessages && <LiveStreamChatAdmin liveStreamInfo={liveStreamInfo} viewerUser={userDetail} oldReceivedMessages={oldChatMessages}/>}
+                {liveStreamInfo && userDetail && <LiveStreamChatAdmin liveStreamInfo={liveStreamInfo} viewerUser={userDetail} oldReceivedMessages={oldChatMessages}/>}
             </Box>
         </>
     )

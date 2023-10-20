@@ -4,7 +4,11 @@ import { useRouter } from 'next/router';
 import io from 'socket.io-client';
 import client from "../../../graphql";
 import { gql } from "@apollo/client";
-
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import BlockIcon from '@mui/icons-material/Block';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import {
   styled,
   Button,
@@ -12,7 +16,12 @@ import {
   Box,
   TextField,
   InputAdornment,
+  Card,
+  CardActions,
+  CardContent,
+  Tooltip
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -22,6 +31,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import {socket} from '../../../socket';
 import MessageMenu from '../../components/chatBox/messageMenu';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 
 import dynamic from 'next/dynamic';
 
@@ -91,6 +102,46 @@ const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', w
 
 const messageDivStyle = { display: 'flex', justifyContent: 'space-between' };
 
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 180,
+    color:
+      theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
+    boxShadow:
+      'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+    '& .MuiMenu-list': {
+      padding: '4px 0',
+    },
+    '& .MuiMenuItem-root': {
+      '& .MuiSvgIcon-root': {
+        fontSize: 18,
+        color: theme.palette.text.secondary,
+        marginRight: theme.spacing(1.5),
+      },
+      '&:active': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          theme.palette.action.selectedOpacity,
+        ),
+      },
+    },
+  },
+}));
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
@@ -107,6 +158,17 @@ export default function LiveStreamChat(props) {
   const [isChannelRoomJoined, setIsChannelRoomJoined] = useState(false);
   const [isClickOnEmoji, setIsClickOnEmoji] = useState(false);
   const [chosenEmoji, setChosenEmoji] = useState({emoji: ''});
+  const [pinnedMessage, setPinnedMessage] = useState({});
+  const [isPinnedMessage, setIsPinnedMessage] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [messageAllDetails, setMessageAllDetails] = React.useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const chatBoxRef = useRef(null);
   const router = useRouter();
 
@@ -123,15 +185,17 @@ export default function LiveStreamChat(props) {
   var drawerStyle = open ? { justifyContent: 'left' } : { justifyContent: 'end' }
 
   useEffect(() => {
-    if(props.liveStreamInfo.videoId && props.viewerUser && props.oldReceivedMessages){
+    if(props.liveStreamInfo.length > 0 && props.viewerUser && props.oldReceivedMessages){
       console.log('3 condition true', props)
-      if(props.liveStreamInfo){
+      if(props.liveStreamInfo.length > 0){
         console.log('1st condition true', props)
-        setRoomId(props.liveStreamInfo.videoId);
+        setRoomId(props.liveStreamInfo[0].videoId);
         if(!isChannelRoomJoined){
-          console.log('is not joined', props)
-          console.log('props.liveStreamInfo', props.liveStreamInfo)
-          addRoomId(props.liveStreamInfo.videoId, props.liveStreamInfo._id);
+          console.log('is not joined', props);
+          console.log('props.liveStreamInfo', props.liveStreamInfo);
+          console.log('props.liveStreamInfo', props.liveStreamInfo[0].videoId);
+          console.log('props.liveStreamInfo', props.liveStreamInfo[0]._id);
+          addRoomId(props.liveStreamInfo[0].videoId, props.liveStreamInfo[0]._id);
           setIsChannelRoomJoined(true);
         }
       }
@@ -147,12 +211,12 @@ export default function LiveStreamChat(props) {
         // }
       }
 
-      if(props.oldReceivedMessages){
+      if(props.oldReceivedMessages.length > 0){
         console.log('props.oldReceivedMessages', props.oldReceivedMessages);
         setOldReceivedMessages(props.oldReceivedMessages);
       }
     }
-  }, [props.liveStreamInfo.videoId, props.viewerUser, props.oldReceivedMessages])
+  }, [props.liveStreamInfo, props.viewerUser, props.oldReceivedMessages])
 
   useEffect(() => {
     const chatBox = chatBoxRef.current;
@@ -183,21 +247,101 @@ export default function LiveStreamChat(props) {
     };
   }, [])
 
+  useEffect(()=>{
+    if(isPinnedMessage){
+    
+      console.log('oldReceivedMessagesClone (after a delay)', oldReceivedMessages);
+      const index = oldReceivedMessages.findIndex(item => `${item._id}` === `${pinnedMessage._id}` );
+      
+      console.log('index', index);
+      if (index != -1) {
+        
+        const newOldPinnedMessage = oldReceivedMessages.map(item => {
+          if (`${item._id}` === `${pinnedMessage._id}`) {
+            return { ...item, isPinned: pinnedMessage.isPinned };
+          } else {
+            return { ...item, isPinned: false };
+          }
+        });
+
+        const newPinnedMessage = receivedMessages.map(item => {
+          if (`${item._id}` === `${pinnedMessage._id}`) {
+            return { ...item, isPinned: pinnedMessage.isPinned };
+          }else {
+            return { ...item, isPinned: false };
+          }
+        });
+
+        setOldReceivedMessages(newOldPinnedMessage);
+        setReceivedMessages(newPinnedMessage);
+      } else {
+        
+        let messageIndex = receivedMessages.findIndex(item => `${item._id}` === `${pinnedMessage._id}`);
+        console.log('messageIndex', messageIndex);
+
+        if (messageIndex != -1) {
+        
+          const newPinnedMessage = receivedMessages.map(item => {
+            if (`${item._id}` === `${pinnedMessage._id}`) {
+              return { ...item, isPinned: pinnedMessage.isPinned };
+            }else {
+              return { ...item, isPinned: false };
+            }
+          });
+
+          const newOldPinnedMessage = oldReceivedMessages.map(item => {
+            if (`${item._id}` === `${pinnedMessage._id}`) {
+              return { ...item, isPinned: pinnedMessage.isPinned };
+            } else {
+              return { ...item, isPinned: false };
+            }
+          });
+
+          setReceivedMessages(newPinnedMessage);
+          setOldReceivedMessages(newOldPinnedMessage);
+          
+        }
+      }
+      setIsPinnedMessage(false)
+      
+    }
+  },[isPinnedMessage])
+
   function addRoomId(id, streamId) {
     console.log('room id', id)
     console.log('stream id', streamId)
     socket.emit('joinLiveViewerRoom', id, {streamId});
-    socket.on('receiveMessage', ({ roomId, message, sender }) => {
-      console.log('received Message', roomId)
+    socket.on('receiveMessage', ({ roomId, message, sender, chatInfo }) => {
+      console.log('received roomId', roomId)
       console.log('received Message', message)
-      console.log('received Message', sender)
-      setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+      console.log('received sender', sender)
+      console.log('received Message chatInfo', chatInfo)
+      const messageInfo = {
+        videoId: roomId,
+        message: message,
+        sender: sender,
+        _id: chatInfo._id,
+        isPinned: chatInfo.isPinned,
+        userId: chatInfo.userId,
+        liveStreamId: chatInfo.liveStreamId
+      }
+      // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+      setReceivedMessages((prevMessages) => [...prevMessages, messageInfo]);
     });
+    
+    
+    socket.on('receivePinMessage', ({ pinnedMessage }) => {
+      setPinnedMessage(pinnedMessage);
+      console.log('received pinnedMessage', pinnedMessage);
+      setIsPinnedMessage(true);
+      // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+    });
+    
     // socket.emit('updateLiveStreamingViewerCount', '64be4c9cc1e7b7e58ab24b82', '648174e0bed9a5f8f56950e1');
     socket.on('viewerCounts', ({ viewerCount }) => {
       console.log('viewerCount', viewerCount);
       setViewer(viewerCount)
-      props.funcHandleViewers(viewerCount)
+      // props.funcHandleViewers(viewerCount)
     })
   }
 
@@ -209,7 +353,7 @@ export default function LiveStreamChat(props) {
       if (message.trim() !== '') {
         console.log('message', message);
         socket.emit('sendMessage', { roomId, message, userId, userName: userName });
-        setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
+        // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
       }
     } else {
       console.log('else ', userName);
@@ -241,20 +385,47 @@ export default function LiveStreamChat(props) {
     setChosenEmoji(emojiObject);
   };
 
+  const handlePinMessage = (messageAllDetail) => {
+    console.log('running', messageAllDetail);
+    // messageAllDetail.isPinned = true
+    let messagePin = {
+      ...messageAllDetail
+    }
+    messagePin.isPinned = true
+    console.log('messagePin messagePin', messagePin)
+    socket.emit('pinMessage', messageAllDetail._id, { videoId: messageAllDetail.videoId, liveStreamId: messageAllDetail.liveStreamId, isPinned: true });
+    setPinnedMessage(messagePin);
+      console.log('received pinnedMessage', messagePin);
+      setIsPinnedMessage(true);
+    // handleClose();
+  }
+  
+  const handleUnpinMessage = (messageAllDetail)=>{
+    // messageAllDetail.isPinned = false
+    let messagePin = {
+      ...messageAllDetail
+    }
+    messagePin.isPinned = false
+    console.log('running', messageAllDetail);
+    console.log('running', messageAllDetail._id);
+    console.log('running', messageAllDetail.videoId);
+    socket.emit('pinMessage', messageAllDetail._id, { videoId: messageAllDetail.videoId, liveStreamId: messageAllDetail.liveStreamId, isPinned: false });
+    setPinnedMessage(messagePin);
+      console.log('received pinnedMessage', messagePin);
+      setIsPinnedMessage(true);
+    // handleClose();
+  }
+
   return (
 
-    <Drawer sx={{
-      '& .MuiDrawer-paper': {
-        position: 'relative'
-      },
-    }} variant="permanent" open={open} className='' style={{ backgroundColor: '#0c1028' }}> {/* Set the background color of the Drawer */}
-      <DrawerHeader sx={drawerStyle} className='minHeightTitleMenu'>
-        <IconButton onClick={handleDrawerClose} sx={{
+    <Box sx={{ backgroundColor: '#0c1028', width: '30%', margin: 'auto' }}> {/* Set the background color of the Drawer */}
+      <Box  className='minHeightTitleMenu'>
+        {/* <IconButton onClick={handleDrawerClose} sx={{
           ...(!open && { display: 'none' }),
         }}>
-          <div style={{ fontSize: "12px", color: "#fff" }}>CHATS</div> {<ChevronRightIcon style={{ color: "#fff" }} />}
-        </IconButton>
-        <IconButton
+        </IconButton> */}
+          <div style={{ fontSize: "12px", color: "#fff" }}>CHATS</div>
+        {/* <IconButton
           color="inherit"
           aria-label="open drawer"
           onClick={handleDrawerOpen}
@@ -265,8 +436,8 @@ export default function LiveStreamChat(props) {
           }}
           style={{ color: "#fff" }}>
           <ChevronLeftIcon />
-        </IconButton>
-      </DrawerHeader>
+        </IconButton> */}
+      </Box>
       <Divider />
       {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
       {
@@ -276,53 +447,108 @@ export default function LiveStreamChat(props) {
               <>
                 <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
-                    data.userDetail[0]._id != userId ?
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                        {/* <MessageMenu/> */}
-                        {/* <Box sx={messageDivStyle}> */}
-                            <Box>
-                              <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                              {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                              {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                              <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                              <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
-                            </Box>
-                            <MessageMenu/>
-                        {/* </Box> */}
-                      </Typography>
+
+                    `${data.isPinned}` === `true` ?
+                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between' }} key={index}>
+                        <CardContent>
+                          <Box sx={{}}>
+                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                              <span style={{ color: 'red', fontSize: '15px' }}>
+                                {`${data.userDetail[0].username}`}
+                              </span>
+                            </Typography>
+                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                              {data.message}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                        <CardActions>
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                          {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
+                          {/* <Tooltip title="Unpin message">
+                            <PushPinOutlinedIcon fontSize='medium'/>
+                          </Tooltip> */}
+                          {/* </Typography> */}
+                        </CardActions>
+                      </Card>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                      
-                        <MessageMenu/>
-                        <Box>
-                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
-                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b>
-                          <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                        </Box>
-                      
-                      </Typography>
-                  ))}
+                      (data.userDetail[0]._id != userId ?
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                          {/* <MessageMenu/> */}
+                          {/* <Box sx={messageDivStyle}> */}
+                          <Box>
+                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>: {data.message}</span>
+                          </Box>
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                          {/* </Box> */}
+                        </Typography>
+                        :
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                          <Box>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>{data.message} :</span>
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}You </b>
+                            {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b> */}
+                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                          </Box>
+
+                        </Typography>)
+                    ))
+                  }
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
-                  {receivedMessages.map(({ roomId, message, sender }, index) => (
-                    sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                      <Box>
-                        {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                        {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
-                      </Box>
-                      <MessageMenu/>
-                    </Typography>
+                  {receivedMessages.map((data, index) => (
+                    `${data.isPinned}` === `true` ?
+                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between' }} key={index}>
+                        <CardContent>
+                          <Box sx={{}}>
+                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                              <span style={{ color: 'red', fontSize: '15px' }}>
+                                {`${data.sender}`}
+                              </span>
+                            </Typography>
+                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                              {data.message}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                        <CardActions>
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                          {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
+                          {/* <Tooltip title="Unpin message">
+                            <PushPinOutlinedIcon fontSize='medium'/>
+                          </Tooltip> */}
+                          {/* </Typography> */}
+                        </CardActions>
+                      </Card>
                     :
-                      <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                        <MessageMenu/>
-                        <Box>
-                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
-                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
-                        </Box>
-                      </Typography>
-                  ))}
+                      (data.userId !== userId ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                          <Box>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{data.sender} </b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                          </Box>
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                        </Typography>
+                      :
+                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                          <Box>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> You </b>
+                            {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {data.sender} </b> */}
+                          </Box>
+                        </Typography>)
+                    ))
+                  }
                 </Typography>
                 {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
                   {
@@ -380,6 +606,6 @@ export default function LiveStreamChat(props) {
           : null}
         </>
       }
-    </Drawer >
+    </Box >
   );
 }

@@ -198,6 +198,7 @@ export default function ChannelName() {
                                 userDetail {
                                     firstName
                                     lastName
+                                    username
                                     _id
                                 }
                                 message
@@ -832,7 +833,7 @@ export default function ChannelName() {
                     {/* :
                     } */}
                 </Box>}
-                {isClickOnChannel && currentBroadcast && userDetail ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} /> : null}
+                {isClickOnChannel && currentBroadcast && userDetail && channelDetails ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} channelInfo={channelDetails} /> : null}
             </Box >
         </>
     )

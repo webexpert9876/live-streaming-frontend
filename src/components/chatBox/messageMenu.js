@@ -5,12 +5,13 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
-import ArchiveIcon from '@mui/icons-material/Archive';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import {socket} from '../../../socket';
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -53,8 +54,9 @@ const StyledMenu = styled((props) => (
   },
 }));
 
-export default function MessageMenu() {
+export default function MessageMenu(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [messageAllDetails, setMessageAllDetails] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -63,53 +65,66 @@ export default function MessageMenu() {
     setAnchorEl(null);
   };
 
+  React.useEffect(()=>{
+    if(props.messageData){
+      setMessageAllDetails(props.messageData);
+    }
+  },[props.messageData])
+
+  const handlePinMessage = ()=>{
+    props.handlePinFunc(messageAllDetails);
+    handleClose();
+  }
+  
+  const handleUnpinMessage = ()=>{
+    props.handleUnpinFunc(messageAllDetails);
+    handleClose();
+  }
+
   return (
     <>
-      {/* <Button
-        sx={{minWidth: '15px', padding: 0, textAlign: 'center'}}
-        id="demo-customized-button"
-        aria-controls={open ? 'demo-customized-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        disableElevation
-        onClick={handleClick}
-        endIcon={<MoreVertIcon/>}
-      > */}
-        <MoreVertIcon sx={{minWidth: '15px', padding: 0, textAlign: 'center'}}
-        id="demo-customized-button"
-        aria-controls={open ? 'demo-customized-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        disableElevation
-        onClick={handleClick}/>
-      {/* </Button> */}
-      <StyledMenu
-        id="demo-customized-menu"
-        MenuListProps={{
-          'aria-labelledby': 'demo-customized-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleClose} disableRipple>
-          <DeleteIcon />
-          Delete
-        </MenuItem>
-        <MenuItem onClick={handleClose} disableRipple>
-          <BlockIcon />
-          Block
-        </MenuItem>
-        {/* <Divider sx={{ my: 0.5 }} /> */}
-        {/* <MenuItem onClick={handleClose} disableRipple>
-          <ArchiveIcon />
-          Archive
-        </MenuItem>
-        <MenuItem onClick={handleClose} disableRipple>
-          <MoreHorizIcon />
-          More
-        </MenuItem> */}
-      </StyledMenu>
+        {messageAllDetails && <>
+          <MoreVertIcon sx={{minWidth: '15px', padding: 0, textAlign: 'center'}}
+            id="demo-customized-button"
+            aria-controls={open ? 'demo-customized-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            disableElevation
+          onClick={handleClick}/>
+        <StyledMenu
+          id="demo-customized-menu"
+          MenuListProps={{
+            'aria-labelledby': 'demo-customized-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+        >
+          {`${messageAllDetails.isPinned}` === `true` ?<MenuItem onClick={handleUnpinMessage} disableRipple>
+            <PushPinIcon />
+              Unpin message
+            </MenuItem>
+          :
+            <MenuItem onClick={handlePinMessage} disableRipple>
+              <PushPinIcon />
+              Pin message
+            </MenuItem>
+          }
+          <Divider sx={{ my: 0.5 }} />
+          <MenuItem onClick={handleClose} disableRipple>
+            <DeleteIcon />
+            Delete
+          </MenuItem>
+          <MenuItem onClick={handleClose} disableRipple>
+            <BlockIcon />
+            Block
+          </MenuItem>
+          {/* <MenuItem onClick={handleClose} disableRipple>
+            <MoreHorizIcon />
+            More
+          </MenuItem> */}
+        </StyledMenu>
+        </>}
     </>
   );
 }

@@ -12,6 +12,9 @@ import {
   Box,
   TextField,
   InputAdornment,
+  Card,
+  CardActions,
+  CardContent,
 } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
@@ -20,6 +23,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 // import EmojiPicker, {Emoji} from 'emoji-picker-react';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
+import PushPinIcon from '@mui/icons-material/PushPin';
 import {socket} from '../../../socket';
 
 import dynamic from 'next/dynamic';
@@ -92,6 +96,7 @@ const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', w
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
+  const [channelInfo, setChannelInfo] = React.useState(props.channelInfo ? props.channelInfo: {});
   const [receivedMessages, setReceivedMessages] = React.useState([]);
   const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
   const [roomId, setRoomId] = React.useState('');
@@ -107,6 +112,8 @@ export default function LiveStreamChat(props) {
   const [chosenEmoji, setChosenEmoji] = useState({emoji: ''});
   const chatBoxRef = useRef(null);
   const router = useRouter();
+  const [pinnedMessage, setPinnedMessage] = useState({});
+  const [isPinnedMessage, setIsPinnedMessage] = useState(false);
 
 
 
@@ -122,6 +129,7 @@ export default function LiveStreamChat(props) {
 
   useEffect(() => {
     if(props.liveStreamInfo.videoId && props.viewerUser && props.oldReceivedMessages){
+      setChannelInfo(props.channelInfo)
       console.log('3 condition true', props)
       if(props.liveStreamInfo){
         console.log('1st condition true', props)
@@ -166,13 +174,72 @@ export default function LiveStreamChat(props) {
     }
   }, [receivedMessages]);
 
+  useEffect(()=>{
+    if(isPinnedMessage){
+
+      console.log('oldReceivedMessagesClone (after a delay)', oldReceivedMessages);
+      const index = oldReceivedMessages.findIndex(item => `${item._id}` === `${pinnedMessage._id}` );
+      
+      console.log('index', index);
+      if (index != -1) {
+        
+        const newOldPinnedMessage = oldReceivedMessages.map(item => {
+          if (`${item._id}` === `${pinnedMessage._id}`) {
+            return { ...item, isPinned: pinnedMessage.isPinned };
+          } else {
+            return { ...item, isPinned: false };
+          }
+        });
+
+        const newPinnedMessage = receivedMessages.map(item => {
+          if (`${item._id}` === `${pinnedMessage._id}`) {
+            return { ...item, isPinned: pinnedMessage.isPinned };
+          }else {
+            return { ...item, isPinned: false };
+          }
+        });
+
+        setOldReceivedMessages(newOldPinnedMessage);
+        setReceivedMessages(newPinnedMessage);
+      } else {
+        
+        let messageIndex = receivedMessages.findIndex(item => `${item._id}` === `${pinnedMessage._id}`);
+        console.log('messageIndex', messageIndex);
+
+        if (messageIndex != -1) {
+        
+          const newPinnedMessage = receivedMessages.map(item => {
+            if (`${item._id}` === `${pinnedMessage._id}`) {
+              return { ...item, isPinned: pinnedMessage.isPinned };
+            }else {
+              return { ...item, isPinned: false };
+            }
+          });
+
+          const newOldPinnedMessage = oldReceivedMessages.map(item => {
+            if (`${item._id}` === `${pinnedMessage._id}`) {
+              return { ...item, isPinned: pinnedMessage.isPinned };
+            } else {
+              return { ...item, isPinned: false };
+            }
+          });
+
+          setReceivedMessages(newPinnedMessage);
+          setOldReceivedMessages(newOldPinnedMessage);
+          
+        }
+      }
+      setIsPinnedMessage(false)
+    }
+  },[isPinnedMessage])
+
   // var socket = io('http://localhost:8080/', {query: {
   //   roomId: , // This is where you pass the user ID
   // }});
   // var socket = io('http://localhost:8080/', { query: {
   //   roomId: roomId,
   // }});
-
+  
   useEffect(()=>{
     console.log('Mount----------------------')
     return () => {
@@ -207,8 +274,15 @@ export default function LiveStreamChat(props) {
       setViewer(viewerCount)
       props.funcHandleViewers(viewerCount)
     })
-  }
 
+    socket.on('receivePinMessage', ({ pinnedMessage }) => {
+      setPinnedMessage(pinnedMessage);
+      console.log('received pinnedMessage', pinnedMessage);
+      setIsPinnedMessage(true);
+      // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender }]);
+    });
+    
+  }
 
   const handleSendMessage = () => {
     console.log('userId', userId);
@@ -217,7 +291,7 @@ export default function LiveStreamChat(props) {
       if (message.trim() !== '') {
         console.log('message', message);
         socket.emit('sendMessage', { roomId, message, userId, userName: userName });
-        setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
+        // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
       }
     } else {
       console.log('else ', userName);
@@ -284,20 +358,42 @@ export default function LiveStreamChat(props) {
               <>
                 <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
-                    `${data.isPinned}` === `true`? <Box>
-                        <Typography>
-                          pinned message :- {data.message}
-                        </Typography>
-                      </Box>
+                    `${data.isPinned}` === `true`? 
+                      <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between' }} key={index}>
+                        <CardContent>
+                          <Box sx={{}}>
+                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                              <span style={{ color: 'red', fontSize: '15px' }}>
+                                {/* {`${data.userDetail[0].username}`} */}
+                                {channelInfo.channelName}
+                              </span>
+                            </Typography>
+                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                              {data.message}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                      </Card>
                     :
                       data.userDetail[0]._id != userId ?
-                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                          <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                          {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                          {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
-                        </Typography>
+                        (channelInfo.userId == data.userId ?
+                          <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{channelInfo.channelName}{'  => '} </b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                          </Typography>
+                          :
+                          <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                          </Typography>
+                        )
                       :
                         <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
                           <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
@@ -306,25 +402,47 @@ export default function LiveStreamChat(props) {
                         </Typography>
                   ))}
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
-                  {receivedMessages.map(({ roomId, message, sender, isPinned }, index) => (
-                    `${isPinned}` === `true` ? <Box>
-                        <Typography>
-                          pinned message :- {message}
-                        </Typography>
-                      </Box>
+                  {receivedMessages.map((data, index) => (
+                    `${data.isPinned}` === `true` ? <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between' }} key={index}>
+                        <CardContent>
+                          <Box sx={{}}>
+                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                              <span style={{ color: 'red', fontSize: '15px' }}>
+                                {`${data.sender}`}
+                              </span>
+                            </Typography>
+                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                              {data.message}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                      </Card>
                     :
-                      sender !== 'you' ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
-                        {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                        {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{sender} </b>
-                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {message}</span>
-                      </Typography>
+                      (data.userId !== userId ? 
+                        (channelInfo.userId == data.userId ?
+                          <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{channelInfo.channelName} vvvvv</b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                          </Typography>
+                          :
+                          <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
+                            {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                            {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{data.sender} asdfsd</b>
+                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                          </Typography>
+                        )
                       :
                         <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px' }} key={index}>
-                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{message} :</span>
-                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {sender} </b>
-                        </Typography>
+                          <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
+                          <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> You </b>
+                          {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {data.sender} </b> */}
+                        </Typography>)
                     ))
                   }
                   
