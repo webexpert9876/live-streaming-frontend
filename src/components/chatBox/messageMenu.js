@@ -11,6 +11,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import {socket} from '../../../socket';
 
 const StyledMenu = styled((props) => (
@@ -105,20 +106,24 @@ export default function MessageMenu(props) {
               Unpin message
             </MenuItem>
           :
-            <MenuItem onClick={handlePinMessage} disableRipple>
+            <MenuItem sx={{m:'5px'}} onClick={handlePinMessage} disableRipple>
               <PushPinIcon />
               Pin message
             </MenuItem>
           }
-          <Divider sx={{ my: 0.5 }} />
-          <MenuItem onClick={handleClose} disableRipple>
+          {/* <Divider sx={{ my: 0.5 }} /> */}
+          {/* <MenuItem onClick={handle} disableRipple>
             <DeleteIcon />
-            Delete
+            Delete message
           </MenuItem>
           <MenuItem onClick={handleClose} disableRipple>
+            <DeleteSweepIcon fontSize='large' />
+            Clear Chat
+          </MenuItem> */}
+          {/* <MenuItem onClick={handleClose} disableRipple>
             <BlockIcon />
             Block
-          </MenuItem>
+          </MenuItem> */}
           {/* <MenuItem onClick={handleClose} disableRipple>
             <MoreHorizIcon />
             More

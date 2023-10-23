@@ -95,7 +95,7 @@ const chatBoxContainer = { zoom: 1.0, MozTransform: 'scale(0.5)', MozTransformOr
 
 const showChatBox = { position: 'fixed', margin: '10px 10px 10px 30px', height: '350px', width: '420px', overflow: 'auto', textAlign: 'left' };
 
-const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
+const chatButton = { margin: '10px 0px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
 
 // const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
 const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', width: '100%', color: '#000' };
@@ -142,6 +142,14 @@ const StyledMenu = styled((props) => (
     },
   },
 }));
+
+const pinMessageCss = {
+  position: 'fixed',
+  top: '52px',
+  marginTop: '100px',
+  width: '32%'
+}
+
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
@@ -341,7 +349,7 @@ export default function LiveStreamChat(props) {
     socket.on('viewerCounts', ({ viewerCount }) => {
       console.log('viewerCount', viewerCount);
       setViewer(viewerCount)
-      // props.funcHandleViewers(viewerCount)
+      props.funcHandleViewers(viewerCount)
     })
   }
 
@@ -418,38 +426,21 @@ export default function LiveStreamChat(props) {
 
   return (
 
-    <Box sx={{ backgroundColor: '#0c1028', width: '30%', margin: 'auto' }}> {/* Set the background color of the Drawer */}
-      <Box  className='minHeightTitleMenu'>
-        {/* <IconButton onClick={handleDrawerClose} sx={{
-          ...(!open && { display: 'none' }),
-        }}>
-        </IconButton> */}
+    <Box sx={{ backgroundColor: '#0c1028', width: '35%', height: 'fit-content', position: 'fixed', right: '0'}}> {/* Set the background color of the Drawer */}
+      <Box  className='minHeightTitleMenu' p={'15px'}>
           <div style={{ fontSize: "12px", color: "#fff" }}>CHATS</div>
-        {/* <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleDrawerOpen}
-          edge="start"
-          sx={{
-            marginRight: 5,
-            ...(open && { display: 'none' }),
-          }}
-          style={{ color: "#fff" }}>
-          <ChevronLeftIcon />
-        </IconButton> */}
       </Box>
       <Divider />
-      {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
       {
         oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
             {open ?
               <>
-                <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
+                <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '550px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
 
                     `${data.isPinned}` === `true` ?
-                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between' }} key={index}>
+                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
@@ -504,7 +495,7 @@ export default function LiveStreamChat(props) {
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
                   {receivedMessages.map((data, index) => (
                     `${data.isPinned}` === `true` ?
-                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between' }} key={index}>
+                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >

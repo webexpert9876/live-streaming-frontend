@@ -364,7 +364,25 @@ export const NebulaFighterTheme = createTheme({
           flexDirection: 'column',
           minHeight: '100%',
           width: '100%',
-          flex: 1
+          flex: 1,
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            borderRadius: 10,
+            height: 50,
+            width: 3                           
+          },
+          "&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track": {
+            webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
+            borderRadius: '20px',
+            backgroundColor: 'rgb(17 22 51)',
+            marginTop:  '5px',
+            marginBottom:  '5px'
+          },
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+            borderRadius: 8,
+            backgroundColor: "#ddd",
+            minHeight: 24,
+            border: "3px solid rgb(41 50 98)",
+          },
         },
         '#__next': {
           width: '100%',

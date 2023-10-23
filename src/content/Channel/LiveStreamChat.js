@@ -25,6 +25,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import {socket} from '../../../socket';
+import makeStyles from '@mui/material';
 
 import dynamic from 'next/dynamic';
 
@@ -92,6 +93,12 @@ const chatButton = { marginTop: '10px', border: 'none', background: '#9147FF', b
 // const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', background: '#ededed', padding: '10px', width: '100%', color: '#000' };
 const messageInput = { marginTop: '10px', borderRadius: '3px', border: 'none', width: '100%', color: '#000' };
 
+const pinMessageCss = {
+  position: 'fixed',
+  top: '52px',
+  marginTop: '100px',
+  width: '32%'
+}
 
 export default function LiveStreamChat(props) {
 
@@ -115,7 +122,14 @@ export default function LiveStreamChat(props) {
   const [pinnedMessage, setPinnedMessage] = useState({});
   const [isPinnedMessage, setIsPinnedMessage] = useState(false);
 
-
+  // const useStyles = makeStyles((theme) => ({
+  //   customScrollbar: {
+  //     '&::-webkit-scrollbar-track': {
+  //       WebkitBoxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
+  //       backgroundColor: '#F5F5F5',
+  //     },
+  //   },
+  // }));
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -327,10 +341,21 @@ export default function LiveStreamChat(props) {
 
     <Drawer sx={{
       '& .MuiDrawer-paper': {
-        position: 'relative'
+        position: 'relative'        
       },
-    }} variant="permanent" open={open} className='' style={{ backgroundColor: '#0c1028' }}> {/* Set the background color of the Drawer */}
-      <DrawerHeader sx={drawerStyle} className='minHeightTitleMenu'>
+    }} variant="permanent" open={open} style={{ backgroundColor: '#0c1028', position: 'relative', overflow: 'auto', zIndex: "0", '&::WebkitScrollbar': {
+      width: '0.4em'
+    },
+    '&::WebkitScrollbarTrack': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::WebkitScrollbarThumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    } }}> {/* Set the background color of the Drawer */}
+    <Box style={{position: "fixed"}}>
+      <DrawerHeader sx={drawerStyle} className='minHeightTitleMenu ' >
         <IconButton onClick={handleDrawerClose} sx={{
           ...(!open && { display: 'none' }),
         }}>
@@ -349,6 +374,7 @@ export default function LiveStreamChat(props) {
           <ChevronLeftIcon />
         </IconButton>
       </DrawerHeader>
+      
       <Divider />
       {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
       {
@@ -359,7 +385,7 @@ export default function LiveStreamChat(props) {
                 <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
                   {oldReceivedMessages.map((data, index) => (
                     `${data.isPinned}` === `true`? 
-                      <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between' }} key={index}>
+                      <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
@@ -383,7 +409,7 @@ export default function LiveStreamChat(props) {
                             {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
                             {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
                             <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{channelInfo.channelName}{'  => '} </b>
-                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                            <span style={{ textWrap: 'wrap',  }}>: {data.message}</span>
                           </Typography>
                           :
                           <Typography variant="body1" component="div" sx={{ paddingBottom: '10px' }} key={index}>
@@ -403,7 +429,7 @@ export default function LiveStreamChat(props) {
                   ))}
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
                   {receivedMessages.map((data, index) => (
-                    `${data.isPinned}` === `true` ? <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between' }} key={index}>
+                    `${data.isPinned}` === `true` ? <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
@@ -503,6 +529,7 @@ export default function LiveStreamChat(props) {
           : null}
         </>
       }
+      </Box>
     </Drawer >
   );
 }

@@ -70,7 +70,7 @@ const prvVideoBanner = {
   height: '334px'
 }
 
-function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData}) {  
+function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData, isStreamManagementPage}) {  
   const authState = useSelector(selectAuthUser)
   const [authUserDetail, setAuthUserDetail] = useState(useSelector(selectAuthUser));
   const [openEditPreviewImage, setOpenEditPreviewImage] = useState(false);
@@ -622,7 +622,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       </Grid>
 
       {/* ----------------------------------------------------------------------Stream key regenerate box----------------------------------------------------------------- */}
-      <Grid item xs={12}>
+      {`${isStreamManagementPage}` !== 'false' && <Grid item xs={12}>
         <Card>
           <Box
             p={3}
@@ -668,7 +668,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
             </Typography>
           </CardContent>
         </Card>
-      </Grid>
+      </Grid>}
     </Grid>
 
     {/* --------------------------------------------------------Error or success message------------------------------------------ */}
