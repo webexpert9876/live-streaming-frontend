@@ -70,7 +70,13 @@ const prvVideoBanner = {
   height: '334px'
 }
 
-function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData, isStreamManagementPage}) {  
+function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagData, userData, isStreamManagementPage}) {
+  console.log('streamData', streamData)
+  console.log('isStreamFound', isStreamFound)
+  console.log('tattooCategoriesData', tattooCategoriesData)
+  console.log('tagData', tagData)
+  console.log('userData', userData)
+  console.log('isStreamManagementPage', isStreamManagementPage)
   const authState = useSelector(selectAuthUser)
   const [authUserDetail, setAuthUserDetail] = useState(useSelector(selectAuthUser));
   const [openEditPreviewImage, setOpenEditPreviewImage] = useState(false);
@@ -78,13 +84,13 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
 
   // ---------------------Props state----------------
   const [userInfo, setUserInfo]= useState({});
-  const [streamInfo, setStreamInfo]= useState(isStreamFound? streamData[0]: {});
+  const [streamInfo, setStreamInfo]= useState(isStreamFound && streamData.length > 0? streamData[0]: {});
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
   // const [tattooCategoryMenuList, setTattooCategoryMenuList]= useState([]);
 
 
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
-  const [userProfilePic, setUserProfilePic] = useState(isStreamFound? streamData[0].streamPreviewImage: '');
+  const [userProfilePic, setUserProfilePic] = useState(isStreamFound && streamData.length > 0? streamData[0].streamPreviewImage: '');
   const [selectedPreviewPic, setSelectedPreviewPic] = useState([]);
   const [previewPicOriginalFile, setPreviewPicOriginalFile] = useState([]);
   const [isPreviewImageUploaded, setIsPreviewImageUploaded] = useState(false);
@@ -92,14 +98,14 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
 
   // --------------------------stream related input values---------------------------------------------
   const [streamInput, setStreamInput] = useState({
-    title: streamData[0].title,
-    description: streamData[0].description,
-    streamCategory: streamData[0].streamCategory
+    title: streamData.length > 0 ? streamData[0].title: null,
+    description: streamData.length > 0 ? streamData[0].description: null,
+    streamCategory: streamData.length > 0 ? streamData[0].streamCategory: null
   })
   const [streamInfoSubmit, setStreamInfoSubmit]= useState(false);
 
   // -----------------stream key state management----------------------
-  const [oldStreamKey, setOldStreamKey] = useState(isStreamFound? streamData[0].streamKey: '');
+  const [oldStreamKey, setOldStreamKey] = useState(isStreamFound && streamData.length > 0? streamData[0].streamKey: '');
   const [isRegenerateKey, setIsRegenerateKey] = useState(false);
 
   // -------------------------Error state------------------------
@@ -173,7 +179,7 @@ function EditStreamTab({ streamData, isStreamFound, tattooCategoriesData, tagDat
       //   };
       // });
       
-      const matchingTags = tagData.filter(tagObj => streamData[0].tags.includes(tagObj.text));
+      const matchingTags = tagData.filter(tagObj => streamData.length > 0 ? streamData[0].tags.includes(tagObj.text): null);
 
       // Use the map method to extract the id and name fields of matching tags
       const matchingTagIdsAndNames = matchingTags.map(tagObj => ({

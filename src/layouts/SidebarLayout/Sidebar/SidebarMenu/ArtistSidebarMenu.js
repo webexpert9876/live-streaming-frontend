@@ -17,6 +17,7 @@ import DesignServicesTwoToneIcon from '@mui/icons-material/DesignServicesTwoTone
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
 import MmsTwoToneIcon from '@mui/icons-material/MmsTwoTone';
 import TableChartTwoToneIcon from '@mui/icons-material/TableChartTwoTone';
+import StreamIcon from '@mui/icons-material/Stream';
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
 import BeachAccessTwoToneIcon from '@mui/icons-material/BeachAccessTwoTone';
@@ -207,7 +208,7 @@ function UserSidebarMenu({userData}){
                         </List>
                     </SubMenuWrapper>
                 </List>
-                <List
+                {/* <List
                     component="div"
                     subheader={
                         <ListSubheader component="div" disableSticky>
@@ -249,7 +250,7 @@ function UserSidebarMenu({userData}){
                             </ListItem>
                         </List>
                     </SubMenuWrapper>
-                </List>
+                </List> */}
                 <List
                     component="div"
                     subheader={
@@ -277,6 +278,27 @@ function UserSidebarMenu({userData}){
                                     </Button>
                                 </NextLink>
                             </ListItem> */}
+                        </List>
+                    </SubMenuWrapper>
+                    <SubMenuWrapper>
+                        <List component="div">
+                            <ListItem component="div">
+                                <NextLink href="/dashboards/channel/stream" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/dashboards/channel/stream'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<StreamIcon />}
+                                    >
+                                        Stream Management
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
                         </List>
                     </SubMenuWrapper>
                 </List>

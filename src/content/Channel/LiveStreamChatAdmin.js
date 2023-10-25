@@ -153,6 +153,7 @@ const pinMessageCss = {
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
+  const [liveStreamDetails, setLiveStreamDetails] = React.useState([]);
   const [receivedMessages, setReceivedMessages] = React.useState([]);
   const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
   const [roomId, setRoomId] = React.useState('');
@@ -163,6 +164,7 @@ export default function LiveStreamChat(props) {
   const [viewer, setViewer] = React.useState(0);
   const [isJoinedChat, setIsJoinedChat] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(true);
   const [isChannelRoomJoined, setIsChannelRoomJoined] = useState(false);
   const [isClickOnEmoji, setIsClickOnEmoji] = useState(false);
   const [chosenEmoji, setChosenEmoji] = useState({emoji: ''});
@@ -200,6 +202,8 @@ export default function LiveStreamChat(props) {
         setRoomId(props.liveStreamInfo[0].videoId);
         if(!isChannelRoomJoined){
           console.log('is not joined', props);
+          setLiveStreamDetails(props.liveStreamInfo);
+          setIsStreaming(true);
           console.log('props.liveStreamInfo', props.liveStreamInfo);
           console.log('props.liveStreamInfo', props.liveStreamInfo[0].videoId);
           console.log('props.liveStreamInfo', props.liveStreamInfo[0]._id);
@@ -357,15 +361,19 @@ export default function LiveStreamChat(props) {
   const handleSendMessage = () => {
     console.log('userId', userId);
     console.log('userName', userName);
-    if(`${userId}` !== 'undefined' && `${userName}` !== `undefined`) {
-      if (message.trim() !== '') {
-        console.log('message', message);
-        socket.emit('sendMessage', { roomId, message, userId, userName: userName });
-        // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
+    if(liveStreamDetails.length > 0){
+      if(`${userId}` !== 'undefined' && `${userName}` !== `undefined`) {
+        if (message.trim() !== '') {
+          console.log('message', message);
+          socket.emit('sendMessage', { roomId, message, userId, userName: userName });
+          // setReceivedMessages((prevMessages) => [...prevMessages, { roomId, message, sender: 'you' }]);
+        }
+      } else {
+        console.log('else ', userName);
+        setIsLoggedIn(false);
       }
     } else {
-      console.log('else ', userName);
-      setIsLoggedIn(false);
+      setIsStreaming(false)
     }
     setMessage('');
   }
@@ -373,10 +381,6 @@ export default function LiveStreamChat(props) {
   const handleUserLeftChat = () => {
     // Emit leaveRoom event to disconnect from a room
     socket.emit('leaveRoom', roomId, userId);
-  }
-
-  const handleLoggedOutUser = () =>{
-    router.push('/auth/login');
   }
   
   const handleEmojiOpen = () =>{
@@ -434,142 +438,138 @@ export default function LiveStreamChat(props) {
       {
         oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
-            {open ?
-              <>
-                <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '550px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
-                  {oldReceivedMessages.map((data, index) => (
+            <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '550px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
+              {oldReceivedMessages.map((data, index) => (
 
-                    `${data.isPinned}` === `true` ?
-                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
-                        <CardContent>
-                          <Box sx={{}}>
-                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
-                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
-                              <span style={{ color: 'red', fontSize: '15px' }}>
-                                {`${data.userDetail[0].username}`}
-                              </span>
-                            </Typography>
-                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
-                              {data.message}
-                            </Typography>
-                          </Box>
-                        </CardContent>
-                        <CardActions>
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
-                          {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
-                          {/* <Tooltip title="Unpin message">
-                            <PushPinOutlinedIcon fontSize='medium'/>
-                          </Tooltip> */}
-                          {/* </Typography> */}
-                        </CardActions>
-                      </Card>
-                    :
-                      (data.userDetail[0]._id != userId ?
-                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                          {/* <MessageMenu/> */}
-                          {/* <Box sx={messageDivStyle}> */}
-                          <Box>
-                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                            {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
-                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
-                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>: {data.message}</span>
-                          </Box>
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
-                          {/* </Box> */}
+                `${data.isPinned}` === `true` ?
+                  <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
+                    <CardContent>
+                      <Box sx={{}}>
+                        <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                          <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                          <span style={{ color: 'red', fontSize: '15px' }}>
+                            {`${data.userDetail[0].username}`}
+                          </span>
                         </Typography>
-                        :
-                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
-                          <Box>
-                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>{data.message} :</span>
-                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}You </b>
-                            {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b> */}
-                            <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
-                          </Box>
-
-                        </Typography>)
-                    ))
-                  }
-                  {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
-                  {receivedMessages.map((data, index) => (
-                    `${data.isPinned}` === `true` ?
-                      <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
-                        <CardContent>
-                          <Box sx={{}}>
-                            <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
-                              <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
-                              <span style={{ color: 'red', fontSize: '15px' }}>
-                                {`${data.sender}`}
-                              </span>
-                            </Typography>
-                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
-                              {data.message}
-                            </Typography>
-                          </Box>
-                        </CardContent>
-                        <CardActions>
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
-                          {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
-                          {/* <Tooltip title="Unpin message">
-                            <PushPinOutlinedIcon fontSize='medium'/>
-                          </Tooltip> */}
-                          {/* </Typography> */}
-                        </CardActions>
-                      </Card>
-                    :
-                      (data.userId !== userId ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                          <Box>
-                            {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
-                            {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
-                            {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{data.sender} </b>
-                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
-                          </Box>
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                        <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                          {data.message}
                         </Typography>
-                      :
-                        <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
-                          {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
-                          <Box>
-                            <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
-                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> You </b>
-                            {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {data.sender} </b> */}
-                          </Box>
-                        </Typography>)
-                    ))
-                  }
+                      </Box>
+                    </CardContent>
+                    <CardActions>
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                      {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
+                      {/* <Tooltip title="Unpin message">
+                        <PushPinOutlinedIcon fontSize='medium'/>
+                      </Tooltip> */}
+                      {/* </Typography> */}
+                    </CardActions>
+                  </Card>
+                :
+                  (data.userDetail[0]._id != userId ?
+                    <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                      {/* <MessageMenu/> */}
+                      {/* <Box sx={messageDivStyle}> */}
+                      <Box>
+                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                        {/* <span style={{color:'gray', fontSize: '12px'}}>{data.hours.length>1? data.hours: '0'+ data.hours}:{data.mins.length>1?data.mins: '0'+ data.mins} </span> */}
+                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`}{'  => '} </b>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>: {data.message}</span>
+                      </Box>
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                      {/* </Box> */}
+                    </Typography>
+                    :
+                    <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                      <Box>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal' }}>{data.message} :</span>
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}You </b>
+                        {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{' <= '}{`${data.userDetail[0].firstName} ${data.userDetail[0].lastName}`} </b> */}
+                        <span style={{ color: 'gray', fontSize: '12px' }}>{data.hours}:{data.mins.length > 1 ? data.mins : '0' + data.mins} </span>
+                      </Box>
+
+                    </Typography>)
+                ))
+              }
+              {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
+              {receivedMessages.map((data, index) => (
+                `${data.isPinned}` === `true` ?
+                  <Card sx={{ minWidth: 275, display: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
+                    <CardContent>
+                      <Box sx={{}}>
+                        <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
+                          <PushPinIcon fontSize='small' /> Pinned by &nbsp;&nbsp;
+                          <span style={{ color: 'red', fontSize: '15px' }}>
+                            {`${data.sender}`}
+                          </span>
+                        </Typography>
+                        <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap' }}>
+                          {data.message}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                    <CardActions>
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                      {/* <Typography sx={{display: 'flex', mb: '4px'}} fontSize={'12px'} > */}
+                      {/* <Tooltip title="Unpin message">
+                        <PushPinOutlinedIcon fontSize='medium'/>
+                      </Tooltip> */}
+                      {/* </Typography> */}
+                    </CardActions>
+                  </Card>
+                :
+                  (data.userId !== userId ? <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                      <Box>
+                        {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
+                        {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
+                        {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{data.sender} </b>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
+                      </Box>
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                    </Typography>
+                  :
+                    <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', textAlign: 'end', mr: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} key={index}>
+                      {data && <MessageMenu messageData={data} handleUnpinFunc={handleUnpinMessage} handlePinFunc={handlePinMessage} />}
+                      <Box>
+                        <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>{data.message} :</span>
+                        <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> You </b>
+                        {/* <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}> {data.sender} </b> */}
+                      </Box>
+                    </Typography>)
+                ))
+              }
+            </Typography>
+            {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
+            {
+              isStreaming?
+                <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                      {/* <Typography>{chosenEmoji.emoji}</Typography> */}
+                      {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
+                      <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <InsertEmoticonIcon onClick={handleEmojiOpen}/>
+                          </InputAdornment>
+                        )
+                      }}/>
+                        <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                      {/* <Box>
+                        <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
+                          <InsertEmoticonIcon />
+                        </Typography>
+                      </Box> */}
+                      { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
                 </Typography>
-                {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
-                  {
-                    isLoggedIn?
-                      <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                            {/* <Typography>{chosenEmoji.emoji}</Typography> */}
-                            {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
-                            <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <InsertEmoticonIcon onClick={handleEmojiOpen}/>
-                                </InputAdornment>
-                              )
-                            }}/>
-                              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-                            {/* <Box>
-                              <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
-                                <InsertEmoticonIcon />
-                              </Typography>
-                            </Box> */}
-                            { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
-                      </Typography>
-                    :
-                      <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                          <Button variant="contained" onClick={handleLoggedOutUser}>Login to join the chat</Button>
-                          <p>All messages you send will appear publicly</p>
-                      </Typography>
-                }
-              </>
-              : null}
+              :
+                <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                    {/* <Button variant="contained" onClick={handleLoggedOutUser}>Stream live to chat</Button> */}
+                    <p>Stream live to chat</p>
+                </Typography>
+            }
           </> 
         :
           // <>
@@ -584,18 +584,37 @@ export default function LiveStreamChat(props) {
           //   </Typography> : null}
           // </>
           <>
-          {open ?
-            <>
+            <Box height={'550px'}>  
               <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
                 No chat found
               </Typography>
-              <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                <TextField style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-                <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-              </Typography>
-            </>
-          : null}
-        </>
+            </Box>
+            {/* <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+              <TextField style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
+              <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+            </Typography> */}
+            {
+              isStreaming?
+                <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                      {/* <Typography>{chosenEmoji.emoji}</Typography> */}
+                      {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
+                      <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <InsertEmoticonIcon onClick={handleEmojiOpen}/>
+                          </InputAdornment>
+                        )
+                      }}/>
+                        <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+                      { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
+                </Typography>
+              :
+                <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                    {/* <Button variant="contained" onClick={handleLoggedOutUser}>Stream live to chat</Button> */}
+                    <p>Stream live to chat</p>
+                </Typography>
+            }
+          </>
       }
     </Box >
   );

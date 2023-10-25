@@ -73,7 +73,7 @@ function Sidebar({userData}) {
           />
           <SidebarMenu userData={userData}/>
         </Scrollbar>
-        <Divider
+        {/* <Divider
           sx={{
             background: theme.colors.alpha.trueWhite[10]
           }}
@@ -90,7 +90,7 @@ function Sidebar({userData}) {
           >
             Upgrade to PRO
           </Button>
-        </Box>
+        </Box> */}
       </SidebarWrapper>
       <Drawer
         sx={{

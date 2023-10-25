@@ -199,6 +199,11 @@ function SidebarMenu({userData}) {
     if(Object.keys(userInfo).length > 0){
       axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${userInfo.role}`, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
         setRoleInfo(data.data.role)
+      }).catch((error)=>{
+        console.log('error', error.response.data.message);
+        if(error.response.data.message == 'Json Web Token is Expired, Try again '){
+          router.push('/auth/login');
+        }
       });
     }
   }, [userInfo])

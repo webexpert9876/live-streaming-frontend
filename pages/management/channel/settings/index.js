@@ -172,13 +172,13 @@ function ManagementChannelSettings() {
               </>
             : null }
 
-            {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList && userData.length > 0? 
+            {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList.length > 0 && userData.length > 0? 
               <>
                 {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
               </>
               :
                 <>
-                  {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} userData={userData}/>}
+                  {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
                 </>
             }
             {currentTab === 'notifications' && <NotificationsTab />}

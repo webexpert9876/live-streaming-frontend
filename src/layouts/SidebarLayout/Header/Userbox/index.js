@@ -67,8 +67,7 @@ const UserBoxDescription = styled(Typography)(
 function HeaderUserbox() {
   const dispatch = useDispatch();
   const [roleInfo , setRoleInfo] = useState({});
-
-  const nextRouter = useRouter();
+  const router = useRouter();
 
  
   useEffect(() => {
@@ -79,7 +78,7 @@ function HeaderUserbox() {
       dispatch(setAuthState(authState));
     }
     if(authState != true){
-      nextRouter.push('/auth/login');
+      router.push('/auth/login');
     }
   }, [])
   const authState = useSelector(selectAuthUser);
@@ -90,6 +89,11 @@ function HeaderUserbox() {
 
         axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${authState.role}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
           setRoleInfo(data.data.role);
+        }).catch((error)=>{
+          console.log('error', error.response.data.message);
+          if(error.response.data.message == 'Json Web Token is Expired, Try again '){
+            router.push('/auth/login');
+          }
         });
       }
     }
@@ -106,8 +110,6 @@ function HeaderUserbox() {
     setOpen(false);
   };
 
-
-  const router = useRouter();
 
   const handleLogout = () => {
     dispatch(logout());
