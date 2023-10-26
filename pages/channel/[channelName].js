@@ -398,7 +398,8 @@ export default function ChannelName() {
                         </Typography>
                     </Box>
                 :channelDetails && <Box component="main" sx={{ flexGrow: 1, width: '100%', position: 'relative'}}>
-                    <Box sx={{height: '100%', marginRight: '-36px', paddingRight: '35px', overflowY: 'scroll' }}>
+                    {/* <Box sx={{height: '100%', marginRight: '-36px', paddingRight: '35px', overflowY: 'scroll' }}> */}
+                    <Box sx={{height: '100%', marginRight: '0px', paddingRight: '0px', overflowY: 'scroll' }}>
                         {currentBroadcast ?
                             <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
                                 <VideoJS options={{

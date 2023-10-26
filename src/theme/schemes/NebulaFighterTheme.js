@@ -367,8 +367,8 @@ export const NebulaFighterTheme = createTheme({
           flex: 1,
           "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
             borderRadius: 10,
-            height: 50,
-            width: 3                           
+            height: 12,
+            width: 3,                  
           },
           "&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track": {
             webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',

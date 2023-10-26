@@ -119,7 +119,7 @@ const Slide = React.memo(function (StackedCarouselSlideProps) {
   const [removeDelay, setRemoveDelay] = useState();
   const [loaded, setLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
-
+  const router = useRouter();
   const playerRef = React.useRef(null);
 
   const handlePlayerReady = (player) => {
