@@ -3,7 +3,8 @@ import { gql } from "@apollo/client";
 import { useState, useEffect } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
-import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, MenuItem, Avatar, Menu, Toolbar, AppBar, Tab } from "@mui/material";
+import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, MenuItem, Avatar, Menu, Toolbar, AppBar, Tab, Backdrop  } from "@mui/material";
+import LockIcon from '@mui/icons-material/Lock';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
@@ -24,6 +25,8 @@ import axios from "axios";
 import { useRouter } from 'next/router';
 import CircularProgress from '@mui/material/CircularProgress';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import StarIcon from '@mui/icons-material/Star';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -48,6 +51,8 @@ export default function ChannelName() {
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
     const [isChannelFollowing, setIsChannelFollowing] = useState({});
+    const [isChannelSubscribed, setIsChannelSubscribed] = useState({});
+    const [isSubscribedUser, setIsSubscribedUser] = useState(false);
     let userDetails = useSelector(selectAuthUser);
     let userIsLogedIn = useSelector(selectAuthState);
     const [userDetail, setUserDetail] = useState(userDetails);
@@ -120,6 +125,8 @@ export default function ChannelName() {
                         tags
                         isPublished
                         createdAt
+                        videoPreviewStatus
+                        videoServiceType
                     }
                     recentUploadedVideos(userId: $recentUploadedVideosUserId2) {
                         _id
@@ -129,6 +136,8 @@ export default function ChannelName() {
                         isStreamed
                         isUploaded
                         isPublished
+                        videoServiceType
+                        videoPreviewStatus
                         createdAt
                     }
                     liveStreamings(channelId: $channelId) {
@@ -176,7 +185,7 @@ export default function ChannelName() {
                 return result.data
             });
             
-            console.log('streamInfo', streamInfo)
+            console.log('-----------------------------------------------streamInfo', streamInfo)
 
             setChannelDetails(...channelInfo.channels);
             setRecentLiveStreamVideos(streamInfo.recentLiveStreamVideos);
@@ -185,7 +194,9 @@ export default function ChannelName() {
             setCurrentBroadcast(...streamInfo.liveStreamings);
             setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
             setStreams(streamInfo.streams);
-            setViewers(streamInfo.liveStreamings[0].viewers);
+            if(streamInfo.liveStreamings.length > 0){
+                setViewers(streamInfo.liveStreamings[0].viewers);
+            }
 
             if (streamInfo.liveStreamings.length > 0) {
                 client.query({
@@ -223,22 +234,41 @@ export default function ChannelName() {
             if (userDetails && userIsLogedIn) {
                 client.query({
                     query: gql`
-                    query Query ($channelId: String!, $userId: String!) {
+                    query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
                         isChannelFollowing(channelId: $channelId, userId: $userId) {
-                        isFollowing
-                        channelId
-                        userId
-                        _id
+                            isFollowing
+                            channelId
+                            userId
+                            _id
+                        }
+                        subscriptionDetails(channelId: $channelId2, userId: $userId2) {
+                            isActive
                         }
                     }
                 `,
                     variables: {
                         "channelId": channelInfo.channels[0]._id,
-                        "userId": userDetails._id
+                        "userId": userDetails._id,
+                        "channelId2": channelInfo.channels[0]._id,
+                        "userId2": userDetails._id
                     }
                 }).then((result) => {
+                    console.log('subscription detail', result.data);
                     setIsChannelFollowing(result.data.isChannelFollowing[0])
                     setUserDetail(userDetails);
+                    if(result.data.subscriptionDetails.length > 0){
+                        setIsChannelSubscribed(result.data.subscriptionDetails[0])
+                        if(result.data.subscriptionDetails[0].isActive){
+                            console.log("in if sdddd f ff f ff ff ffffff ffff jasdf asdf asjld f;alsd flkasdj f")
+                            setIsSubscribedUser(true)
+                        } else {
+                            console.log("else sdddd felse f ff ffelse ffff jasdf asdfelse else flkasdj f")
+                            
+                        }
+                    } else {
+                        setIsSubscribedUser(false)
+                        setIsChannelSubscribed({})
+                    }
                     return result.data
                 });
             }
@@ -481,7 +511,25 @@ export default function ChannelName() {
                                             )
                                         )
                                         : null}
-                                    <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                    {isChannelSubscribed ?
+                                        (isChannelSubscribed.isActive ?
+                                            // <Button variant="contained" startIcon={<FavoriteIcon />} onClick={() => handleFollow(false)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
+                                            <Button variant="contained" startIcon={<StarIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
+                                            :
+                                            (Object.keys(userDetail).length === 0 ?
+                                                <Tooltip title={<React.Fragment>Please <Link 
+                                                // href={`/auth/login`}
+                                                onClick={()=> router.push("/auth/login")}
+                                                style={{cursor:"pointer"}}
+                                                >login</Link> to subscribe channel</React.Fragment>} placement="right-start">
+                                                    <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                </Tooltip>
+                                                :
+                                                <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                            )
+                                        )
+                                        : null}
+                                    {/* <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button> */}
                                 </Typography>
                                 <Typography variant="body1" component={'div'} sx={{ gap: "50px", display: "flex", margin: '10px 40px' }}>
                                     <Typography variant="body1" component={'div'} sx={{display: 'flex', alignItems: 'center'}}>
@@ -621,52 +669,98 @@ export default function ChannelName() {
                                                                 <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                     {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
                                                                     {recentLiveStreamVideos.slice(0, 5).map((streamsInfo, index) => (
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
+                                                                        (streamsInfo.videoPreviewStatus.toLowerCase() == 'public') || (streamsInfo.videoPreviewStatus.toLowerCase() == 'subscriber' && isSubscribedUser) ?
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
 
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link
-
-                                                                                                // href={`/video/${streamsInfo._id}`}
-                                                                                                onClick={() => router.push(`/video/${streamsInfo._id}`)}
-                                                                                                color={'white'}>{streamsInfo.description}</Link>
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
                                                                                         </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link
-                                                                                                        // href="/tags/"
-                                                                                                        onClick={() => router.push(`/tag/${tag}`)}
-                                                                                                    >
-                                                                                                        {tag}
-                                                                                                    </Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link
+                                                                                                    // href={`/video/${streamsInfo._id}`}
+                                                                                                    onClick={() => router.push(`/video/${streamsInfo._id}`)}
+                                                                                                    color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link
+                                                                                                            // href="/tags/"
+                                                                                                            onClick={() => router.push(`/tag/${tag}`)}
+                                                                                                        >
+                                                                                                            {tag}
+                                                                                                        </Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
                                                                                     </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>
+                                                                                </Card>
+                                                                            </Grid>
+                                                                        :
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <LockIcon fontSize="large"/>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link
+                                                                                                    // href={`/video/${streamsInfo._id}`}
+                                                                                                    onClick={() => router.push(`/video/${streamsInfo._id}`)}
+                                                                                                    color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link
+                                                                                                            // href="/tags/"
+                                                                                                            onClick={() => router.push(`/tag/${tag}`)}
+                                                                                                        >
+                                                                                                            {tag}
+                                                                                                        </Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
+                                                                                    </Grid>
+                                                                                </Card>
+                                                                            </Grid>
                                                                     ))}
                                                                 </Grid>
                                                             </Box>
@@ -678,44 +772,84 @@ export default function ChannelName() {
                                                                 <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                     {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
                                                                     {recentLiveStreamVideos.map((streamsInfo, index) => (
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
+                                                                        (streamsInfo.videoPreviewStatus.toLowerCase() == 'public') || (streamsInfo.videoPreviewStatus.toLowerCase() == 'subscriber' && isSubscribedUser) ?
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
 
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <div className=""></div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
                                                                                         </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
+                                                                                    </div>
+                                                                                    <div className=""></div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
                                                                                     </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>
+                                                                                </Card>
+                                                                            </Grid>
+                                                                        :
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
+
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <div className=""></div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
+                                                                                    </Grid>
+                                                                                </Card>
+                                                                            </Grid>
                                                                     ))}
                                                                 </Grid>
                                                             </Box>
@@ -727,10 +861,10 @@ export default function ChannelName() {
                                             </Box>
 
                                             <Box sx={{ marginTop: '25px' }}>
-                                                {recentUploadedVideos.length != 0 ? <>
+                                                {allVideos.length != 0 ? <>
                                                     <Typography variant="body1" component="div" sx={{ display: 'flex', alignItems: 'baseline' }}>
                                                         <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '17px', marginRight: "10px" }}>All Videos</Typography>
-                                                        {recentUploadedVideos.length > 5 ? showAllVideos ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View less</Button>: null}
+                                                        {allVideos.length > 5 ? showAllVideos ? <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View All</Button> : <Button sx={{ fontWeight: 600, fontSize: '15px' }} onClick={handleShowAllVideo}>View less</Button>: null}
                                                     </Typography>
 
                                                     <Box sx={{ paddingTop: '5px' }}>
@@ -738,43 +872,83 @@ export default function ChannelName() {
                                                             <Box sx={{ width: '100%' }}>
                                                                 <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                     {allVideos.slice(0, 5).map((streamsInfo, index) => (
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
+                                                                        (streamsInfo.videoPreviewStatus == 'public') || (streamsInfo.videoPreviewStatus == 'subscriber' && isSubscribedUser) ?
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
 
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
                                                                                         </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
                                                                                     </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>
+                                                                                </Card>
+                                                                            </Grid>
+                                                                        :
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <LockIcon fontSize="large"/>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
+
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
+                                                                                    </Grid>
+                                                                                </Card>
+                                                                            </Grid>                 
                                                                     ))}
                                                                 </Grid>
                                                             </Box>
@@ -782,43 +956,83 @@ export default function ChannelName() {
                                                             <Box sx={{ width: '100%' }}>
                                                                 <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                     {allVideos.map((streamsInfo, index) => (
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
+                                                                        (streamsInfo.videoPreviewStatus == 'public') || (streamsInfo.videoPreviewStatus == 'subscriber' && isSubscribedUser) ?
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
 
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
                                                                                         </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
                                                                                     </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>
+                                                                                </Card>
+                                                                            </Grid>
+                                                                        :
+                                                                            <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                                <LockIcon fontSize="large"/>
+                                                                                <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                                    <div style={{ position: 'relative' }}>
+                                                                                        <CardMedia
+                                                                                            sx={{ height: 140 }}
+                                                                                            image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                                        >
+
+                                                                                        </CardMedia>
+                                                                                        <Typography variant="body1" component="div" sx={{}}>
+                                                                                            <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                                                <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                                            </div>
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                                        <Grid item>
+                                                                                            <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        </Grid>
+                                                                                        <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                                            <Typography gutterBottom variant="h5" component="div">
+                                                                                                <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                                            </Typography>
+                                                                                            <Typography gutterBottom variant="p" component="div">
+                                                                                                <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                                            </Typography>
+                                                                                            {streamsInfo.tags ? <ul className='videoTags'>
+                                                                                                {streamsInfo.tags.map((tag, index) => (
+                                                                                                    <li key={index}>
+                                                                                                        <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                            </ul> : null}
+                                                                                        </Grid>
+                                                                                    </Grid>
+                                                                                </Card>
+                                                                            </Grid> 
                                                                     ))}
                                                                 </Grid>
                                                             </Box>
