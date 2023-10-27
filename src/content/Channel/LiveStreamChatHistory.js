@@ -226,9 +226,11 @@ export default function LiveStreamChat(props) {
                             { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
                       </Typography>
                     :
-                      <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                          <p>Chat has been closed for this stream</p>
-                      </Typography>
+                      <Box>
+                        <Typography variant="body1" component="div" sx={{height: '650px', backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                            <p>Chat has been closed for this stream</p>
+                        </Typography>
+                      </Box>
                 }
               </>
               : null}
@@ -237,13 +239,32 @@ export default function LiveStreamChat(props) {
           <>
           {open ?
             <>
-              <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
-                No chat found
-              </Typography>
-              <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
-                <TextField style={messageInput} placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} />
-                <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
-              </Typography>
+              <Box sx={{height: '686px'}}>
+                <Typography variant='p' component={'p'} sx={{ padding: '5%' }}>
+                  No chat found
+                </Typography>
+              </Box>
+              {
+                !isChatClosed?
+                  <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                        <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <InsertEmoticonIcon onClick={handleEmojiOpen}/>
+                            </InputAdornment>
+                          )
+                        }}/>
+                          <Button style={chatButton} onClick={handleSendMessage}>Chat</Button>
+
+                        { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
+                  </Typography>
+                :
+                  <Box mt={5}>
+                    <Typography variant="body1" component="div" sx={{backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                        <p>Chat has been closed for this stream</p>
+                    </Typography>
+                  </Box>
+              }
             </>
           : null}
         </>
