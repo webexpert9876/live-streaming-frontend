@@ -41,7 +41,7 @@ import { gql } from "@apollo/client";
 import axios from 'axios';
 
 
-const RecentOrdersTable = () => {
+const ChannelListPage = () => {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(5);
   const [filters, setFilters] = useState({
@@ -442,4 +442,4 @@ const applyPagination = (allChannels, page, limit) => {
   );
 };
 
-export default RecentOrdersTable;
+export default ChannelListPage;

@@ -25,6 +25,7 @@ function ManagementChannelProfile() {
     const [userData, setUserData] = useState([]);
     const [channelInfo, setChannelInfo]= useState({});
     const [channelFollower, setChannelFollower] = useState([]);
+    const [channelSubscribers, setChannelSubscribers] = useState([]);
     const [channelTotalFollowers, setChannelTotalFollowers]= useState(0);
     const authState = useSelector(selectAuthUser)
     const router = useRouter();
@@ -39,10 +40,11 @@ function ManagementChannelProfile() {
                 variables: {
                     usersId: userId._id,
                     channelId: userId.channelId,
-                    followersChannelId2: userId.channelId
+                    followersChannelId2: userId.channelId,
+                    subscriptionDetailsChannelId2: userId.channelId
                 },
                 query: gql`
-                    query Query($usersId: ID, $channelId: String!, $followersChannelId2: String) {
+                    query Query($usersId: ID, $channelId: String!, $followersChannelId2: String, $subscriptionDetailsChannelId2: String) {
                         users(id: $usersId) {
                             _id
                             firstName
@@ -82,13 +84,27 @@ function ManagementChannelProfile() {
                                 profilePicture
                             }
                         }
+                        subscriptionDetails(channelId: $subscriptionDetailsChannelId2) {
+                            userDetail {
+                              profilePicture
+                              lastName
+                              firstName
+                              _id
+                            }
+                            _id
+                            planDurationUnit
+                            planDuration
+                            isActive
+                        }
                     }
                 `,
             }).then((result) => {
+                console.log('subscription de', result.data)
                 setUserData(result.data.users);
                 setChannelInfo(result.data.users[0].channelDetails[0]);
                 setChannelTotalFollowers(result.data.countChannelTotalFollowers[0].countFollower);
                 setChannelFollower([...result.data.followers]);
+                setChannelSubscribers([...result.data.subscriptionDetails]);
             });
         }
         getChannelDetails();
@@ -117,9 +133,9 @@ function ManagementChannelProfile() {
                 {channelFollower.length > 0? <Grid item xs={12} md={8}>
                     <Feed channelFollower={channelFollower}/>
                 </Grid>: null}
-                <Grid item xs={12} md={8} mt={5}>
-                    <SubscriberList />
-                </Grid>
+                {channelSubscribers.length > 0 ? <Grid item xs={12} md={8} mt={5}>
+                    <SubscriberList channelSubscribers={channelSubscribers}/>
+                </Grid>:null}
                 {/* <Grid item xs={12} md={4}>
                     <PopularTags />
                 </Grid>

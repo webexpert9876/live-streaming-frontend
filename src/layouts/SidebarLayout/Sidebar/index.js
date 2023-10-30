@@ -25,7 +25,7 @@ const SidebarWrapper = styled(Box)(
         position: relative;
         z-index: 7;
         height: 100%;
-        padding-bottom: 68px;
+        // padding-bottom: 68px;
 `
 );
 

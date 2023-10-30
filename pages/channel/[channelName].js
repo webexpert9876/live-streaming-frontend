@@ -107,175 +107,180 @@ export default function ChannelName() {
                 return result.data
             });
             console.log('channelInfo', channelInfo)
-            let streamInfo = await client.query({
-                query: gql`
-                query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!, $channelIdForVideo: String) {
-                    streams(artistId: $artistId) {
-                        title
-                        streamCategory
-                        tags
-                        description
-                    }
-                    recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
-                        _id
-                        title
-                        description
-                        videoPreviewImage
-                        views
-                        isStreamed
-                        isUploaded
-                        tags
-                        isPublished
-                        createdAt
-                        videoPreviewStatus
-                        videoServiceType
-                    }
-                    recentUploadedVideos(channelId: $recentUploadedVideosChannelId2) {
-                        _id
-                        title
-                        videoPreviewImage
-                        views
-                        isStreamed
-                        isUploaded
-                        isPublished
-                        videoServiceType
-                        videoPreviewStatus
-                        createdAt
-                    }
-                    liveStreamings(channelId: $channelId) {
-                        title
-                        description
-                        _id
-                        userId
-                        videoPoster
-                        channelId
-                        viewers
-                        videoId
-                        tags
-                        tattooCategory
-                        streamUrl
-                        tattooCategoryDetails {
-                          title
-                          urlSlug
-                        }
-                    }
-                    countChannelTotalFollowers(channelId: $channelId2) {
-                        countFollower
-                    }
-                    videos(channelId: $channelIdForVideo) {
-                        _id
-                        title
-                        videoPreviewImage
-                        views
-                        isPublished
-                        createdAt
-                        description
-                        tags
-                        videoServiceType
-                        videoPreviewStatus
-                    }
-                }
-                `,
-                variables: {
-                    "artistId": channelInfo.channels[0].userId,
-                    "userId": channelInfo.channels[0].userId,
-                    "recentLiveStreamVideosChannelId2": channelInfo.channels[0]._id,
-                    "recentUploadedVideosChannelId2": channelInfo.channels[0]._id,
-                    "channelId": channelInfo.channels[0]._id,
-                    "channelId2": channelInfo.channels[0]._id,
-                    "channelIdForVideo": channelInfo.channels[0]._id
-                }
-            }).then((result) => {
-                return result.data
-            });
             
-            console.log('-----------------------------------------------streamInfo', streamInfo)
-
-            setChannelDetails(...channelInfo.channels);
-            setRecentLiveStreamVideos(streamInfo.recentLiveStreamVideos);
-            setRecentUploadedVideos(streamInfo.recentUploadedVideos);
-            setAllVideos(streamInfo.videos);
-            setCurrentBroadcast(...streamInfo.liveStreamings);
-            setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
-            setStreams(streamInfo.streams);
-            if(streamInfo.liveStreamings.length > 0){
-                setViewers(streamInfo.liveStreamings[0].viewers);
-            }
-
-            if (streamInfo.liveStreamings.length > 0) {
-                client.query({
-                    variables: {
-                        videoId: streamInfo.liveStreamings[0].videoId,
-                    },
+            if(channelInfo.channels.length > 0 ){
+                let streamInfo = await client.query({
                     query: gql`
-                        query Query($videoId: String!) {
-                            chatMessages(videoId: $videoId) {
-                                userDetail {
-                                    firstName
-                                    lastName
-                                    username
-                                    _id
-                                }
-                                message
-                                videoId
-                                hours
-                                mins
-                                _id
-                                userId
-                                liveStreamId
-                                isPinned
-                            }
-        
+                    query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!, $channelIdForVideo: String) {
+                        streams(artistId: $artistId) {
+                            title
+                            streamCategory
+                            tags
+                            description
                         }
-                    `,
-                })
-                    .then((result) => {
-                        setOldReceivedMessages(result.data.chatMessages)
-                        console.log(' old result.data.chatMessages', result.data.chatMessages)
-                    });
-            }
-
-            if (userDetails && userIsLogedIn) {
-                client.query({
-                    query: gql`
-                    query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
-                        isChannelFollowing(channelId: $channelId, userId: $userId) {
-                            isFollowing
-                            channelId
-                            userId
+                        recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
                             _id
+                            title
+                            description
+                            videoPreviewImage
+                            views
+                            isStreamed
+                            isUploaded
+                            tags
+                            isPublished
+                            createdAt
+                            videoPreviewStatus
+                            videoServiceType
                         }
-                        subscriptionDetails(channelId: $channelId2, userId: $userId2) {
-                            isActive
+                        recentUploadedVideos(channelId: $recentUploadedVideosChannelId2) {
+                            _id
+                            title
+                            videoPreviewImage
+                            views
+                            isStreamed
+                            isUploaded
+                            isPublished
+                            videoServiceType
+                            videoPreviewStatus
+                            createdAt
+                        }
+                        liveStreamings(channelId: $channelId) {
+                            title
+                            description
+                            _id
+                            userId
+                            videoPoster
+                            channelId
+                            viewers
+                            videoId
+                            tags
+                            tattooCategory
+                            streamUrl
+                            tattooCategoryDetails {
+                              title
+                              urlSlug
+                            }
+                        }
+                        countChannelTotalFollowers(channelId: $channelId2) {
+                            countFollower
+                        }
+                        videos(channelId: $channelIdForVideo) {
+                            _id
+                            title
+                            videoPreviewImage
+                            views
+                            isPublished
+                            createdAt
+                            description
+                            tags
+                            videoServiceType
+                            videoPreviewStatus
                         }
                     }
-                `,
+                    `,
                     variables: {
+                        "artistId": channelInfo.channels[0].userId,
+                        "userId": channelInfo.channels[0].userId,
+                        "recentLiveStreamVideosChannelId2": channelInfo.channels[0]._id,
+                        "recentUploadedVideosChannelId2": channelInfo.channels[0]._id,
                         "channelId": channelInfo.channels[0]._id,
-                        "userId": userDetails._id,
                         "channelId2": channelInfo.channels[0]._id,
-                        "userId2": userDetails._id
+                        "channelIdForVideo": channelInfo.channels[0]._id
                     }
                 }).then((result) => {
-                    console.log('subscription detail', result.data);
-                    setIsChannelFollowing(result.data.isChannelFollowing[0])
-                    setUserDetail(userDetails);
-                    if(result.data.subscriptionDetails.length > 0){
-                        setIsChannelSubscribed(result.data.subscriptionDetails[0])
-                        if(result.data.subscriptionDetails[0].isActive){
-                            console.log("in if sdddd f ff f ff ff ffffff ffff jasdf asdf asjld f;alsd flkasdj f")
-                            setIsSubscribedUser(true)
-                        } else {
-                            console.log("else sdddd felse f ff ffelse ffff jasdf asdfelse else flkasdj f")
-                            
-                        }
-                    } else {
-                        setIsSubscribedUser(false)
-                        setIsChannelSubscribed({})
-                    }
                     return result.data
                 });
+                
+                console.log('-----------------------------------------------streamInfo', streamInfo)
+    
+                setChannelDetails(...channelInfo.channels);
+                setRecentLiveStreamVideos(streamInfo.recentLiveStreamVideos);
+                setRecentUploadedVideos(streamInfo.recentUploadedVideos);
+                setAllVideos(streamInfo.videos);
+                setCurrentBroadcast(...streamInfo.liveStreamings);
+                setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
+                setStreams(streamInfo.streams);
+                if(streamInfo.liveStreamings.length > 0){
+                    setViewers(streamInfo.liveStreamings[0].viewers);
+                }
+    
+                if (streamInfo.liveStreamings.length > 0) {
+                    client.query({
+                        variables: {
+                            videoId: streamInfo.liveStreamings[0].videoId,
+                        },
+                        query: gql`
+                            query Query($videoId: String!) {
+                                chatMessages(videoId: $videoId) {
+                                    userDetail {
+                                        firstName
+                                        lastName
+                                        username
+                                        _id
+                                    }
+                                    message
+                                    videoId
+                                    hours
+                                    mins
+                                    _id
+                                    userId
+                                    liveStreamId
+                                    isPinned
+                                }
+            
+                            }
+                        `,
+                    })
+                        .then((result) => {
+                            setOldReceivedMessages(result.data.chatMessages)
+                            console.log(' old result.data.chatMessages', result.data.chatMessages)
+                        });
+                }
+    
+                if (userDetails && userIsLogedIn) {
+                    client.query({
+                        query: gql`
+                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
+                            isChannelFollowing(channelId: $channelId, userId: $userId) {
+                                isFollowing
+                                channelId
+                                userId
+                                _id
+                            }
+                            subscriptionDetails(channelId: $channelId2, userId: $userId2) {
+                                isActive
+                            }
+                        }
+                    `,
+                        variables: {
+                            "channelId": channelInfo.channels[0]._id,
+                            "userId": userDetails._id,
+                            "channelId2": channelInfo.channels[0]._id,
+                            "userId2": userDetails._id
+                        }
+                    }).then((result) => {
+                        console.log('subscription detail', result.data);
+                        setIsChannelFollowing(result.data.isChannelFollowing[0])
+                        setUserDetail(userDetails);
+                        if(result.data.subscriptionDetails.length > 0){
+                            setIsChannelSubscribed(result.data.subscriptionDetails[0])
+                            if(result.data.subscriptionDetails[0].isActive){
+                                console.log("in if sdddd f ff f ff ff ffffff ffff jasdf asdf asjld f;alsd flkasdj f")
+                                setIsSubscribedUser(true)
+                            } else {
+                                console.log("else sdddd felse f ff ffelse ffff jasdf asdfelse else flkasdj f")
+                                
+                            }
+                        } else {
+                            setIsSubscribedUser(false)
+                            setIsChannelSubscribed({})
+                        }
+                        return result.data
+                    });
+                }
             }
+
+            
             setIsFetchingChannel(false)
             setIsPageLoading(false)
         }
@@ -692,7 +697,7 @@ export default function ChannelName() {
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {/* <Grid item xs={12} sm={6} md={4} style={{ maxWidth: "100%", margin: '0px 25px 25px 25px', flex: 1,  }}> */}
                                                                 {recentLiveStreamVideos.slice(0, showRecentBroadcastCount).map((streamsInfo, index) => (
-                                                                    (streamsInfo.videoPreviewStatus.toLowerCase() == 'public') || (streamsInfo.videoPreviewStatus.toLowerCase() == 'subscriber' && isSubscribedUser) ?
+                                                                    // (streamsInfo.videoPreviewStatus.toLowerCase() == 'public') || (streamsInfo.videoPreviewStatus.toLowerCase() == 'subscriber' && isSubscribedUser) ?
                                                                         <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
                                                                             <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                                 <div style={{ position: 'relative' }}>
@@ -738,52 +743,52 @@ export default function ChannelName() {
                                                                                 </Grid>
                                                                             </Card>
                                                                         </Grid>
-                                                                    :
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <LockIcon fontSize="large"/>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link
-                                                                                                // href={`/video/${streamsInfo._id}`}
-                                                                                                onClick={() => router.push(`/video/${streamsInfo._id}`)}
-                                                                                                color={'white'}>{streamsInfo.description}</Link>
-                                                                                        </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link
-                                                                                                        // href="/tags/"
-                                                                                                        onClick={() => router.push(`/tag/${tag}`)}
-                                                                                                    >
-                                                                                                        {tag}
-                                                                                                    </Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
-                                                                                    </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>
+                                                                    // :
+                                                                    //     <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                    //         <LockIcon fontSize="large"/>
+                                                                    //         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                    //             <div style={{ position: 'relative' }}>
+                                                                    //                 <CardMedia
+                                                                    //                     sx={{ height: 140 }}
+                                                                    //                     image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                    //                 >
+                                                                    //                 </CardMedia>
+                                                                    //                 <Typography variant="body1" component="div" sx={{}}>
+                                                                    //                     <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                    //                         <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                    //                     </div>
+                                                                    //                 </Typography>
+                                                                    //             </div>
+                                                                    //             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                    //                 <Grid item>
+                                                                    //                     <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                    //                 </Grid>
+                                                                    //                 <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                    //                     <Typography gutterBottom variant="h5" component="div">
+                                                                    //                         <Link
+                                                                    //                             // href={`/video/${streamsInfo._id}`}
+                                                                    //                             onClick={() => router.push(`/video/${streamsInfo._id}`)}
+                                                                    //                             color={'white'}>{streamsInfo.description}</Link>
+                                                                    //                     </Typography>
+                                                                    //                     <Typography gutterBottom variant="p" component="div">
+                                                                    //                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                    //                     </Typography>
+                                                                    //                     {streamsInfo.tags ? <ul className='videoTags'>
+                                                                    //                         {streamsInfo.tags.map((tag, index) => (
+                                                                    //                             <li key={index}>
+                                                                    //                                 <Link
+                                                                    //                                     // href="/tags/"
+                                                                    //                                     onClick={() => router.push(`/tag/${tag}`)}
+                                                                    //                                 >
+                                                                    //                                     {tag}
+                                                                    //                                 </Link>
+                                                                    //                             </li>
+                                                                    //                         ))}
+                                                                    //                     </ul> : null}
+                                                                    //                 </Grid>
+                                                                    //             </Grid>
+                                                                    //         </Card>
+                                                                    //     </Grid>
                                                                 ))}
                                                             </Grid>
                                                         </Box>
@@ -803,7 +808,7 @@ export default function ChannelName() {
                                                         <Box sx={{ width: '100%' }}>
                                                             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12, lg: 26 }}>
                                                                 {allVideos.slice(0, showAllVideosCount).map((streamsInfo, index) => (
-                                                                    (streamsInfo.videoPreviewStatus == 'public') || (streamsInfo.videoPreviewStatus == 'subscriber' && isSubscribedUser) ?
+                                                                    // (streamsInfo.videoPreviewStatus == 'public') || (streamsInfo.videoPreviewStatus == 'subscriber' && isSubscribedUser) ?
                                                                         <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
                                                                             <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
                                                                                 <div style={{ position: 'relative' }}>
@@ -841,45 +846,45 @@ export default function ChannelName() {
                                                                                 </Grid>
                                                                             </Card>
                                                                         </Grid>
-                                                                    :
-                                                                        <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
-                                                                            <LockIcon fontSize="large"/>
-                                                                            <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
-                                                                                <div style={{ position: 'relative' }}>
-                                                                                    <CardMedia
-                                                                                        sx={{ height: 140 }}
-                                                                                        image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
-                                                                                    >
+                                                                    // :
+                                                                    //     <Grid item xs={2} sm={4} md={4} lg={5.2} key={index}>
+                                                                    //         <LockIcon fontSize="large"/>
+                                                                    //         <Card sx={{ width: '100%', margin: '0px 174px 0px 0px' }}>
+                                                                    //             <div style={{ position: 'relative' }}>
+                                                                    //                 <CardMedia
+                                                                    //                     sx={{ height: 140 }}
+                                                                    //                     image={`${process.env.NEXT_PUBLIC_S3_URL}/${streamsInfo.videoPreviewImage}`}
+                                                                    //                 >
 
-                                                                                    </CardMedia>
-                                                                                    <Typography variant="body1" component="div" sx={{}}>
-                                                                                        <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
-                                                                                            <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
-                                                                                        </div>
-                                                                                    </Typography>
-                                                                                </div>
-                                                                                <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
-                                                                                    <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
-                                                                                    </Grid>
-                                                                                    <Grid item ml={"15px"} style={{ width: "75%" }}>
-                                                                                        <Typography gutterBottom variant="h5" component="div">
-                                                                                            <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
-                                                                                        </Typography>
-                                                                                        <Typography gutterBottom variant="p" component="div">
-                                                                                            <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
-                                                                                        </Typography>
-                                                                                        {streamsInfo.tags ? <ul className='videoTags'>
-                                                                                            {streamsInfo.tags.map((tag, index) => (
-                                                                                                <li key={index}>
-                                                                                                    <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
-                                                                                                </li>
-                                                                                            ))}
-                                                                                        </ul> : null}
-                                                                                    </Grid>
-                                                                                </Grid>
-                                                                            </Card>
-                                                                        </Grid>               
+                                                                    //                 </CardMedia>
+                                                                    //                 <Typography variant="body1" component="div" sx={{}}>
+                                                                    //                     <div className='liveViewCount'>{countLiveViewing(streamsInfo.views)} viewers
+                                                                    //                         <div style={liveDaysAgo}>{calculateDaysAgo(streamsInfo.createdAt)}</div>
+                                                                    //                     </div>
+                                                                    //                 </Typography>
+                                                                    //             </div>
+                                                                    //             <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
+                                                                    //                 <Grid item>
+                                                                    //                     <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                    //                 </Grid>
+                                                                    //                 <Grid item ml={"15px"} style={{ width: "75%" }}>
+                                                                    //                     <Typography gutterBottom variant="h5" component="div">
+                                                                    //                         <Link onClick={() => router.push(`/video/${streamsInfo._id}`)} color={'white'}>{streamsInfo.description}</Link>
+                                                                    //                     </Typography>
+                                                                    //                     <Typography gutterBottom variant="p" component="div">
+                                                                    //                         <Link href="#" color={'#999'}>{channelDetails.channelName}</Link>
+                                                                    //                     </Typography>
+                                                                    //                     {streamsInfo.tags ? <ul className='videoTags'>
+                                                                    //                         {streamsInfo.tags.map((tag, index) => (
+                                                                    //                             <li key={index}>
+                                                                    //                                 <Link onClick={() => router.push(`/tag/${tag}`)}>{tag}</Link>
+                                                                    //                             </li>
+                                                                    //                         ))}
+                                                                    //                     </ul> : null}
+                                                                    //                 </Grid>
+                                                                    //             </Grid>
+                                                                    //         </Card>
+                                                                    //     </Grid>
                                                                 ))}
                                                             </Grid>
                                                         </Box>

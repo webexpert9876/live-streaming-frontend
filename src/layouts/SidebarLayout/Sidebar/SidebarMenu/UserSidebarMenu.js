@@ -289,6 +289,66 @@ function UserSidebarMenu({userData}){
                     </List>
                 </SubMenuWrapper>
                 </List> */}
+
+                <List
+                  component="div"
+                  subheader={
+                      <ListSubheader component="div" disableSticky>
+                      {/* Followings & Subscriptions */}
+                        Others
+                      </ListSubheader>
+                  }
+                >
+                <SubMenuWrapper>
+                    <List component="div">
+                      <ListItem component="div">
+                          <NextLink href="/user/following" passHref>
+                            <Button
+                                className={
+                                currentRoute === '/user/following' ? 'active' : ''
+                                }
+                                disableRipple
+                                component="a"
+                                onClick={closeSidebar}
+                                startIcon={<BallotTwoToneIcon />}
+                            >
+                                Following channels
+                            </Button>
+                          </NextLink>
+                      </ListItem>
+                      <ListItem component="div">
+                          <NextLink href="/user/subscribe" passHref>
+                            <Button
+                                className={
+                                  currentRoute === '/user/subscribe' ? 'active' : ''
+                                }
+                                disableRipple
+                                component="a"
+                                onClick={closeSidebar}
+                                startIcon={<BallotTwoToneIcon />}
+                            >
+                                Subscribe channels
+                            </Button>
+                          </NextLink>
+                      </ListItem>
+                      <ListItem component="div">
+                          <NextLink href="/watch/history" passHref>
+                            <Button
+                                className={
+                                  currentRoute === '/watch/history' ? 'active' : ''
+                                }
+                                disableRipple
+                                component="a"
+                                onClick={closeSidebar}
+                                startIcon={<BallotTwoToneIcon />}
+                            >
+                              Watch history
+                            </Button>
+                          </NextLink>
+                      </ListItem>
+                    </List>
+                </SubMenuWrapper>
+                </List>
             
             </MenuWrapper>
         </>
