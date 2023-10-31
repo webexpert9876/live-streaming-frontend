@@ -183,7 +183,7 @@ function ChannelRequest(){
                 }
             }
         `,
-      }).then((result) => {+
+      }).then((result) => {
         setUserInfo(result.data.users[0]);
         setChannelInfo(result.data.channels[0]);
         

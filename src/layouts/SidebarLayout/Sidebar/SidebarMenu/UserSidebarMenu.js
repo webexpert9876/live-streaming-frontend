@@ -14,9 +14,11 @@ import NextLink from 'next/link';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 
 import DesignServicesTwoToneIcon from '@mui/icons-material/DesignServicesTwoTone';
-import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
-import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
+import SettingsIcon from '@mui/icons-material/Settings';
 import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
+import HistoryIcon from '@mui/icons-material/History';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const MenuWrapper = styled(Box)(
     ({ theme }) => `
@@ -230,7 +232,7 @@ function UserSidebarMenu({userData}){
                             disableRipple
                             component="a"
                             onClick={closeSidebar}
-                            startIcon={<DisplaySettingsTwoToneIcon />}
+                            startIcon={<SettingsIcon />}
                         >
                             Account Settings
                         </Button>
@@ -310,7 +312,7 @@ function UserSidebarMenu({userData}){
                                 disableRipple
                                 component="a"
                                 onClick={closeSidebar}
-                                startIcon={<BallotTwoToneIcon />}
+                                startIcon={<FavoriteBorderIcon />}
                             >
                                 Following channels
                             </Button>
@@ -325,7 +327,7 @@ function UserSidebarMenu({userData}){
                                 disableRipple
                                 component="a"
                                 onClick={closeSidebar}
-                                startIcon={<BallotTwoToneIcon />}
+                                startIcon={<SubscriptionsIcon />}
                             >
                                 Subscribe channels
                             </Button>
@@ -340,7 +342,7 @@ function UserSidebarMenu({userData}){
                                 disableRipple
                                 component="a"
                                 onClick={closeSidebar}
-                                startIcon={<BallotTwoToneIcon />}
+                                startIcon={<HistoryIcon />}
                             >
                               Watch history
                             </Button>

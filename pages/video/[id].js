@@ -266,6 +266,14 @@ export default function Videos(){
                     }
                     return result.data
                 });
+
+                await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/video/history`, {
+                    userId: userDetails._id,
+                    videoId: videoId
+                }, {headers: {'x-access-token': userDetails.jwtToken}
+                }).then((data)=>{
+                    console.log('data', data)
+                })
             } else {
                 setShowPlayer(true);
                 setIsSubscribedUser(false)
@@ -280,8 +288,6 @@ export default function Videos(){
     const handleLockForSubscriber = (player, time)=>{
         if(time >= 30){
             if(!subscribeUser){
-                console.log('player stop--------------', subscribeUser);
-                console.log('player stop isSubscribedUser--------------', isSubscribedUser);
                 player.pause();
                 setIsLockVideo(true)
             } else {
@@ -292,19 +298,18 @@ export default function Videos(){
 
     const handlePlayerReady = (player, subscribeInfo, videoInfor) => {
         playerRef.current = player;
-        console.log('player playerplayerplayerplayerplayer--------------', player);
-        console.log('player b --------------', subscribeInfo.isActive);
-        console.log('player videoInfor --------------', videoInfor);
 
         player.on('waiting', () => {
             videojs.log('player is waiting');
         });
         
+        player.on('firstplay', function() {
+            console.log('video played')
+        });
+        
         player.on('timeupdate', ()=>{
             var time = player.currentTime();
             time = parseInt(time.toString());
-            console.log('player time time--------------', time);
-            console.log('player time time--------------subscribeUser', subscribeInfo);
             if(time >= 5){
                 if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
                     console.log('----------------------- subscribed user --------------');
