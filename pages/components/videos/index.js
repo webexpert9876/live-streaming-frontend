@@ -165,10 +165,10 @@ const Video = () => {
       client.query({
         variables: {
           usersId: userId._id,
-          artistId: userId._id,
+          channelId: userId.channelId,
         },
         query: gql`
-            query Query($usersId: ID, $artistId: String) {
+            query Query($usersId: ID, $channelId: String) {
                 users(id: $usersId) {
                     _id
                     firstName
@@ -202,7 +202,7 @@ const Video = () => {
                         _id
                     }
                 }
-                videos(userId: $artistId) {
+                videos(channelId: $channelId) {
                     _id
                     videoServiceType
                     views

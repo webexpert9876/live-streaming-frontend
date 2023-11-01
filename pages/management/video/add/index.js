@@ -116,18 +116,16 @@ const Video = () => {
     function getUserAllDetails(){
       client.query({
         variables: {
-          usersId: userId._id,
-          artistId: userId._id,
+          usersId: userId._id
         },
         query: gql`
-            query Query($usersId: ID, $artistId: String) {
+            query Query($usersId: ID) {
                 users(id: $usersId) {
                     _id
                     firstName
                     lastName
                     username
                     email
-                    password
                     profilePicture
                     urlSlug
                     jwtToken
@@ -152,47 +150,6 @@ const Video = () => {
                     interestedStyleDetail {
                         title
                         _id
-                    }
-                }
-                videos(userId: $artistId) {
-                    _id
-                    videoServiceType
-                    views
-                    tattooCategoryId
-                    title
-                    url
-                    updatedAt
-                    userId
-                    videoPreviewImage
-                    videoPreviewStatus
-                    channelId
-                    createdAt
-                    description
-                    isPublished
-                    isStreamed
-                    isUploaded
-                    streamId
-                    tags
-                    videoQualityUrl {
-                        url
-                        quality
-                    }
-                    channelDetails {
-                        channelCoverImage
-                        channelPicture
-                        channelName
-                        description
-                        isApproved
-                        subscribers
-                        urlSlug
-                        userId
-                    }
-                    tattooCategoryDetails {
-                        description
-                        title
-                        profilePicture
-                        _id
-                        urlSlug
                     }
                 }
                 tattooCategories {
