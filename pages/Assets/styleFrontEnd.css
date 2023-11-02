@@ -251,7 +251,40 @@ input.ReactTags__tagInputField {
 }
 .ReactTags__selected button.ReactTags__remove {
     margin: 5px;
+    background: #8c7cf0;
+    padding: 3px;
+    border: none;
+    font-size: 16px;
 }
+
+.tag-wrapper {
+    background: #8c7cf0;
+    padding: 5px;
+    color: #fff;
+    border-radius: 5px;
+    margin: 3px;
+}
+/* 
+.ReactTags__suggestions {
+    background-color: #8c7cf0;
+    color: #fff;
+    list-style-type: none;
+    list-style: none;
+}
+
+.ReactTags__suggestions li {
+    list-style-type: none;
+    list-style: none;
+    border: 1px solid white;
+    padding-left: 10px;
+} */
+
+.ReactTags__suggestions ul {
+    
+    padding-left: 0px;
+    
+}
+
 body .css-13mxmup {
     height: 90px;
 }

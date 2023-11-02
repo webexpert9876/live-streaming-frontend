@@ -621,7 +621,7 @@ const Video = () => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {showAllVideoDetails.map((video) => {
+                                                        {showAllVideoDetails.length > 0 ? showAllVideoDetails.map((video) => {
                                                             return (
                                                                 <TableRow hover key={video._id}>
                                                                     <TableCell>
@@ -713,7 +713,12 @@ const Video = () => {
                                                                     </TableCell>
                                                                 </TableRow>
                                                             );
-                                                        })}
+                                                        })
+                                                    :
+                                                        <TableRow>
+                                                            <TableCell sx={{textAlign: 'center', fontSize: '18px', p: '30px'}} colSpan={12}>No videos found...!!</TableCell>
+                                                        </TableRow>
+                                                    }
                                                     </TableBody>
                                                 </Table>
                                             </TableContainer>

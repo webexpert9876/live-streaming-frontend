@@ -78,6 +78,10 @@ const CardCoverAction = styled(Box)(
     bottom: ${theme.spacing(2)};
 `
 );
+const handleImageError = (event) => {
+  // You can set a custom message when the image is not found
+  event.target.src = 'https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg'; // You can also provide a default image
+};
 
 const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
   return (
@@ -98,7 +102,16 @@ const ProfileCover = ({ channelInfo, channelTotalFollowers }) => {
         </Box>
       </Box>
       <CardCover>
-        {Object.keys(channelInfo).length > 0 ?<CardMedia sx={{height: '400px !important'}} image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`} />: <CardMedia image={`No image found`} />}
+        {Object.keys(channelInfo).length > 0 ?
+          (
+            channelInfo.channelCoverImage?
+              <CardMedia sx={{height: '400px !important'}} image={`${process.env.NEXT_PUBLIC_S3_URL}/${channelInfo.channelCoverImage}`}/>
+            :
+              <CardMedia sx={{height: '400px !important', backgroundSize: 'auto', backgroundColor: '#fff'}} image={`https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg`} />
+          )
+        :
+          <CardMedia sx={{height: '400px !important'}} image={`https://upload.wikimedia.org/wikipedia/commons/b/b9/No_Cover.jpg`}/>
+        }
         {/* <CardCoverAction>
           <Input accept="image/*" id="change-cover" multiple type="file" />
           <label htmlFor="change-cover">

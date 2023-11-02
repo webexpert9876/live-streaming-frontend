@@ -31,7 +31,13 @@ import CheckBoxTwoToneIcon from '@mui/icons-material/CheckBoxTwoTone';
 import ChromeReaderModeTwoToneIcon from '@mui/icons-material/ChromeReaderModeTwoTone';
 import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone';
 import CameraFrontTwoToneIcon from '@mui/icons-material/CameraFrontTwoTone';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
+import SettingsIcon from '@mui/icons-material/Settings';
+import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
+import HistoryIcon from '@mui/icons-material/History';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -288,9 +294,9 @@ function UserSidebarMenu({userData}){
                                         disableRipple
                                         component="a"
                                         onClick={closeSidebar}
-                                        startIcon={<TableChartTwoToneIcon />}
+                                        startIcon={<ListAltIcon />}
                                     >
-                                        Tattoo Category
+                                        Manage tattoo categories
                                     </Button>
                                 </NextLink>
                             </ListItem>
@@ -350,7 +356,7 @@ function UserSidebarMenu({userData}){
                                         disableRipple
                                         component="a"
                                         onClick={closeSidebar}
-                                        startIcon={<DisplaySettingsTwoToneIcon />}
+                                        startIcon={<SettingsIcon />}
                                     >
                                         Account Settings
                                     </Button>
@@ -378,12 +384,71 @@ function UserSidebarMenu({userData}){
                                         disableRipple
                                         component="a"
                                         onClick={closeSidebar}
-                                        startIcon={<BallotTwoToneIcon />}
+                                        startIcon={<VideoSettingsIcon />}
                                     >
                                         Videos
                                     </Button>
                                 </NextLink>
                             </ListItem>
+                        </List>
+                    </SubMenuWrapper>
+                </List>
+                <List
+                  component="div"
+                  subheader={
+                      <ListSubheader component="div" disableSticky>
+                      {/* Followings & Subscriptions */}
+                        Others
+                      </ListSubheader>
+                  }
+                >
+                    <SubMenuWrapper>
+                        <List component="div">
+                        <ListItem component="div">
+                            <NextLink href="/user/following" passHref>
+                                <Button
+                                    className={
+                                    currentRoute === '/user/following' ? 'active' : ''
+                                    }
+                                    disableRipple
+                                    component="a"
+                                    onClick={closeSidebar}
+                                    startIcon={<FavoriteBorderIcon />}
+                                >
+                                    Following channels
+                                </Button>
+                            </NextLink>
+                        </ListItem>
+                        <ListItem component="div">
+                            <NextLink href="/user/subscribe" passHref>
+                                <Button
+                                    className={
+                                    currentRoute === '/user/subscribe' ? 'active' : ''
+                                    }
+                                    disableRipple
+                                    component="a"
+                                    onClick={closeSidebar}
+                                    startIcon={<SubscriptionsIcon />}
+                                >
+                                    Subscribe channels
+                                </Button>
+                            </NextLink>
+                        </ListItem>
+                        <ListItem component="div">
+                            <NextLink href="/watch/history" passHref>
+                                <Button
+                                    className={
+                                    currentRoute === '/watch/history' ? 'active' : ''
+                                    }
+                                    disableRipple
+                                    component="a"
+                                    onClick={closeSidebar}
+                                    startIcon={<HistoryIcon />}
+                                >
+                                Watch history
+                                </Button>
+                            </NextLink>
+                        </ListItem>
                         </List>
                     </SubMenuWrapper>
                 </List>

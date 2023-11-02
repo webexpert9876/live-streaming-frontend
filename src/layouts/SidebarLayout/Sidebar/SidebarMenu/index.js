@@ -13,26 +13,6 @@ import {
 import NextLink from 'next/link';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 
-import DesignServicesTwoToneIcon from '@mui/icons-material/DesignServicesTwoTone';
-import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
-import MmsTwoToneIcon from '@mui/icons-material/MmsTwoTone';
-import TableChartTwoToneIcon from '@mui/icons-material/TableChartTwoTone';
-import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
-import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
-import BeachAccessTwoToneIcon from '@mui/icons-material/BeachAccessTwoTone';
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone';
-import FilterVintageTwoToneIcon from '@mui/icons-material/FilterVintageTwoTone';
-import HowToVoteTwoToneIcon from '@mui/icons-material/HowToVoteTwoTone';
-import LocalPharmacyTwoToneIcon from '@mui/icons-material/LocalPharmacyTwoTone';
-import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
-import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
-import TrafficTwoToneIcon from '@mui/icons-material/TrafficTwoTone';
-import CheckBoxTwoToneIcon from '@mui/icons-material/CheckBoxTwoTone';
-import ChromeReaderModeTwoToneIcon from '@mui/icons-material/ChromeReaderModeTwoTone';
-import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone';
-import CameraFrontTwoToneIcon from '@mui/icons-material/CameraFrontTwoTone';
-import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
 import axios from 'axios';
@@ -183,9 +163,11 @@ const SubMenuWrapper = styled(Box)(
 );
 
 function SidebarMenu({userData}) {
+  const dispatch = useDispatch();
   const authUserInfo = useSelector(selectAuthUser);
   const [userInfo, setUserInfo] = useState(userData?userData[0]:{});
   const [roleInfo, setRoleInfo] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
   const { closeSidebar } = useContext(SidebarContext);
   const router = useRouter();
   const currentRoute = router.pathname;
@@ -197,16 +179,38 @@ function SidebarMenu({userData}) {
   useEffect(()=>{
 
     if(Object.keys(userInfo).length > 0){
+      setIsFetched(true)
+    }
+  }, [userInfo])
+
+  useEffect(async()=>{
+    if(isFetched){
+      // let roleId;
+      // await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get/user/${userInfo._id}`, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
+      //   // setRoleInfo(data.data.role)
+      //   roleId = data.data.user.role
+      //   localStorage.setItem('authUser', JSON.stringify(data.data.user));
+      //   dispatch(setAuthUser(data.data.user));
+      // }).catch((error)=>{
+      //   console.log('error', error.response.data.message);
+      //   setIsFetched(false)
+      //   if(error.response.data.message == 'Json Web Token is Expired, Try again '){
+      //     router.push('/auth/login');
+      //   }
+      // });
+
       axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${userInfo.role}`, {headers: {'x-access-token': userInfo.jwtToken}}).then((data)=>{
         setRoleInfo(data.data.role)
+        setIsFetched(false)
       }).catch((error)=>{
         console.log('error', error.response.data.message);
+        setIsFetched(false)
         if(error.response.data.message == 'Json Web Token is Expired, Try again '){
           router.push('/auth/login');
         }
       });
     }
-  }, [userInfo])
+  }, [isFetched])
 
   return (
     <>

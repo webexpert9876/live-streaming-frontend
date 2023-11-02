@@ -23,6 +23,12 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import SettingsIcon from '@mui/icons-material/Settings';
+import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
+import HistoryIcon from '@mui/icons-material/History';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import StreamIcon from '@mui/icons-material/Stream';
+
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from '../../../../../store/slices/authSlice';
 import { setAuthUser, setAuthState } from '../../../../../store/slices/authSlice';
@@ -67,6 +73,7 @@ const UserBoxDescription = styled(Typography)(
 function HeaderUserbox() {
   const dispatch = useDispatch();
   const [roleInfo , setRoleInfo] = useState({});
+  const [isFetched, setIsFetched] = useState(false)
   const router = useRouter();
 
  
@@ -83,21 +90,40 @@ function HeaderUserbox() {
   }, [])
   const authState = useSelector(selectAuthUser);
   
-  useEffect(()=>{
+  useEffect(async()=>{
     if(authState != undefined || authState != null){
       if(authState.role != null){
-
-        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${authState.role}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
-          setRoleInfo(data.data.role);
-        }).catch((error)=>{
-          console.log('error', error.response.data.message);
-          if(error.response.data.message == 'Json Web Token is Expired, Try again '){
-            router.push('/auth/login');
-          }
-        });
+        setIsFetched(true);
       }
     }
   }, [authState]);
+
+  useEffect(async()=>{
+    if(isFetched){
+      let roleId;
+      await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get/user/${authState._id}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
+        roleId = data.data.user.role
+        localStorage.setItem('authUser', JSON.stringify(data.data.user));
+        dispatch(setAuthUser(data.data.user));
+      }).catch((error)=>{
+        console.log('error', error.response.data.message);
+        if(error.response.data.message == 'Json Web Token is Expired, Try again '){
+          router.push('/auth/login');
+        }
+      });
+
+      axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/single/role/${roleId}`, {headers: {'x-access-token': authState.jwtToken}}).then((data)=>{
+        setRoleInfo(data.data.role);
+        setIsFetched(false);
+      }).catch((error)=>{
+        console.log('error', error.response.data.message);
+        setIsFetched(false);
+        if(error.response.data.message == 'Json Web Token is Expired, Try again '){
+          router.push('/auth/login');
+        }
+      });
+    }
+  },[isFetched])
 
   const ref = useRef(null);
   const [isOpen, setOpen] = useState(false);
@@ -160,34 +186,86 @@ function HeaderUserbox() {
           </UserBoxText>
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />
-        <List sx={{ p: 1 }} component="nav">
-          <NextLink href="/management/profile" passHref>
-            <ListItem button>
-              <AccountBoxTwoToneIcon fontSize="small" />
-              <ListItemText primary="My Profile" />
-            </ListItem>
-          </NextLink>
-          <NextLink href="/applications/messenger" passHref>
-            <ListItem button>
-              <InboxTwoToneIcon fontSize="small" />
-              <ListItemText primary="Messenger" />
-            </ListItem>
-          </NextLink>
-          
-          {roleInfo.role == 'artist' && <NextLink href="/management/channel/settings" passHref>
-            <ListItem button>
-              <AccountTreeTwoToneIcon fontSize="small" />
-              <ListItemText primary="Account Settings" />
-            </ListItem>
-          </NextLink>
-          }
-          {roleInfo.role == 'user' && <NextLink href="/management/profile/settings" passHref>
-            <ListItem button>
-              <AccountTreeTwoToneIcon fontSize="small" />
-              <ListItemText primary="Account Settings" />
-            </ListItem>
-          </NextLink>}
-        </List>
+        {roleInfo.role == 'admin' && 
+          <List sx={{ p: 1 }} component="nav">
+            <NextLink href="/management/profile/settings" passHref>
+              <ListItem button>
+                <SettingsIcon fontSize="small" />
+                <ListItemText primary="Account Settings" />
+              </ListItem>
+            </NextLink>
+
+            <NextLink href="/management/admin/channel/list" passHref>
+              <ListItem button>
+                <AccountBoxTwoToneIcon fontSize="small" />
+                <ListItemText primary="Manage Channels" />
+              </ListItem>
+            </NextLink>
+
+            <NextLink href="/management/admin/category/list" passHref>
+              <ListItem button>
+                <InboxTwoToneIcon fontSize="small" />
+                <ListItemText primary="Manage tattoo category" />
+              </ListItem>
+            </NextLink>
+          </List>
+        }
+
+        {roleInfo.role == 'artist' && 
+          <List sx={{ p: 1 }} component="nav">
+            <NextLink href="/management/channel/settings" passHref>
+              <ListItem button>
+                <SettingsIcon fontSize="small" />
+                <ListItemText primary="Account Settings" />
+              </ListItem>
+            </NextLink>
+
+            <NextLink href="/management/channel" passHref>
+              <ListItem button>
+                <AccountBoxTwoToneIcon fontSize="small" />
+                <ListItemText primary="Channel Details" />
+              </ListItem>
+            </NextLink>
+
+            <NextLink href="/components/videos" passHref>
+              <ListItem button>
+                <VideoSettingsIcon fontSize="small" />
+                <ListItemText primary="Videos" />
+              </ListItem>
+            </NextLink>
+            
+            <NextLink href="/dashboards/channel/stream" passHref>
+              <ListItem button>
+                <StreamIcon fontSize="small" />
+                <ListItemText primary="Stream management" />
+              </ListItem>
+            </NextLink>
+          </List>
+        }
+
+        {roleInfo.role == 'user' &&
+          <List sx={{ p: 1 }} component="nav">
+            <NextLink href="/management/profile/settings" passHref>
+              <ListItem button>
+                <SettingsIcon fontSize="small" />
+                <ListItemText primary="Account Settings" />
+              </ListItem>
+            </NextLink>
+            <NextLink href="/user/subscribe" passHref>
+              <ListItem button>
+                <SubscriptionsIcon fontSize="small" />
+                <ListItemText primary="Subscribe channels" />
+              </ListItem>
+            </NextLink>
+            <NextLink href="/watch/history" passHref>
+              <ListItem button>
+                <HistoryIcon fontSize="small" />
+                <ListItemText primary="Watch history" />
+              </ListItem>
+            </NextLink>
+            
+          </List>
+        }
         <Divider />
         <Box sx={{ m: 1 }}>          
           <Button color="primary" fullWidth onClick={handleLogout}>

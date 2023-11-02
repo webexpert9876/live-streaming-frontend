@@ -62,6 +62,7 @@ export default function Videos(){
     const [isSubscribedUser, setIsSubscribedUser] = useState(false);
     const [isLockVideo, setIsLockVideo] = useState(false);
     const [showPlayer, setShowPlayer] = useState(false);
+    const [isVideoFound, setIsVideoFound] = useState(true);
     const router = useRouter();
 
     let subscribeUser = false;
@@ -119,165 +120,173 @@ export default function Videos(){
             }).then((result) => {
                 return result.data
             });
-        
-            let videoOtherInfo = await client.query({
-                query: gql`
-                query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelIdForVideo: String, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String) {
-                    recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
-                        _id
-                        title
-                        description
-                        videoPreviewImage
-                        views
-                        isStreamed
-                        isUploaded
-                        tags
-                        isPublished
-                        createdAt
-                        channelDetails {
-                            channelName
-                            channelPicture
-                            _id
-                            urlSlug
-                        }
-                    }
-                    getLastLiveStreamVideo(userId: $getLastLiveStreamVideoUserId2) {
-                        _id
-                        createdAt
-                    }
-                    liveStreamings(channelId: $channelId) {
-                        title
-                        description
-                        _id
-                        userId
-                        videoPoster
-                        channelId
-                        viewers
-                        videoId
-                        tags
-                        tattooCategory
-                        streamUrl
-                        tattooCategoryDetails {
-                          title
-                          urlSlug
-                        }
-                    }
-                    recentUploadedVideos(channelId: $recentUploadedVideosChannelId2) {
-                        _id
-                        title
-                        videoPreviewImage
-                        views
-                        isStreamed
-                        isUploaded
-                        isPublished
-                        createdAt
-                        channelDetails {
-                            channelName
-                            channelPicture
-                            _id
-                            urlSlug
-                          }
-                    }
-                    videos(channelId: $channelIdForVideo) {
-                        _id
-                        title
-                        videoPreviewImage
-                        views
-                        isPublished
-                        createdAt
-                        description
-                        tags
-                        channelDetails {
-                            channelName
-                            channelPicture
-                            _id
-                            urlSlug
-                        }
-                    }
-                    chatMessages(videoId: $chatVideoId) {
-                        userDetail {
-                            firstName
-                            lastName
-                            _id
-                        }
-                        message
-                        videoId
-                        hours
-                        mins
-                    }
-                }
-                `,
-                variables: {
-                    "recentLiveStreamVideosChannelId2": videoInfo.videos[0].channelId,
-                    "recentUploadedVideosChannelId2": videoInfo.videos[0].channelId,
-                    "channelIdForVideo": videoInfo.videos[0].channelId,
-                    "getLastLiveStreamVideoUserId2": videoInfo.videos[0].userId,
-                    "channelId": videoInfo.videos[0].channelId,
-                    "chatVideoId": videoInfo.videos[0]._id
-                }
-            }).then((result) => {
-                return result.data
-            });
 
-            setChannelDetails(...videoInfo.videos[0].channelDetails);
-            setVideoDetails(videoInfo.videos[0]);
-            setLastBroadcastVideo(...videoOtherInfo.getLastLiveStreamVideo);
-            setCurrentBroadcastVideo(...videoOtherInfo.liveStreamings);
-            setRecentLiveStreamVideos(videoOtherInfo.recentLiveStreamVideos);
-            setRecentUploadedVideos(videoOtherInfo.recentUploadedVideos);
-            setAllVideos(videoOtherInfo.videos);
-            setOldReceivedMessages(videoOtherInfo.chatMessages);
+            console.log('videoInfo', videoInfo.videos.length )
+            
+            if(videoInfo.videos.length > 0){
 
-            if (userDetails && userIsLogedIn) {
-                client.query({
+                let videoOtherInfo = await client.query({
                     query: gql`
-                    query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
-                        isChannelFollowing(channelId: $channelId, userId: $userId) {
-                            isFollowing
-                            channelId
-                            userId
+                    query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelIdForVideo: String, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String) {
+                        recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
                             _id
+                            title
+                            description
+                            videoPreviewImage
+                            views
+                            isStreamed
+                            isUploaded
+                            tags
+                            isPublished
+                            createdAt
+                            channelDetails {
+                                channelName
+                                channelPicture
+                                _id
+                                urlSlug
+                            }
                         }
-                        subscriptionDetails(channelId: $channelId2, userId: $userId2) {
-                            isActive
+                        getLastLiveStreamVideo(userId: $getLastLiveStreamVideoUserId2) {
+                            _id
+                            createdAt
+                        }
+                        liveStreamings(channelId: $channelId) {
+                            title
+                            description
+                            _id
+                            userId
+                            videoPoster
+                            channelId
+                            viewers
+                            videoId
+                            tags
+                            tattooCategory
+                            streamUrl
+                            tattooCategoryDetails {
+                              title
+                              urlSlug
+                            }
+                        }
+                        recentUploadedVideos(channelId: $recentUploadedVideosChannelId2) {
+                            _id
+                            title
+                            videoPreviewImage
+                            views
+                            isStreamed
+                            isUploaded
+                            isPublished
+                            createdAt
+                            channelDetails {
+                                channelName
+                                channelPicture
+                                _id
+                                urlSlug
+                              }
+                        }
+                        videos(channelId: $channelIdForVideo) {
+                            _id
+                            title
+                            videoPreviewImage
+                            views
+                            isPublished
+                            createdAt
+                            description
+                            tags
+                            channelDetails {
+                                channelName
+                                channelPicture
+                                _id
+                                urlSlug
+                            }
+                        }
+                        chatMessages(videoId: $chatVideoId) {
+                            userDetail {
+                                firstName
+                                lastName
+                                _id
+                            }
+                            message
+                            videoId
+                            hours
+                            mins
                         }
                     }
-                `,
+                    `,
                     variables: {
-                        "channelId": videoInfo.videos[0].channelDetails[0]._id,
-                        "userId": userDetails._id,
-                        "channelId2": videoInfo.videos[0].channelDetails[0]._id,
-                        "userId2": userDetails._id
+                        "recentLiveStreamVideosChannelId2": videoInfo.videos[0].channelId,
+                        "recentUploadedVideosChannelId2": videoInfo.videos[0].channelId,
+                        "channelIdForVideo": videoInfo.videos[0].channelId,
+                        "getLastLiveStreamVideoUserId2": videoInfo.videos[0].userId,
+                        "channelId": videoInfo.videos[0].channelId,
+                        "chatVideoId": videoInfo.videos[0]._id
                     }
                 }).then((result) => {
-                    console.log('subscription detail', result.data);
-                    setIsChannelFollowing(result.data.isChannelFollowing[0])
-                    setUserDetail(userDetails);
-                    if(result.data.subscriptionDetails.length > 0){
-                        setIsChannelSubscribed(result.data.subscriptionDetails[0])
-                        if(result.data.subscriptionDetails[0].isActive){
-                            setIsSubscribedUser(true)
-                            setShowPlayer(true);
-                        }
-                    } else {
-                        setIsSubscribedUser(false)
-                        setIsChannelSubscribed({})
-                        setShowPlayer(true);
-                    }
                     return result.data
                 });
-
-                await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/video/history`, {
-                    userId: userDetails._id,
-                    videoId: videoId
-                }, {headers: {'x-access-token': userDetails.jwtToken}
-                }).then((data)=>{
-                    console.log('data', data)
-                })
+    
+                setChannelDetails(...videoInfo.videos[0].channelDetails);
+                setVideoDetails(videoInfo.videos[0]);
+                setLastBroadcastVideo(...videoOtherInfo.getLastLiveStreamVideo);
+                setCurrentBroadcastVideo(...videoOtherInfo.liveStreamings);
+                setRecentLiveStreamVideos(videoOtherInfo.recentLiveStreamVideos);
+                setRecentUploadedVideos(videoOtherInfo.recentUploadedVideos);
+                setAllVideos(videoOtherInfo.videos);
+                setOldReceivedMessages(videoOtherInfo.chatMessages);
+    
+                if (userDetails && userIsLogedIn) {
+                    client.query({
+                        query: gql`
+                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
+                            isChannelFollowing(channelId: $channelId, userId: $userId) {
+                                isFollowing
+                                channelId
+                                userId
+                                _id
+                            }
+                            subscriptionDetails(channelId: $channelId2, userId: $userId2) {
+                                isActive
+                            }
+                        }
+                    `,
+                        variables: {
+                            "channelId": videoInfo.videos[0].channelDetails[0]._id,
+                            "userId": userDetails._id,
+                            "channelId2": videoInfo.videos[0].channelDetails[0]._id,
+                            "userId2": userDetails._id
+                        }
+                    }).then((result) => {
+                        console.log('subscription detail', result.data);
+                        setIsChannelFollowing(result.data.isChannelFollowing[0])
+                        setUserDetail(userDetails);
+                        if(result.data.subscriptionDetails.length > 0){
+                            setIsChannelSubscribed(result.data.subscriptionDetails[0])
+                            if(result.data.subscriptionDetails[0].isActive){
+                                setIsSubscribedUser(true)
+                                setShowPlayer(true);
+                            }
+                        } else {
+                            setIsSubscribedUser(false)
+                            setIsChannelSubscribed({})
+                            setShowPlayer(true);
+                        }
+                        return result.data
+                    });
+    
+                    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/video/history`, {
+                        userId: userDetails._id,
+                        videoId: videoId
+                    }, {headers: {'x-access-token': userDetails.jwtToken}
+                    }).then((data)=>{
+                        console.log('data', data)
+                    })
+                } else {
+                    setShowPlayer(true);
+                    setIsSubscribedUser(false)
+                }
             } else {
-                setShowPlayer(true);
-                setIsSubscribedUser(false)
+                setIsVideoFound(false);
             }
+
             
             setIsPageLoading(false)
         }
@@ -303,14 +312,14 @@ export default function Videos(){
             videojs.log('player is waiting');
         });
         
-        player.on('firstplay', function() {
+        player.on('play', function() {
             console.log('video played')
         });
         
         player.on('timeupdate', ()=>{
             var time = player.currentTime();
             time = parseInt(time.toString());
-            if(time >= 5){
+            if(time >= 30){
                 if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
                     console.log('----------------------- subscribed user --------------');
                     console.log('----------------------- public video --------------');
@@ -603,7 +612,11 @@ export default function Videos(){
                                     <LiveStreamChatHistory oldReceivedMessages={oldReceivedMessages}/>
                                 </Box>
                             </>
-                            : null
+                            : <Box mt={"100px"}>
+                                <Typography variant="h3" component={'h3'}>
+                                    video not found..!!
+                                </Typography>
+                            </Box>
                         }
                     </>
                 }

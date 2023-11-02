@@ -127,15 +127,18 @@ function ManagementChannelProfile() {
                 <Grid item xs={12} md={8}>
                     <ProfileCover channelInfo={channelInfo} channelTotalFollowers={channelTotalFollowers}/>
                 </Grid>
-                {/* <Grid item xs={12} md={4}>
-                    <RecentActivity />
-                </Grid> */}
-                {channelFollower.length > 0? <Grid item xs={12} md={8}>
+                {/* {channelFollower.length > 0? <Grid item xs={12} md={8}>
                     <Feed channelFollower={channelFollower}/>
-                </Grid>: null}
-                {channelSubscribers.length > 0 ? <Grid item xs={12} md={8} mt={5}>
+                </Grid>: null} */}
+                <Grid item xs={12} md={8}>
+                    <Feed channelFollower={channelFollower}/>
+                </Grid>
+                {/* {channelSubscribers.length > 0 ? <Grid item xs={12} md={8} mt={5}>
                     <SubscriberList channelSubscribers={channelSubscribers}/>
-                </Grid>:null}
+                </Grid>:null} */}
+                <Grid item xs={12} md={8} mt={5}>
+                    <SubscriberList channelSubscribers={channelSubscribers}/>
+                </Grid>
                 {/* <Grid item xs={12} md={4}>
                     <PopularTags />
                 </Grid>

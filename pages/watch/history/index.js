@@ -239,15 +239,15 @@ function WatchHistory(){
             setShowWatchHistoryCount(totalVideoHistoryListCount)
         }
         
-      }
+    }
       
-      const handleSubscribedCountMinus = ()=>{
-        let count = showWatchHistoryCount - 4
-        if(historyShowLimit > count){
-          count = historyShowLimit
-        }
-        setShowWatchHistoryCount(count)
-      }
+    const handleSubscribedCountMinus = ()=>{
+    let count = showWatchHistoryCount - 4
+    if(historyShowLimit > count){
+        count = historyShowLimit
+    }
+    setShowWatchHistoryCount(count)
+    }
 
       const countLiveViewing = (viewers) => {
         if (viewers > 999 && viewers < 1000000) {
@@ -317,7 +317,7 @@ function WatchHistory(){
                         {((todayVideoHistoryList.length != 0 || yesterdayVideoHistoryList.length != 0) || oldVideoHistoryList.length != 0) ? <>
                         <Box p={'5px 25px 25px 25px'}>
                             <Box sx={{ paddingTop: '5px' }}>
-                                {todayVideoHistoryList.length != 0 && 
+                                {todayVideoHistoryList.length != 0 && <>
                                     <Box sx={{ width: '100%', mb: '20px' }}>
                                         <Box mb='20px'>
                                             <Typography variant="h3" component='h3'>
@@ -372,9 +372,10 @@ function WatchHistory(){
                                             ))}
                                         </Grid>
                                     </Box>
+                                    <Divider />
+                                </>
                                 }
                                 {yesterdayVideoHistoryList.length != 0 && <>
-                                    <Divider />
                                     <Box sx={{ width: '100%', mb: '20px' }}>
                                         <Box mb='20px' mt='20px'>
                                             <Typography variant="h3" component='h3'>
@@ -429,10 +430,10 @@ function WatchHistory(){
                                             ))}
                                         </Grid>
                                     </Box>
+                                    <Divider />
                                 </>
                                 }
                                 {oldVideoHistoryList.length != 0 && <>
-                                    <Divider />
                                     <Box sx={{ width: '100%', mb: '20px' }}>
                                         <Box mt='20px' mb='20px'>
                                             <Typography variant="h3" component='h3'>
