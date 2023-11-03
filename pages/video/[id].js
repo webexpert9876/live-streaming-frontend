@@ -3,21 +3,12 @@ import { gql } from "@apollo/client";
 import { useState, useEffect } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
-import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, MenuItem , Avatar, Menu, Toolbar, AppBar, Tab, Divider, Backdrop} from "@mui/material";
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
+import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, Divider, CardContent} from "@mui/material";
 import styled from "@emotion/styled";
 import React from 'react';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
 import VideoJS from '../../src/content/Overview/Slider/VideoJS';
 import videojs from 'video.js';
-import Image from 'next/image'
 import LiveStreamChatHistory from '../../src/content/Channel/LiveStreamChatHistory'
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
 import { useRouter } from "next/router";
 import CircularProgress from '@mui/material/CircularProgress';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../store/slices/authSlice';
@@ -319,6 +310,21 @@ export default function Videos(){
         player.on('timeupdate', ()=>{
             var time = player.currentTime();
             time = parseInt(time.toString());
+
+            if(time >=5){
+                axios.get("http://localhost:8080/prod/public/api/create/view").then((data)=>{
+                    console.log(data)
+                })
+                // if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
+                //     // console.log('----------------------- subscribed user --------------');
+                //     // console.log('----------------------- public video --------------');
+                // } else {
+                //     console.log('player stop--------------');
+                //     player.pause();
+                //     setIsLockVideo(true)
+                // }
+            }
+
             if(time >= 30){
                 if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
                     console.log('----------------------- subscribed user --------------');
