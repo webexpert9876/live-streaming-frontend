@@ -312,7 +312,7 @@ export default function Videos(){
             time = parseInt(time.toString());
 
             if(time >=5){
-                axios.get("http://localhost:8080/prod/public/api/create/view").then((data)=>{
+                axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/create/view`).then((data)=>{
                     console.log(data)
                 })
                 // if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
