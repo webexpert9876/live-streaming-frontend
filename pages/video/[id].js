@@ -56,7 +56,10 @@ export default function Videos(){
     const [isVideoFound, setIsVideoFound] = useState(true);
     const router = useRouter();
 
+    let isViewCreated = false;
+    // const [isViewCreated, setIsViewCreated] = useState(false);
     let subscribeUser = false;
+
     useEffect(async ()=>{
         if(!router.query.id) {
             return;
@@ -283,6 +286,12 @@ export default function Videos(){
         }
     }, [isFetchingVideo])
 
+    useEffect(()=>{
+        if(isViewCreated){
+            console.log('running isViewCreated')
+        }
+    }, [isViewCreated])
+
     const playerRef = React.useRef(null);
 
     const handleLockForSubscriber = (player, time)=>{
@@ -304,33 +313,35 @@ export default function Videos(){
         });
         
         player.on('play', function() {
-            console.log('video played')
+            console.log('video played');
         });
         
         player.on('timeupdate', ()=>{
             var time = player.currentTime();
             time = parseInt(time.toString());
 
-            if(time >=5){
-                let viewData={};
-                console.log('-----------------userDetail------------', userDetail);
-                if(userDetail){
-                    viewData.userId= userDetail._id,
-                    viewData.videoId= videoInfor._id
-                } else {
-                    viewData.videoId= videoInfor._id
+            if(time >= 5){
+
+                if(!isViewCreated){
+                    isViewCreated = true;
+                    let viewData={};
+                    if(userDetail){
+                        viewData.userId= userDetail._id,
+                        viewData.videoId= videoInfor._id
+                    } else {
+                        viewData.videoId= videoInfor._id
+                    }
+                    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/create/view`, viewData ).then((data)=>{
+                        console.log(data)
+                    });
                 }
-                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/create/view`, viewData ).then((data)=>{
-                    console.log(data)
-                })
-                // if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
-                //     // console.log('----------------------- subscribed user --------------');
-                //     // console.log('----------------------- public video --------------');
-                // } else {
-                //     console.log('player stop--------------');
-                //     player.pause();
-                //     setIsLockVideo(true)
-                // }
+                if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
+                    // console.log('----------------------- subscribed user --------------');
+                    // console.log('----------------------- public video --------------');
+                } else {
+                    player.pause();
+                    setIsLockVideo(true)
+                }
             }
 
             if(time >= 30){
