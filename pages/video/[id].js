@@ -57,7 +57,6 @@ export default function Videos(){
     const router = useRouter();
 
     let isViewCreated = false;
-    // const [isViewCreated, setIsViewCreated] = useState(false);
     let subscribeUser = false;
 
     useEffect(async ()=>{
@@ -286,12 +285,6 @@ export default function Videos(){
         }
     }, [isFetchingVideo])
 
-    useEffect(()=>{
-        if(isViewCreated){
-            console.log('running isViewCreated')
-        }
-    }, [isViewCreated])
-
     const playerRef = React.useRef(null);
 
     const handleLockForSubscriber = (player, time)=>{
@@ -335,21 +328,14 @@ export default function Videos(){
                         console.log(data)
                     });
                 }
-                if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
-                    // console.log('----------------------- subscribed user --------------');
-                    // console.log('----------------------- public video --------------');
-                } else {
-                    player.pause();
-                    setIsLockVideo(true)
-                }
             }
 
             if(time >= 30){
                 if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
-                    console.log('----------------------- subscribed user --------------');
-                    console.log('----------------------- public video --------------');
+                    // console.log('----------------------- subscribed user --------------');
+                    // console.log('----------------------- public video --------------');
                 } else {
-                    console.log('player stop--------------');
+                    // console.log('player stop--------------');
                     player.pause();
                     setIsLockVideo(true)
                 }
