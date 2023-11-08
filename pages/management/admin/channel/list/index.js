@@ -3,6 +3,7 @@ import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
 import Footer from 'src/components/Footer';
 import PageHeader from '../../../../../src/components/channel/list/PageHeader';
+import ChannelEdit from '../../../../../src/components/admin/channel/ChannelEdit';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import {
     Tooltip,
@@ -49,10 +50,26 @@ const ChannelListPage = () => {
   });
 
   const [userData, setUserData] = useState([]);
-  const [allChannelDetails, setAllChannelDetails]= useState([])
-  const [showAllChannelDetails, setShowAllChannelDetails]= useState([])
-  const [isCheckStatusChange, setIsCheckStatusChange]= useState(false)
-  const [filteredVideoList, setFilteredVideoList]= useState([])
+  const [allChannelDetails, setAllChannelDetails]= useState([]);
+  const [showAllChannelDetails, setShowAllChannelDetails]= useState([]);
+  const [isCheckStatusChange, setIsCheckStatusChange]= useState(false);
+  const [filterCount, setFilterCount]= useState(0);
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const [isChannelEditing, setIsChannelEditing] = useState(false);
+//   const [isAddingTattooCategory, setIsAddingTattooCategory] = useState(false);
+  const [selectedRowDetails, setSelectedRowDetails] = useState({});
+
+//   const [isDeletingCategory, setIsDeletingCategory] = useState(false);
+//   const [deleteInputValue, setDeleteInputValue] = useState('');
+
+  // -------------------------Error state------------------------
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [apiMessageType, setApiMessageType] = useState('');
 
   const statusOptions = [
     {
@@ -61,11 +78,11 @@ const ChannelListPage = () => {
     },
     {
         id: true,
-        name: 'Approaved'
+        name: 'Approved'
     },
     {
         id: false,
-        name: 'Unapproaved'
+        name: 'Unapproved'
     },
 ];
 
@@ -113,7 +130,7 @@ const ChannelListPage = () => {
           setUserData(result.data.users);
           setAllChannelDetails(result.data.channels);
           setShowAllChannelDetails(result.data.channels);
-          setFilteredVideoList(result.data.channels);
+          setFilterCount(result.data.channels.length);
           setIsCheckStatusChange(true)
         });
     }
@@ -124,8 +141,7 @@ const ChannelListPage = () => {
     if(isCheckStatusChange){
 
         const filteredChannels = applyFilters(allChannelDetails, filters);
-        
-        // setFilteredVideoList(filteredVideo)
+        setFilterCount(filteredChannels.length)
 
         const paginatedChannel = applyPagination(
             filteredChannels,
@@ -158,10 +174,21 @@ const applyFilters = (allChannels, filters) => {
   return allChannels.filter((allChannel) => {
     let matches = true;
 
-    if (filters.status && allChannel.status !== filters.status) {
-      matches = false;
+    if(filters.status == false){
+        
+        if ( allChannel.isApproved !== `${filters.status}`) {
+            matches = false;
+        }
+    } else if(filters.status == true) {
+        if (allChannel.isApproved !== `${filters.status}`) {
+            matches = false;
+        }
+    } else if(filters.status == null) {
+        
+        if (filters.status && allChannel.isApproved !== `${filters.status}`) {
+            matches = false;
+        }
     }
-
     return matches;
   });
 };
@@ -177,11 +204,11 @@ const applyPagination = (allChannels, page, limit) => {
     if (e.target.value !== 'all') {
       value = e.target.value;
     }
-
     setFilters((prevFilters) => ({
       ...prevFilters,
       status: value
     }));
+    setIsCheckStatusChange(true);
   };
 
   const handlePageChange = (_event, newPage) => {
@@ -194,6 +221,29 @@ const applyPagination = (allChannels, page, limit) => {
     setIsCheckStatusChange(true)
   };
 
+  const handleEditChannel = (channelData) => {
+    setSelectedRowDetails(channelData);
+    setIsChannelEditing(true)
+  }
+
+    const handleCancelBtnFunction = ()=>{
+        setIsChannelEditing(false);
+    }
+
+    const handleListChannelUpdate = (id, channelData)=>{
+        
+        const updatedArray = allChannelDetails.map(obj => {
+            if (obj._id === id) {
+            //   return { ...obj, ...videoData }; 
+                return { ...channelData }; 
+            }
+            return obj; // Keep other objects unchanged
+        });
+        
+        setAllChannelDetails(updatedArray);
+        let selectedChannel = updatedArray.slice(page * limit, page * limit + limit);
+        setShowAllChannelDetails(selectedChannel);
+    }
 //   const filteredCryptoOrders = applyFilters(cryptoOrders, filters);
 //   const paginatedCryptoOrders = applyPagination(
 //     filteredCryptoOrders,
@@ -210,7 +260,16 @@ const applyPagination = (allChannels, page, limit) => {
                         <title>All Channels</title>
                     </Head>
                     {
-                        // isVideoEditing?
+                        isChannelEditing?
+                            (userData && selectedRowDetails) ? 
+                                <ChannelEdit 
+                                    userData={userData}
+                                    channelDetail={selectedRowDetails}
+                                    cancelBtnFunction={handleCancelBtnFunction}
+                                    channelUpdateFunction={handleListChannelUpdate}
+                                /> 
+                                : null
+                        :
                             <>
                                 <PageTitleWrapper>
                                     <PageHeader />
@@ -253,9 +312,9 @@ const applyPagination = (allChannels, page, limit) => {
                                                     <TableRow>
                                                     <TableCell>Channel Name</TableCell>
                                                     <TableCell>Description</TableCell>
-                                                    <TableCell>Approaved Status</TableCell>
-                                                    <TableCell align="right">Blocked status</TableCell>
-                                                    <TableCell align="right">Status</TableCell>
+                                                    <TableCell>Approved Status</TableCell>
+                                                    <TableCell >Blocked status</TableCell>
+                                                    {/* <TableCell align="right">Status</TableCell> */}
                                                     <TableCell align="right">Actions</TableCell>
                                                     </TableRow>
                                                 </TableHead>
@@ -296,17 +355,17 @@ const applyPagination = (allChannels, page, limit) => {
                                                             gutterBottom
                                                             noWrap
                                                             >
-                                                            {channel.isApproved}
+                                                                {getStatusLabel(channel.isApproved)}
                                                             </Typography>
                                                             {/* <Typography variant="body2" color="text.secondary" noWrap>
                                                             {cryptoOrder.sourceDesc}
                                                             </Typography> */}
                                                         </TableCell>
-                                                        <TableCell align="right">
-                                                            {getStatusLabel(channel.isApproved)}
+                                                        <TableCell >
+                                                            {channel.blocked}
                                                         </TableCell>
                                                         <TableCell align="right">
-                                                            <Tooltip title="Edit Order" arrow>
+                                                            <Tooltip title="Edit Channel" arrow>
                                                             <IconButton
                                                                 sx={{
                                                                 '&:hover': {
@@ -316,11 +375,12 @@ const applyPagination = (allChannels, page, limit) => {
                                                                 }}
                                                                 color="inherit"
                                                                 size="small"
+                                                                onClick={()=>handleEditChannel(channel)}
                                                             >
                                                                 <EditTwoToneIcon fontSize="small" />
                                                             </IconButton>
                                                             </Tooltip>
-                                                            <Tooltip title="Delete Order" arrow>
+                                                            <Tooltip title="Delete Channel" arrow>
                                                             <IconButton
                                                                 sx={{
                                                                 '&:hover': { background: theme.colors.error.lighter },
@@ -342,7 +402,7 @@ const applyPagination = (allChannels, page, limit) => {
                                             <Box p={2}>
                                                 <TablePagination
                                                 component="div"
-                                                count={allChannelDetails.length}
+                                                count={filterCount}
                                                 onPageChange={handlePageChange}
                                                 onRowsPerPageChange={handleLimitChange}
                                                 page={page}
@@ -409,17 +469,6 @@ const applyPagination = (allChannels, page, limit) => {
 
                                 </Container >
                             </>
-                        // :
-                        //     (userData && selectedRowVideoDetails && tattooCategoryList && tagList) ? 
-                        //         <VideoEditCard 
-                        //             userData={userData} 
-                        //             videoDetail={selectedRowVideoDetails} 
-                        //             tattooCategoryList={tattooCategoryList} 
-                        //             tagData={tagList}
-                        //             cancelBtnFunction={handleCancelBtnFunction}
-                        //             videoUpdateFunction={handleListVideoUpdate}
-                        //         /> 
-                        //         : null
                     }
 
                 {/* --------------------------------------------------------Error or success message------------------------------------------ */}
