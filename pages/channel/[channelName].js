@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
 import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, MenuItem, Avatar, Menu, Toolbar, AppBar, Tab, Backdrop  } from "@mui/material";
-import LockIcon from '@mui/icons-material/Lock';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
@@ -27,6 +26,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
+import { socket } from '../../socket';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -64,6 +64,7 @@ export default function ChannelName() {
     const [channelSlug, setChannelSlug ] = useState('');
     const [isPageLoading, setIsPageLoading]= useState(true);
     const [viewers, setViewers]= useState(0);
+    const [isClickedFollowing, setIsClickedFollowing] = useState(false);
 
     useEffect(async ()=>{
         if(!router.query.channelName) {
@@ -265,10 +266,10 @@ export default function ChannelName() {
                         if(result.data.subscriptionDetails.length > 0){
                             setIsChannelSubscribed(result.data.subscriptionDetails[0])
                             if(result.data.subscriptionDetails[0].isActive){
-                                console.log("in if sdddd f ff f ff ff ffffff ffff jasdf asdf asjld f;alsd flkasdj f")
+                                console.log("in if ")
                                 setIsSubscribedUser(true)
                             } else {
-                                console.log("else sdddd felse f ff ffelse ffff jasdf asdfelse else flkasdj f")
+                                console.log("else ffelse")
                                 
                             }
                         } else {
@@ -400,6 +401,19 @@ export default function ChannelName() {
                 const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/follower`, { userId: userDetail._id, channelId: channelDetails._id, isFollowing: true }, { headers: { 'x-access-token': userDetail.jwtToken } });
                 if (result) {
                     setIsChannelFollowing(result.data.followingDetails)
+
+                    let userInfo = {
+                        userId: userDetail._id,
+                        firstName: userDetail.firstName,
+                        lastName: userDetail.lastName
+                    }
+                    console.log('following................')
+                    socket.emit('follow', {followedUserId: channelDetails.userId, userDetails: userInfo, followingInfo: result.data.followingDetails});
+                    setChannelTotalFollower((prevState)=>({
+                        ...prevState,
+                        countFollower: channelTotalFollower.countFollower + 1
+                    }))
+                    setIsClickedFollowing(false);
                 }
             } catch (error) {
                 console.log('error', error)
@@ -410,6 +424,14 @@ export default function ChannelName() {
 
                 if (result) {
                     setIsChannelFollowing(result.data.followingDetails)
+
+                    console.log('Unfollowing................')
+                    socket.emit('unfollow', {followedUserId: channelDetails.userId, followingInfo: result.data.followingDetails});
+                    setChannelTotalFollower((prevState)=>({
+                        ...prevState,
+                        countFollower: channelTotalFollower.countFollower > 0 ? channelTotalFollower.countFollower - 1: 0
+                    }))
+                    setIsClickedFollowing(false);
                 }
             } catch (error) {
                 console.log('error', error)
@@ -468,7 +490,7 @@ export default function ChannelName() {
                                     fluid: true,
                                     className: 'online-video',
                                     sources: [{
-                                        // src: 'http://18.231.170.3/live/dd032ddc-8d55-4e98-ac82-adca59b8d44a/index.m3u8',
+                                        // src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
                                         // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
                                         src: `${currentBroadcast.streamUrl}`,
                                         type: 'application/x-mpegURL'
@@ -525,7 +547,7 @@ export default function ChannelName() {
                                 <Typography variant="body1" component={'div'} sx={{ gap: "15px", display: "flex" }}>                            
                                     {isChannelFollowing ?
                                         (isChannelFollowing.isFollowing ?
-                                            <Button variant="contained" startIcon={<FavoriteIcon />} onClick={() => handleFollow(false)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Following</Button>
+                                            <Button variant="contained" startIcon={<FavoriteIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(false)}} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Following</Button>
                                             :
                                             (Object.keys(userDetail).length === 0 ?
                                                 <Tooltip title={<React.Fragment>Please <Link 
@@ -536,7 +558,7 @@ export default function ChannelName() {
                                                     <Button variant="contained" startIcon={<FavoriteBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
                                                 </Tooltip>
                                                 :
-                                                <Button variant="contained" startIcon={<FavoriteBorderIcon />} onClick={() => handleFollow(true)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                                <Button variant="contained" startIcon={<FavoriteBorderIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(true)}} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
                                             )
                                         )
                                         : null}

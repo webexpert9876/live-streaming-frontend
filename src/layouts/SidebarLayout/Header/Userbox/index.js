@@ -189,21 +189,21 @@ function HeaderUserbox() {
         {roleInfo.role == 'admin' && 
           <List sx={{ p: 1 }} component="nav">
             <NextLink href="/management/profile/settings" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <SettingsIcon fontSize="small" />
                 <ListItemText primary="Account Settings" />
               </ListItem>
             </NextLink>
 
             <NextLink href="/management/admin/channel/list" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <AccountBoxTwoToneIcon fontSize="small" />
                 <ListItemText primary="Manage Channels" />
               </ListItem>
             </NextLink>
 
             <NextLink href="/management/admin/category/list" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <InboxTwoToneIcon fontSize="small" />
                 <ListItemText primary="Manage tattoo category" />
               </ListItem>
@@ -214,28 +214,28 @@ function HeaderUserbox() {
         {roleInfo.role == 'artist' && 
           <List sx={{ p: 1 }} component="nav">
             <NextLink href="/management/channel/settings" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <SettingsIcon fontSize="small" />
                 <ListItemText primary="Account Settings" />
               </ListItem>
             </NextLink>
 
             <NextLink href="/management/channel" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <AccountBoxTwoToneIcon fontSize="small" />
                 <ListItemText primary="Channel Details" />
               </ListItem>
             </NextLink>
 
             <NextLink href="/components/videos" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <VideoSettingsIcon fontSize="small" />
                 <ListItemText primary="Videos" />
               </ListItem>
             </NextLink>
             
             <NextLink href="/dashboards/channel/stream" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <StreamIcon fontSize="small" />
                 <ListItemText primary="Stream management" />
               </ListItem>
@@ -246,13 +246,13 @@ function HeaderUserbox() {
         {roleInfo.role == 'user' &&
           <List sx={{ p: 1 }} component="nav">
             <NextLink href="/management/profile/settings" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <SettingsIcon fontSize="small" />
                 <ListItemText primary="Account Settings" />
               </ListItem>
             </NextLink>
             <NextLink href="/user/subscribe" passHref>
-              <ListItem button>
+              <ListItem onClick={()=>{setOpen(false)}} button>
                 <SubscriptionsIcon fontSize="small" />
                 <ListItemText primary="Subscribe channels" />
               </ListItem>

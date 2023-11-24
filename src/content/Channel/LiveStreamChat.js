@@ -258,7 +258,7 @@ export default function LiveStreamChat(props) {
     console.log('Mount----------------------')
     return () => {
       console.log('Unmount----------------------')
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [])
 

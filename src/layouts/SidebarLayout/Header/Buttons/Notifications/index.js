@@ -28,7 +28,7 @@ const NotificationsBadge = styled(Badge)(
   ({ theme }) => `
     
     .MuiBadge-badge {
-        background-color: ${alpha(theme.palette.error.main, 1.1)};
+        background-color: ${alpha(theme.palette.error.main, 0.5)};
         // color: ${theme.palette.error.main};
         color: #fff;
         min-width: 16px; 
@@ -57,6 +57,10 @@ function HeaderNotifications() {
   const [notificationList, setNotificationList] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const [checkReadNotification, setCheckReadNotification] = useState(false);
+  const [newReceiveNotification, setNewReceiveNotification] = useState({});
+  const [addReceiveNotification, setAddReceiveNotification] = useState(false);
+  const [removeReceiveNotification, setRemoveReceiveNotification] = useState({});
+  const [isRemoveNotification, setIsRemoveNotification] = useState(false);
   const router = useRouter();
 
   let userDetails = useSelector(selectAuthUser);
@@ -88,8 +92,9 @@ function HeaderNotifications() {
           return result.data.notification
       });
 
-      setNotificationList(notifications);
-      setCheckReadNotification(true);
+      // setNotificationList(notifications);
+      sortNotifications(notifications);
+      // setCheckReadNotification(true);
 
       connectUserWithSocket(userDetails._id);
 
@@ -97,7 +102,10 @@ function HeaderNotifications() {
     if(userIsLogedIn){
       setUserAuthState(userIsLogedIn);
     }
-
+    return () => {
+      console.log('Unmount----------------------');
+      socket.disconnect();
+    };
   }, [])
 
   useEffect(()=>{
@@ -121,17 +129,68 @@ function HeaderNotifications() {
       countUnreadNotification()
     }
   }, [checkReadNotification]);
+  
+  useEffect(()=>{
+    if(addReceiveNotification){
+      const mergeOldNewNotification = [...notificationList, newReceiveNotification];
+      console.log('mergeOldNewNotification', mergeOldNewNotification);
+      sortNotifications(mergeOldNewNotification);
+      setAddReceiveNotification(false);
+    }
+  }, [addReceiveNotification]);
+  
+  useEffect(()=>{
+    if(isRemoveNotification){
+      const newNotificationList = notificationList.filter((notification)=>{
+        console.log('single notification of all', notification._id)
+        console.log('notification delete id', removeReceiveNotification._id)
+        if (notification._id != removeReceiveNotification._id) {
+          return notification
+        }
+      });
+      sortNotifications(newNotificationList);
+      setIsRemoveNotification(false);
+    }
+  }, [isRemoveNotification]);
 
   function connectUserWithSocket(id){
     console.log('id for check notification', id)
+    
+    // It connect user for single to single notification
+    socket.emit('userConnected', id);
+
+    // It connect user with notification
     socket.emit('connectUserWithNotification', id);
+
+    // Receive notification when artist live stream
     socket.on('receiveLiveNotification', (notificationData)=>{
       console.log('receiveLiveNotification', notificationData);
+      setNewReceiveNotification(notificationData);
+      setAddReceiveNotification(true);
       
-      setNotificationList(prevNotificationList => [...prevNotificationList, notificationData]);
-      // countUnreadNotification(newNotificationList);
-      setCheckReadNotification(true);
     });
+
+    // Event for new follower notification
+    socket.on('newFollower', ({ userInfo, followingInfo, notificationDetails})=>{
+      // console.log('userInfo', userInfo);
+      // console.log('followingInfo', followingInfo);
+      setNewReceiveNotification(notificationDetails);
+      setAddReceiveNotification(true);
+     
+    });
+    
+    // Event for unfollowing notification
+    socket.on('removeFollow', ({ notificationDetails})=>{
+      
+      console.log('notificationDetails', notificationDetails);
+      
+      if(notificationDetails){
+        setRemoveReceiveNotification(notificationDetails);
+        setIsRemoveNotification(true);
+        
+      }
+    });
+    
   }
 
   const handleOpen = () => {
@@ -149,16 +208,16 @@ function HeaderNotifications() {
       console.log('result notification', result);
 
       if(result){
-        const newNotificationList = notificationList.filter((notification)=>{
+        const newNotificationList = notificationList.map((notification)=>{
           if (notification._id === notificationDetail._id) {
             return { ...notification, isRead: true };
           }
           return notification;
         });
-        setNotificationList(newNotificationList);
+         console.log('newNotificationList single notification', newNotificationList);
+         sortNotifications(newNotificationList);
 
-        // countUnreadNotification(newNotificationList);
-        setCheckReadNotification(true);
+        setOpen(false);
       }
 
     } else if(notificationDetail.notificationType == 'live'){
@@ -178,20 +237,13 @@ function HeaderNotifications() {
       }).then((result) => {
           return result.data.users[0].channelDetails
       });
-      console.log('channelInfo for redirect', channelInfo[0].urlSlug);
 
       const result = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/notification/${notificationDetail._id}`, {userId: userInfo._id}, { headers: { 'x-access-token': userInfo.jwtToken } });
       console.log('result notification for live', result);
-
-      const newNotificationList = notificationList.filter((notification)=>{
-        if (notification._id != notificationDetail._id) {
-          return notification
-        }
-      });
-
-      setNotificationList(newNotificationList);
       
-      setCheckReadNotification(true);
+      setRemoveReceiveNotification(notificationDetail);
+      setIsRemoveNotification(true)
+
       setOpen(false);
 
       if(result){
@@ -199,7 +251,60 @@ function HeaderNotifications() {
       }
     }
   }
+
+  function calculateDaysAgo(uploadDate) {
+    const currentDate = new Date();
+    let uploadDateTime;
+
+    if(uploadDate > 0 && uploadDate < Date.now()){
+      uploadDateTime = new Date(parseInt(uploadDate));
+    } else {
+      uploadDateTime = new Date(uploadDate);
+    }
+    
+    const timeDifference = currentDate - uploadDateTime;
+    const daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+    if (daysAgo === 0) {
+        const hoursAgo = Math.floor(timeDifference / (1000 * 60 * 60));
+        if (hoursAgo === 0) {
+            const minutesAgo = Math.floor(timeDifference / (1000 * 60));
+            if (minutesAgo === 0) {
+                const secondsAgo = Math.floor(timeDifference / 1000);
+                return `${secondsAgo} seconds ago`;
+            }
+            return `${minutesAgo} minutes ago`;
+        }
+        return `${hoursAgo} hours ago`;
+    }
+
+    return `${daysAgo} days ago`;
+  }
+
+  function sortNotifications (allNotifications) {
+    let notifications = [...allNotifications];
+    let sortedData = notifications.sort((a, b) => {
+      let uploadDateTimeA;
+      let uploadDateTimeB;
   
+      if(a.createdAt > 0 && a.createdAt < Date.now()){
+        uploadDateTimeA = new Date(parseInt(a.createdAt));
+      } else {
+        uploadDateTimeA = new Date(a.createdAt);
+      }
+
+      if(b.createdAt > 0 && b.createdAt < Date.now()){
+        uploadDateTimeB = new Date(parseInt(b.createdAt));
+      } else {
+        uploadDateTimeB = new Date(b.createdAt);
+      }
+      return uploadDateTimeB - uploadDateTimeA;
+    });
+
+    setNotificationList(sortedData);
+    setCheckReadNotification(true);
+  }
+
   return (
     <>
       <Tooltip arrow title="Notifications">
@@ -254,9 +359,10 @@ function HeaderNotifications() {
                     {notification.message}
                   </Typography>
                   <Typography variant="caption" sx={{ textTransform: 'none' }}>
-                    {formatDistance(subDays(new Date(), 3), new Date(), {
+                    {/* {formatDistance(subDays(new Date(), 3), new Date(), {
                       addSuffix: true
-                    })}
+                    })} */}
+                    {calculateDaysAgo(notification.createdAt)}
                   </Typography>
                 </Box>
                 {/* <Typography
