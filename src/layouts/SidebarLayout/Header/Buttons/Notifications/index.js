@@ -204,6 +204,22 @@ function HeaderNotifications() {
   const handleNotificationOpen =async (notificationDetail)=>{
     if(notificationDetail.notificationType == 'single'){
       
+      let userUrlInfo = await client.query({
+        query: gql`
+            query Query ($usersId: ID) {
+              users(id: $usersId) {
+                urlSlug
+              }
+            }
+          `,
+        variables: {
+            "usersId": notificationDetail.senderUserId
+        }
+      }).then((result) => {
+        console.log('result.data.users[0]', result.data.users[0])
+          return result.data.users[0]
+      });
+
       const result = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/notification/${notificationDetail._id}`, {}, { headers: { 'x-access-token': userInfo.jwtToken } });
       console.log('result notification', result);
 
@@ -218,7 +234,11 @@ function HeaderNotifications() {
          sortNotifications(newNotificationList);
 
         setOpen(false);
+        if(userUrlInfo){
+          router.push(`/user/${userUrlInfo.urlSlug}`)
+        }
       }
+
 
     } else if(notificationDetail.notificationType == 'live'){
       let channelInfo = await client.query({

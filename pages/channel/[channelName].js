@@ -513,7 +513,8 @@ export default function ChannelName() {
                             <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                                 <Typography variant="body1" component={'div'} sx={{ display: 'flex' }}>
                                     <Typography variant="body1" component={'div'} sx={{position: "relative"}}>
-                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"></img>
+                                        {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"></img> */}
+                                        <Avatar alt={`${channelDetails.channelName}`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} sx={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"/>
                                         {currentBroadcast && <Typography variant="h5" component="h5" sx={{ fontSize: '13px', fontWeight: 300 ,backgroundColor: 'red', borderRadius: '5px', width: '50px', position: 'absolute', top: '65px', left: '25px', color: '#fff'}}>Live</Typography>}
                                     </Typography>
 
@@ -737,7 +738,8 @@ export default function ChannelName() {
                                                                                 </div>
                                                                                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
                                                                                     <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' /> */}
+                                                                                        <Avatar alt={`${channelDetails.channelName}`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize'/>
                                                                                     </Grid>
                                                                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                         <Typography gutterBottom variant="h5" component="div">
@@ -848,7 +850,8 @@ export default function ChannelName() {
                                                                                 </div>
                                                                                 <Grid container direction="row" alignItems="center" mt={"15px"} ml={"15px;"} pb={"15px"} style={{ display: "flex", alignItems: "flex-start" }}>
                                                                                     <Grid item>
-                                                                                        <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' />
+                                                                                        {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize' /> */}
+                                                                                        <Avatar alt={`${channelDetails.channelName}`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} className='br100 listChannelIconSize'/>
                                                                                     </Grid>
                                                                                     <Grid item ml={"15px"} style={{ width: "75%" }}>
                                                                                         <Typography gutterBottom variant="h5" component="div">
