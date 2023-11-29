@@ -3,10 +3,11 @@ import { gql } from "@apollo/client";
 import { useState, useEffect } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
-import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, Divider, CardContent} from "@mui/material";
+import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, Divider, CardContent, Avatar} from "@mui/material";
 import styled from "@emotion/styled";
 import React from 'react';
-import VideoJS from '../../src/content/Overview/Slider/VideoJS';
+// import VideoJS from '../../src/content/Overview/Slider/VideoJS';
+import VideoJS from '../../src/components/videojs player/VideoJsOffline';
 import videojs from 'video.js';
 import LiveStreamChatHistory from '../../src/content/Channel/LiveStreamChatHistory'
 import { useRouter } from "next/router";
@@ -439,6 +440,50 @@ export default function Videos(){
         }
     }
 
+    const showQualityUrl = (qualityArray)=>{
+        console.log(qualityArray);
+        const newQualityArray = [...qualityArray];
+        newQualityArray.sort((a, b) => {
+            const qualityA = parseInt(a.quality); // Extract the quality number from the string
+            const qualityB = parseInt(b.quality);
+          
+            // Compare the quality values
+            if (qualityA > qualityB) {
+              return -1; // If qualityA is greater, place it before qualityB
+            } else if (qualityA < qualityB) {
+              return 1; // If qualityB is greater, place it before qualityA
+            } else {
+              return 0; // If both are equal, no change in position
+            }
+          });
+
+        const qualities = newQualityArray.map((quality, index)=>{
+            let qualityInfo; 
+            switch(quality.quality) {
+                case '1280':
+                    qualityInfo = 1080;
+                  break;
+                case '1080':
+                    qualityInfo = 720;
+                  break;
+                case '854':
+                    qualityInfo = 480;
+                  break;
+                case '640':
+                    qualityInfo = 360;
+                  break;
+            }
+            return {
+                    src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
+                    type: 'video/mp4',
+                    label: qualityInfo,
+                    res: qualityInfo
+                }
+        })
+
+        return qualities;
+    }
+
     return (
         <>
             {/* {isLockVideo?
@@ -489,19 +534,27 @@ export default function Videos(){
                                                 </Box>
                                             </>
                                             :
-                                                <VideoJS  options={{
+                                                <VideoJS options = {{
+                                                    playbackRates: [0.5, 1, 1.25, 1.5, 2],
                                                     autoplay: false,
                                                     controls: true,
                                                     responsive: true,
                                                     fluid: true,
                                                     poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
                                                     className: 'video-page-player',
-                                                    sources: [{
-                                                        // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                                        src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${videoDetails.url}`,
-                                                        type: "video/mp4"
-                                                    }]
-                                                }} onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
+                                                    // fill: true,
+                                                    controlBar: {
+                                                      children: [
+                                                        "playToggle",
+                                                        "progressControl",
+                                                        "volumePanel",
+                                                        "qualitySelector",
+                                                        "fullscreenToggle"
+                                                      ]
+                                                    },
+                                                    sources: showQualityUrl(videoDetails.videoQualityUrl)
+                                                  } }
+                                                onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
                                         }
                                     </Typography>
                                     <Box sx={{padding: '20px', textAlign: 'start'}}>
@@ -535,7 +588,7 @@ export default function Videos(){
                                         <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
                                             <Typography variant="body1" component={'div'} sx={{ display: 'flex', alignItems: 'start' }}>
                                                 <Typography variant="body1" component={'div'} sx={{position: "relative"}}>
-                                                    {channelDetails?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', border: currentBroadcastVideo? "2px solid red": null }} alt="" width="500" height="600"></img>: <img style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', background: 'aliceblue' }}></img>}
+                                                    {channelDetails?<Avatar alt={channelDetails.channelName} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', border: currentBroadcastVideo? "2px solid red": null }} width="500" height="600"></Avatar>: <Avatar alt={channelDetails.channelName} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '0px 12px 10px 18px', background: 'aliceblue' }}></Avatar>}
                                                     {currentBroadcastVideo && <Typography variant="h5" component="h5" sx={{ fontSize: '13px', fontWeight: 300 ,backgroundColor: 'red', borderRadius: '5px', width: '50px', position: 'absolute', top: '56px', left: '25px', color: '#fff'}}>Live</Typography>}
                                                 </Typography>
                 

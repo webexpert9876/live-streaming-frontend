@@ -1,8 +1,9 @@
 import React from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import httpSourceSelector from 'videojs-http-source-selector';
 import 'videojs-contrib-quality-levels';
+import vjsqs from "@silvermine/videojs-quality-selector";
+import '@silvermine/videojs-quality-selector/dist/css/quality-selector.css';
 
 export const VideoJS = (props) => {
   const [isOffline, setIsOffline] = React.useState(props.options.className == 'offline-video'? true: false)
@@ -14,8 +15,7 @@ export const VideoJS = (props) => {
   React.useEffect(() => {
     
     if (!playerRef.current) {
-      
-      videojs.registerPlugin("httpSourceSelector", httpSourceSelector);
+      vjsqs(videojs);
       
       const videoElement = document.createElement("video-js");
 
@@ -37,14 +37,13 @@ export const VideoJS = (props) => {
         videojs.log('player is ready');
         onReady && onReady(player);
       });
-
+      // player.resolutionSwitcher();
       player.qualityLevels();
-      player.httpSourceSelector();
+      // player.httpSourceSelector();
       
       
     } else {
       const player = playerRef.current;
-
       player.autoplay(options.autoplay);
       player.src(options.sources);
     }
@@ -61,6 +60,11 @@ export const VideoJS = (props) => {
       }
     };
   }, [playerRef]);
+
+  React.useEffect(() => {
+    vjsqs(videojs);
+    
+  }, []);
 
   return (
     // <div data-vjs-player>

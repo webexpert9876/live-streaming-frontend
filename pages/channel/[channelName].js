@@ -491,8 +491,9 @@ export default function ChannelName() {
                                     className: 'online-video',
                                     sources: [{
                                         // src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-                                        // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
-                                        src: `${currentBroadcast.streamUrl}`,
+                                        // src: 'http://localhost:8080/master-d7733280-c444-4e1a-ab7f-7d14607e1bab.m3u8',
+                                        src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
+                                        // src: `${currentBroadcast.streamUrl}`,
                                         type: 'application/x-mpegURL'
                                     }]
                                 }} onReady={handlePlayerReady} />
