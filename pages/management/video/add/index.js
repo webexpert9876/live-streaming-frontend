@@ -211,7 +211,7 @@ const Video = () => {
                 });
 
             if(tagResult){
-                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/create/video`, formData,
+                axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/create/video`, formData,
                     {
                         onUploadProgress: data => {
                             setProgress(Math.round((100 * data.loaded) / data.total))

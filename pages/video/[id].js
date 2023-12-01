@@ -281,6 +281,12 @@ export default function Videos(){
                 setIsVideoFound(false);
             }
 
+            // await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get/streaming/video/hls/${videoId}`, {headers: {'x-access-token': userDetails.jwtToken}}).then((data)=>{
+            //     console.log('data data data', data);
+            // }).catch((error)=>{
+            // console.log('error', error.response.data.message);
+            // });
+
             
             setIsPageLoading(false)
         }
@@ -474,8 +480,9 @@ export default function Videos(){
                   break;
             }
             return {
-                    src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
-                    type: 'video/mp4',
+                    // src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
+                    src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
+                    type: 'application/x-mpegURL',
                     label: qualityInfo,
                     res: qualityInfo
                 }

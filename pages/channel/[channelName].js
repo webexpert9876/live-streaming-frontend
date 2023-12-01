@@ -481,7 +481,7 @@ export default function ChannelName() {
                 :channelDetails && <Box component="main" sx={{ flexGrow: 1, width: '100%', position: 'relative'}}>
                     {/* <Box sx={{height: '100%', marginRight: '-36px', paddingRight: '35px', overflowY: 'scroll' }}> */}
                     <Box sx={{height: '100%', marginRight: '0px', paddingRight: '0px', overflowY: 'scroll' }}>
-                        {currentBroadcast ?
+                        {!currentBroadcast ?
                             <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
                                 <VideoJS options={{
                                     autoplay: true,
@@ -492,7 +492,9 @@ export default function ChannelName() {
                                     sources: [{
                                         // src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
                                         // src: 'http://localhost:8080/master-d7733280-c444-4e1a-ab7f-7d14607e1bab.m3u8',
-                                        src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
+                                        // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
+                                        // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
+                                        src: `http://localhost:8080/index.m3u8`,
                                         // src: `${currentBroadcast.streamUrl}`,
                                         type: 'application/x-mpegURL'
                                     }]
