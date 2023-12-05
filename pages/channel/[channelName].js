@@ -494,8 +494,8 @@ export default function ChannelName() {
                                         // src: 'http://localhost:8080/master-d7733280-c444-4e1a-ab7f-7d14607e1bab.m3u8',
                                         // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
                                         // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
-                                        src: `http://localhost:8080/index.m3u8`,
-                                        // src: `${currentBroadcast.streamUrl}`,
+                                        // src: `http://localhost:8080/index.m3u8`,
+                                        src: `${currentBroadcast.streamUrl}`,
                                         type: 'application/x-mpegURL'
                                     }]
                                 }} onReady={handlePlayerReady} />
