@@ -480,9 +480,10 @@ export default function Videos(){
                   break;
             }
             return {
-                    // src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
-                    src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
-                    type: 'application/x-mpegURL',
+                    src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
+                    // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
+                    // type: 'application/x-mpegURL',
+                    type: 'video/mp4',
                     label: qualityInfo,
                     res: qualityInfo
                 }
