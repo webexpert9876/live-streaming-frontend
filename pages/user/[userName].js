@@ -144,7 +144,7 @@ export default function ChannelName() {
                                                 Interested Style :
                                             </Typography>
                                             {userInfo.interestedStyleDetail.map((style, index)=>(
-                                                <Typography variant="h4" pl={'10px'} color="text.secondary">
+                                                <Typography key={index} variant="h4" pl={'10px'} color="text.secondary">
                                                     {`- ${style.title}`}
                                                 </Typography>
                                             ))}
