@@ -464,28 +464,29 @@ export default function Videos(){
           });
 
         const qualities = newQualityArray.map((quality, index)=>{
-            let qualityInfo; 
-            switch(quality.quality) {
-                case '1080':
-                    qualityInfo = 1080;
-                    break;
-                case '1280':
-                    qualityInfo = 720;
-                  break;
-                case '854':
-                    qualityInfo = 480;
-                  break;
-                case '640':
-                    qualityInfo = 360;
-                  break;
-            }
+            // let qualityInfo; 
+            // switch(quality.quality) {
+            //     case '1080':
+            //         qualityInfo = 1080;
+            //         break;
+            //     case '1280':
+            //         qualityInfo = 720;
+            //       break;
+            //     case '854':
+            //         qualityInfo = 480;
+            //       break;
+            //     case '640':
+            //         qualityInfo = 360;
+            //       break;
+            // }
+            // console.log('quality.quality', quality.quality)
             return {
                     src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${quality.url}`,
                     // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
                     // type: 'application/x-mpegURL',
                     type: 'video/mp4',
-                    label: qualityInfo,
-                    res: qualityInfo
+                    label: quality.quality,
+                    res: quality.quality
                 }
         })
 
