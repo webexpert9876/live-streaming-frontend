@@ -264,18 +264,18 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                 setOpenTattooCategoryIdError(true)
                 // setDescriptionErrorMessage('Video description is required');
             }
+        } else if(e.target.name == 'isPublished'){
+            setVideoInput((prevState)=>({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }))
+
         } else if(e.target.name == 'videoPreviewStatus'){
             setVideoInput((prevState)=>({
                 ...prevState,
                 [e.target.name]: e.target.value
             }))
 
-            // if(e.target.value){
-            //     setOpenTattooCategoryIdError(false)
-            // } else {
-            //     setOpenTattooCategoryIdError(true)
-            //     // setDescriptionErrorMessage('Video description is required');
-            // }
         }
     }
 
