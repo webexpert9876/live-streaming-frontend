@@ -612,6 +612,7 @@ export default function Videos(){
                                                             {/* {videoPageInfo.singleVideo.views} viewers */}
                                                             Streaming live now
                                                         </Typography>: 
+                                                        lastBroadcastVideo &&
                                                         <Typography variant="h5" component={"h5"} sx={{fontSize:'15px', textAlign: 'left', marginTop: '5px' }}>
                                                             {/* {videoPageInfo.singleVideo.views} viewers */}
                                                             {getHoursDiffBetweenDates(lastBroadcastVideo.createdAt)}
