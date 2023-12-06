@@ -466,10 +466,10 @@ export default function Videos(){
         const qualities = newQualityArray.map((quality, index)=>{
             let qualityInfo; 
             switch(quality.quality) {
-                case '1280':
-                    qualityInfo = 1080;
-                  break;
                 case '1080':
+                    qualityInfo = 1080;
+                    break;
+                case '1280':
                     qualityInfo = 720;
                   break;
                 case '854':
