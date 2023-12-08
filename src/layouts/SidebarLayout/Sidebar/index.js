@@ -128,7 +128,7 @@ function Sidebar({userData}) {
                 background: theme.colors.alpha.trueWhite[10]
               }}
             />
-            <SidebarMenu />
+            <SidebarMenu userData={userData}/>
           </Scrollbar>
         </SidebarWrapper>
       </Drawer>

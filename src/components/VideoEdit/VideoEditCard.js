@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Grid, Container } from '@mui/material';
 import {
     Tooltip,
@@ -37,6 +37,7 @@ import {v4 as uuidv4} from 'uuid';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import LinearProgressWithLabel from '../../components/ProgressBar/LinearProgressBar';
 
 
 const KeyCodes = {
@@ -53,7 +54,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
         isPublished: '',
         videoPreviewStatus: ''
     })
-
+    const videoInputRef = useRef(null);
     const [tags, setTags] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     
@@ -80,6 +81,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     const [isPreviewImageUploaded, setIsPreviewImageUploaded] = useState(false);
     const [userUploadedImage, setUserUploadedImage] = useState('');
     const [isUpdatingVideoInfo, setIsUpdatingVideoInfo] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState([])
 
     // -------------------------Error state------------------------
     const [apiResponseMessage, setApiResponseMessage] = useState('');
@@ -90,12 +92,13 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
     const [openImageError, setOpenImageError] = useState(false);
     const [imageErrorMessage, setImageErrorMessage] = useState('Please enter image file.');
 
-    const [openTitleError, setOpenTitleError] = useState(false)
-    const [titleErrorMessage, setTitleErrorMessage] = useState('Video title is required')
-    const [openDescriptionError, setOpenDescriptionError] = useState(false)
-    const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('Video description is required')
-    const [openTattooCategoryIdError, setOpenTattooCategoryIdError] = useState(false)
-    const [tattooCategoryIdErrorMessage, setTattooCategoryIdErrorMessage] = useState('Tattoo category is required')
+    const [openTitleError, setOpenTitleError] = useState(false);
+    const [titleErrorMessage, setTitleErrorMessage] = useState('Video title is required');
+    const [openDescriptionError, setOpenDescriptionError] = useState(false);
+    const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('Video description is required');
+    const [openTattooCategoryIdError, setOpenTattooCategoryIdError] = useState(false);
+    const [tattooCategoryIdErrorMessage, setTattooCategoryIdErrorMessage] = useState('Tattoo category is required');
+    const [progress, setProgress] = useState(0);
 
 
     const handleMessageBoxClose = () => {
@@ -149,6 +152,7 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
             formData.append('tattooCategoryId', videoInput.tattooCategoryId);
             formData.append('isPublished', videoInput.isPublished);
             formData.append('videoPreviewStatus', videoInput.videoPreviewStatus);
+            formData.append('files', selectedVideo[0]);
             if(selectedPreviewPic.length > 0){
                 formData.append('files', selectedPreviewPic[0]);
             }
@@ -176,7 +180,12 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
 
             if(tagResult){
 
-                axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+                axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist/update/video/${videoDetails._id}`, formData, {
+                    onUploadProgress: data => {
+                        setProgress(Math.round((100 * data.loaded) / data.total))
+                    },
+                    headers: {'x-access-token': userInfo.jwtToken, 'Content-Type': 'multipart/form-data'}
+                }).then((data)=>{
                     let videoNewInfo = data.data.videoData;
     
                     setApiMessageType('success')
@@ -184,6 +193,8 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                     setIsUpdatingVideoInfo(false);
                     setVideoDetails(videoNewInfo);
                     videoUpdateFunction(videoNewInfo._id, videoNewInfo)
+                    setSelectedVideo([]);
+                    videoInputRef.current.value = '';
                     setLoading(false);
                     handleMessageBoxOpen()
                 }).catch((error)=>{
@@ -395,6 +406,20 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
         }
     };
 
+    const handleVideoFileChange = (e) => {
+        
+        if(e.target.files.length == 0 ){
+            setSelectedVideo([])
+        } else if (!e.target.files[0] || e.target.files[0].type.indexOf("video") !== -1) {
+            setSelectedVideo(e.target.files)
+        }
+      
+        // prepareFileUpload(files[0]);
+        
+        // setSelectedVideo(e.target.files[0])
+        
+    };
+
     const prvVideoBanner = {
         width: '600px',
         height: '334px'
@@ -514,17 +539,39 @@ function VideoEditCard({userData, videoDetail, tattooCategoryList, tagData, canc
                                                     </Box>
                                                 </Box>
                                             )}
+                                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                                <Button
+                                                    variant="contained"
+                                                    width="100%"
+                                                    sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
+                                                >
+                                                    <input type="file" accept="image/*" onChange={handleFileChange} />
+                                                </Button>
+                                                <Typography pl='10px'>
+                                                    Upload new preview image here
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                        {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                            {imageErrorMessage}
+                                        </Box>: null}
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }} pt={'15px'}>
+                                        <Box pr={3} pb={2}>
+                                            Upload Video:
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
+                                        <Box >
                                             <Button
                                                 variant="contained"
                                                 width="100%"
                                                 sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
                                             >
-                                                <input type="file" accept="image/*" onChange={handleFileChange} />
+                                                <input type="file" ref={videoInputRef}  accept="video/*" onChange={handleVideoFileChange} />
                                             </Button>
                                         </Box>
-                                        {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                            {imageErrorMessage}
-                                        </Box>: null}
+                                        {progress > 0 ?<LinearProgressWithLabel value={progress} />: null}
                                     </Grid>
                                     <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
                                         <Box mt={1} pr={3} pb={2}>

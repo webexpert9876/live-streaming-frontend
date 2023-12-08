@@ -55,6 +55,8 @@ export default function Videos(){
     const [isLockVideo, setIsLockVideo] = useState(false);
     const [showPlayer, setShowPlayer] = useState(false);
     const [isVideoFound, setIsVideoFound] = useState(true);
+    const [viewerRole, setViewerRole] = useState('');
+    const [isPrivateVideo, setIsPrivateVideo] = useState(false);
     const router = useRouter();
 
     let isViewCreated = false;
@@ -121,7 +123,7 @@ export default function Videos(){
 
                 let videoOtherInfo = await client.query({
                     query: gql`
-                    query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelIdForVideo: String, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String) {
+                    query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String) {
                         recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
                             _id
                             title
@@ -177,22 +179,6 @@ export default function Videos(){
                                 urlSlug
                               }
                         }
-                        videos(channelId: $channelIdForVideo) {
-                            _id
-                            title
-                            videoPreviewImage
-                            views
-                            isPublished
-                            createdAt
-                            description
-                            tags
-                            channelDetails {
-                                channelName
-                                channelPicture
-                                _id
-                                urlSlug
-                            }
-                        }
                         chatMessages(videoId: $chatVideoId) {
                             userDetail {
                                 firstName
@@ -209,7 +195,6 @@ export default function Videos(){
                     variables: {
                         "recentLiveStreamVideosChannelId2": videoInfo.videos[0].channelId,
                         "recentUploadedVideosChannelId2": videoInfo.videos[0].channelId,
-                        "channelIdForVideo": videoInfo.videos[0].channelId,
                         "getLastLiveStreamVideoUserId2": videoInfo.videos[0].userId,
                         "channelId": videoInfo.videos[0].channelId,
                         "chatVideoId": videoInfo.videos[0]._id
@@ -224,13 +209,21 @@ export default function Videos(){
                 setCurrentBroadcastVideo(...videoOtherInfo.liveStreamings);
                 setRecentLiveStreamVideos(videoOtherInfo.recentLiveStreamVideos);
                 setRecentUploadedVideos(videoOtherInfo.recentUploadedVideos);
-                setAllVideos(videoOtherInfo.videos);
+                // setAllVideos(videoOtherInfo.videos);
                 setOldReceivedMessages(videoOtherInfo.chatMessages);
     
                 if (userDetails && userIsLogedIn) {
+                    let isArtistOrAdmin = false;
+
+                    if(userDetails){
+                        if(userDetails._id == videoInfo.videos[0].userId){
+                            isArtistOrAdmin = true
+                        }
+                    }
+
                     client.query({
                         query: gql`
-                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
+                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String, $rolesId: ID, $channelIdForVideo: String, $isShowingPrivateVideo: Boolean) {
                             isChannelFollowing(channelId: $channelId, userId: $userId) {
                                 isFollowing
                                 channelId
@@ -240,21 +233,57 @@ export default function Videos(){
                             subscriptionDetails(channelId: $channelId2, userId: $userId2) {
                                 isActive
                             }
+                            roles(id: $rolesId) {
+                                role
+                            }
+                            videos(channelId: $channelIdForVideo, showPrivateVideo: $isShowingPrivateVideo) {
+                                _id
+                                title
+                                videoPreviewImage
+                                views
+                                userId
+                                isPublished
+                                createdAt
+                                description
+                                tags
+                                channelDetails {
+                                    channelName
+                                    channelPicture
+                                    _id
+                                    urlSlug
+                                }
+                            }
                         }
                     `,
                         variables: {
                             "channelId": videoInfo.videos[0].channelDetails[0]._id,
                             "userId": userDetails._id,
                             "channelId2": videoInfo.videos[0].channelDetails[0]._id,
-                            "userId2": userDetails._id
+                            "userId2": userDetails._id,
+                            "rolesId": userDetails.role,
+                            "channelIdForVideo": videoInfo.videos[0].channelId,
+                            "isShowingPrivateVideo": isArtistOrAdmin
                         }
                     }).then((result) => {
                         console.log('subscription detail', result.data);
+                        setAllVideos(result.data.videos);
                         setIsChannelFollowing(result.data.isChannelFollowing[0])
                         setUserDetail(userDetails);
+                        setViewerRole(result.data.roles[0].role);
+                        console.log('userDetails._id', userDetails._id)
+                        console.log('videoDetails.userId', videoInfo.videos[0].userId)
+                        console.log('result.data.roles[0].role', result.data.roles[0].role)
+                        
+                        if(userDetails._id != videoInfo.videos[0].userId && result.data.roles[0].role != 'admin'){
+                            console.log('result.data.roles[0].role', result.data.roles[0].role)
+                            setIsPrivateVideo(true)
+                        }
+
                         if(result.data.subscriptionDetails.length > 0){
                             setIsChannelSubscribed(result.data.subscriptionDetails[0])
                             if(result.data.subscriptionDetails[0].isActive){
+                                // setIsSubscribedUser(true)
+                                console.log('result.data.subscriptionDetails[0].isActive', result.data.subscriptionDetails[0].isActive)
                                 setIsSubscribedUser(true)
                                 setShowPlayer(true);
                             }
@@ -274,8 +303,39 @@ export default function Videos(){
                         console.log('data', data)
                     })
                 } else {
+
+                    client.query({
+                        query: gql`
+                        query Query ($channelIdForVideo: String, $isShowingPrivateVideo: Boolean) {
+                            
+                            videos(channelId: $channelIdForVideo, showPrivateVideo: $isShowingPrivateVideo) {
+                                _id
+                                title
+                                videoPreviewImage
+                                views
+                                isPublished
+                                createdAt
+                                description
+                                tags
+                                videoServiceType
+                                videoPreviewStatus
+                            }
+                        }
+                    `,
+                        variables: {
+                            "channelIdForVideo": videoInfo.videos[0].channelId,
+                            "isShowingPrivateVideo": false
+                        }
+                    }).then((result) => {
+                        console.log('subscription detail', result.data);
+                        setAllVideos(result.data.videos);
+                    });
+
                     setShowPlayer(true);
                     setIsSubscribedUser(false)
+                    if(videoInfo.videos[0].videoPreviewStatus == 'private'){
+                      setIsPrivateVideo(true);
+                    }
                 }
             } else {
                 setIsVideoFound(false);
@@ -338,13 +398,17 @@ export default function Videos(){
             }
 
             if(time >= 30){
-                if(subscribeInfo.isActive || videoInfor.videoPreviewStatus == 'public'){
-                    // console.log('----------------------- subscribed user --------------');
-                    // console.log('----------------------- public video --------------');
-                } else {
-                    // console.log('player stop--------------');
-                    player.pause();
-                    setIsLockVideo(true)
+                // console.log('----------------------- subscribed user --------------', subscribeInfo);
+                // console.log('-----------------------  video info --------------', videoInfor);
+                // console.log('-----------------------  user Detail info --------------', userDetail);
+                if(viewerRole != 'admin' && videoInfor.userId !== userDetail._id && videoInfor.videoPreviewStatus !== 'public'){
+                    
+                    if(`${subscribeInfo.isActive}` == 'false' ){
+                        // console.log('----------------------- subscribed user --------------');
+                        // console.log('----------------------- or public video --------------');
+                        player.pause();
+                        setIsLockVideo(true)
+                    }
                 }
             }
         })
@@ -543,27 +607,47 @@ export default function Videos(){
                                                 </Box>
                                             </>
                                             :
-                                                <VideoJS options = {{
-                                                    playbackRates: [0.5, 1, 1.25, 1.5, 2],
-                                                    autoplay: false,
-                                                    controls: true,
-                                                    responsive: true,
-                                                    fluid: true,
-                                                    poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
-                                                    className: 'video-page-player',
-                                                    // fill: true,
-                                                    controlBar: {
-                                                      children: [
-                                                        "playToggle",
-                                                        "progressControl",
-                                                        "volumePanel",
-                                                        "qualitySelector",
-                                                        "fullscreenToggle"
-                                                      ]
-                                                    },
-                                                    sources: showQualityUrl(videoDetails.videoQualityUrl)
-                                                  } }
-                                                onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
+                                                // videoDetails.videoPreviewStatus != 'private' ?
+                                                !isPrivateVideo ?
+                                                    <VideoJS options = {{
+                                                        playbackRates: [0.5, 1, 1.25, 1.5, 2],
+                                                        autoplay: false,
+                                                        controls: true,
+                                                        responsive: true,
+                                                        fluid: true,
+                                                        poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
+                                                        className: 'video-page-player',
+                                                        // fill: true,
+                                                        controlBar: {
+                                                        children: [
+                                                            "playToggle",
+                                                            "progressControl",
+                                                            "volumePanel",
+                                                            "qualitySelector",
+                                                            "fullscreenToggle"
+                                                        ]
+                                                        },
+                                                        sources: showQualityUrl(videoDetails.videoQualityUrl)
+                                                    } }
+                                                    onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
+                                                :
+                                                    <>
+                                                        <Box sx={{filter: 'blur(5px)'}}>
+                                                            <VideoJS  options={{
+                                                                autoplay: false,
+                                                                controls: true,
+                                                                responsive: true,
+                                                                fluid: true,
+                                                                poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
+                                                                className: 'video-page-player',
+                                                                sources: [{src: ``}]
+                                                            }} />
+                                                        </Box>
+                                                        <Box sx={{ position: 'absolute', top: '50%', right: '45%', textAlign: 'center'}}>
+                                                            <LockIcon fontSize="large"/>
+                                                            <Typography variant="h4" component='h4' >This is private video...!!</Typography>
+                                                        </Box>
+                                                    </>
                                         }
                                     </Typography>
                                     <Box sx={{padding: '20px', textAlign: 'start'}}>
@@ -619,7 +703,7 @@ export default function Videos(){
                                                         </Typography>}
                                                     </Typography>
                                                     {isChannelSubscribed ?
-                                                        (isChannelSubscribed.isActive ?
+                                                        (`${isChannelSubscribed.isActive}` == 'true' ?
                                                             <Button onClick={()=>handleSubscribeChannel(false)} variant="contained" startIcon={<StarIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribed</Button>
                                                             :
                                                             (Object.keys(userDetail).length === 0 ?

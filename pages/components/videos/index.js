@@ -624,7 +624,7 @@ const Video = () => {
                                                         {showAllVideoDetails.length > 0 ? showAllVideoDetails.map((video) => {
                                                             return (
                                                                 <TableRow hover key={video._id}>
-                                                                    <TableCell>
+                                                                    <TableCell sx={{cursor: 'pointer'}} onClick={()=>{router.push('/video/' + video._id)}}>
                                                                         <Typography
                                                                             variant="body1"
                                                                             fontWeight="bold"
@@ -638,7 +638,7 @@ const Video = () => {
                                                                             {format(video.createdAt, 'MMMM dd yyyy')}
                                                                         </Typography> */}
                                                                     </TableCell>
-                                                                    <TableCell>
+                                                                    <TableCell sx={{cursor: 'pointer'}} onClick={()=>{router.push('/video/' + video._id)}}>
                                                                         <Typography
                                                                             variant="body1"
                                                                             fontWeight="bold"

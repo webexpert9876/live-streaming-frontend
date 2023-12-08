@@ -112,7 +112,7 @@ export default function ChannelName() {
             if(channelInfo.channels.length > 0 ){
                 let streamInfo = await client.query({
                     query: gql`
-                    query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!, $channelIdForVideo: String) {
+                    query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!) {
                         streams(artistId: $artistId) {
                             title
                             streamCategory
@@ -165,18 +165,6 @@ export default function ChannelName() {
                         countChannelTotalFollowers(channelId: $channelId2) {
                             countFollower
                         }
-                        videos(channelId: $channelIdForVideo) {
-                            _id
-                            title
-                            videoPreviewImage
-                            views
-                            isPublished
-                            createdAt
-                            description
-                            tags
-                            videoServiceType
-                            videoPreviewStatus
-                        }
                     }
                     `,
                     variables: {
@@ -185,19 +173,18 @@ export default function ChannelName() {
                         "recentLiveStreamVideosChannelId2": channelInfo.channels[0]._id,
                         "recentUploadedVideosChannelId2": channelInfo.channels[0]._id,
                         "channelId": channelInfo.channels[0]._id,
-                        "channelId2": channelInfo.channels[0]._id,
-                        "channelIdForVideo": channelInfo.channels[0]._id
+                        "channelId2": channelInfo.channels[0]._id
                     }
                 }).then((result) => {
                     return result.data
                 });
                 
-                console.log('-----------------------------------------------streamInfo', streamInfo)
+                console.log('----------------------------streamInfo', streamInfo)
     
                 setChannelDetails(...channelInfo.channels);
                 setRecentLiveStreamVideos(streamInfo.recentLiveStreamVideos);
                 setRecentUploadedVideos(streamInfo.recentUploadedVideos);
-                setAllVideos(streamInfo.videos);
+                // setAllVideos(streamInfo.videos);
                 setCurrentBroadcast(...streamInfo.liveStreamings);
                 setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
                 setStreams(streamInfo.streams);
@@ -239,9 +226,18 @@ export default function ChannelName() {
                 }
     
                 if (userDetails && userIsLogedIn) {
+                    
+                    let isArtistOrAdmin = false;
+
+                    if(userDetails){
+                        if(userDetails._id == channelInfo.channels[0].userId){
+                            isArtistOrAdmin = true
+                        }
+                    }
+
                     client.query({
                         query: gql`
-                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String) {
+                        query Query ($channelId: String!, $userId: String!, $channelId2: String, $userId2: String, $channelIdForVideo: String, $rolesId: ID, $isShowingPrivateVideo: Boolean) {
                             isChannelFollowing(channelId: $channelId, userId: $userId) {
                                 isFollowing
                                 channelId
@@ -251,18 +247,37 @@ export default function ChannelName() {
                             subscriptionDetails(channelId: $channelId2, userId: $userId2) {
                                 isActive
                             }
+                            roles(id: $rolesId) {
+                                role
+                            }
+                            videos(channelId: $channelIdForVideo, showPrivateVideo: $isShowingPrivateVideo) {
+                                _id
+                                title
+                                videoPreviewImage
+                                views
+                                isPublished
+                                createdAt
+                                description
+                                tags
+                                videoServiceType
+                                videoPreviewStatus
+                            }
                         }
                     `,
                         variables: {
                             "channelId": channelInfo.channels[0]._id,
                             "userId": userDetails._id,
                             "channelId2": channelInfo.channels[0]._id,
-                            "userId2": userDetails._id
+                            "userId2": userDetails._id,
+                            "rolesId": userDetails.role,
+                            "channelIdForVideo": channelInfo.channels[0]._id,
+                            "isShowingPrivateVideo": isArtistOrAdmin
                         }
                     }).then((result) => {
                         console.log('subscription detail', result.data);
                         setIsChannelFollowing(result.data.isChannelFollowing[0])
                         setUserDetail(userDetails);
+                        setAllVideos(result.data.videos);
                         if(result.data.subscriptionDetails.length > 0){
                             setIsChannelSubscribed(result.data.subscriptionDetails[0])
                             if(result.data.subscriptionDetails[0].isActive){
@@ -277,6 +292,34 @@ export default function ChannelName() {
                             setIsChannelSubscribed({})
                         }
                         return result.data
+                    });
+                } else {
+                    
+                    client.query({
+                        query: gql`
+                        query Query ($channelIdForVideo: String, $isShowingPrivateVideo: Boolean) {
+                            
+                            videos(channelId: $channelIdForVideo, showPrivateVideo: $isShowingPrivateVideo) {
+                                _id
+                                title
+                                videoPreviewImage
+                                views
+                                isPublished
+                                createdAt
+                                description
+                                tags
+                                videoServiceType
+                                videoPreviewStatus
+                            }
+                        }
+                    `,
+                        variables: {
+                            "channelIdForVideo": channelInfo.channels[0]._id,
+                            "isShowingPrivateVideo": false
+                        }
+                    }).then((result) => {
+                        console.log('subscription detail', result.data);
+                        setAllVideos(result.data.videos);
                     });
                 }
             }
