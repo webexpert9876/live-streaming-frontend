@@ -3,7 +3,11 @@ import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
 import PageHeader from 'src/content/Management/Users/settings/PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Container, Tabs, Tab, Grid } from '@mui/material';
+import { Container,
+  Tabs,
+  Tab,
+  Grid
+} from '@mui/material';
 import Footer from 'src/components/Footer';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
@@ -17,6 +21,8 @@ import EditStreamTab from 'src/content/Management/Users/settings/EditStreamTab';
 import EditProfileTab from 'src/content/Management/Users/settings/EditProfileTab';
 import NotificationsTab from 'src/content/Management/Users/settings/NotificationsTab';
 import SecurityTab from 'src/content/Management/Users/settings/SecurityTab';
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
+import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
 
 const TabsWrapper = styled(Tabs)(
   () => `
@@ -29,7 +35,12 @@ const TabsWrapper = styled(Tabs)(
 function ManagementChannelSettings() {
   const [currentTab, setCurrentTab] = useState('edit_profile');
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
+  
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [allowUser, setAllowUser] = useState(false);
+
   const [artistStreamDetail, setArtistStreamDetail] = useState([]);
   const [tagList, setTagList] = useState([]);
   const [userInfo, setUserInfo]= useState({});
@@ -40,14 +51,29 @@ function ManagementChannelSettings() {
     // if(userInfo.length == 0){
     //   setUserInfo(authState);
     // }
-    let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getUserAllDetails(){
-      client.query({
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
+    async function getUserAllDetails(){
+      const roleInfo = await client.query({
         variables: {
-          usersId: userId._id,
-          artistId: userId._id,
+            "rolesId": userData[0].role
         },
         query: gql`
+            query Query($rolesId: ID) {
+                roles(id: $rolesId) {
+                    role
+                }
+            }
+        `,
+      });
+
+      if(roleInfo.data.roles[0].role == 'admin' || roleInfo.data.roles[0].role == 'artist'){
+        
+        client.query({
+          variables: {
+            usersId: userData[0]._id,
+            artistId: userData[0]._id,
+          },
+          query: gql`
             query Query($usersId: ID, $artistId: String!) {
               users(id: $usersId) {
                 _id
@@ -105,16 +131,38 @@ function ManagementChannelSettings() {
                 text
               }
             }
-        `,
-      }).then((result) => {
-          setTagList(result.data.tagForStream)
-          setUserData(result.data.users);
-          setTattooCategoryList(result.data.tattooCategories);
-          setArtistStreamDetail(result.data.streams)
-      });
+          `,
+        }).then((result) => {
+            setTagList(result.data.tagForStream)
+            setUserData(result.data.users);
+            setTattooCategoryList(result.data.tattooCategories);
+            setArtistStreamDetail(result.data.streams)
+            setAllowUser(true);
+        });
+      } else {
+        setAllowUser(false);
+      }
     }
-    getUserAllDetails();
-  },[])
+
+    if(isUserAvailable){   
+      if(isFetchedApi){
+        console.log('fetch')
+        setIsUserAvailable(false);
+        setIsFetchedApi(false);
+        getUserAllDetails();
+      }
+    }
+    // getUserAllDetails();
+  },[isUserAvailable]);
+
+  useEffect(()=>{
+    if(authState && Object.keys(authState).length > 0){
+        if(isFetchedApi){
+          setUserData([{...authState}])
+          setIsUserAvailable(true);
+        }
+    }
+  },[authState])
 
   const tabs = [
     { value: 'channel', label: 'Edit Channel' },
@@ -130,71 +178,79 @@ function ManagementChannelSettings() {
 
   return (
     <>
-    {userData.length > 0?<SidebarLayout userData={userData}>
-      <Head>
-        <title>Channel Settings - Applications</title>
-      </Head>
-      <PageTitleWrapper>
-        <PageHeader />
-      </PageTitleWrapper>
-      <Container maxWidth="false" className='tttttttttttttttttddd'>
-        <Grid
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={3}
-        >
-          <Grid item xs={12}>
-            <TabsWrapper
-              onChange={handleTabsChange}
-              value={currentTab}
-              variant="scrollable"
-              scrollButtons="auto"
-              textColor="primary"
-              indicatorColor="primary"
+    {userData.length > 0?
+      allowUser ?
+        <SidebarLayout userData={userData}>
+          <Head>
+            <title>Channel Settings - Applications</title>
+          </Head>
+          <PageTitleWrapper>
+            <PageHeader />
+          </PageTitleWrapper>
+          <Container maxWidth="false" className='tttttttttttttttttddd'>
+            <Grid
+              container
+              direction="row"
+              justifyContent="center"
+              alignItems="stretch"
+              spacing={3}
             >
-              {tabs.map((tab) => (
-                <Tab key={tab.value} label={tab.label} value={tab.value} />
-              ))}
-            </TabsWrapper>
-          </Grid>
-          <Grid item xs={12}>
-            {userData.length > 0 && userData[0].channelDetails.length > 0?
-              <>
-                {currentTab === 'channel' && <EditChannelTab channelData={userData[0].channelDetails} userData={userData}/>}
-              </>
-            : null }
+              <Grid item xs={12}>
+                <TabsWrapper
+                  onChange={handleTabsChange}
+                  value={currentTab}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  textColor="primary"
+                  indicatorColor="primary"
+                >
+                  {tabs.map((tab) => (
+                    <Tab key={tab.value} label={tab.label} value={tab.value} />
+                  ))}
+                </TabsWrapper>
+              </Grid>
+              <Grid item xs={12}>
+                {userData.length > 0 && userData[0].channelDetails.length > 0?
+                  <>
+                    {currentTab === 'channel' && <EditChannelTab channelData={userData[0].channelDetails} userData={userData}/>}
+                  </>
+                : null }
 
-            {tattooCategoryList.length > 0 && userData.length > 0 ?
-              <>
-                {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
-              </>
-            : null }
+                {tattooCategoryList.length > 0 && userData.length > 0 ?
+                  <>
+                    {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
+                  </>
+                : null }
 
-            {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList.length > 0 && userData.length > 0? 
-              <>
-                {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
-              </>
-              :
-                <>
-                  {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
-                </>
-            }
-            {currentTab === 'notifications' && <NotificationsTab />}
+                {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList.length > 0 && userData.length > 0? 
+                  <>
+                    {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
+                  </>
+                  :
+                    <>
+                      {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
+                    </>
+                }
+                {currentTab === 'notifications' && <NotificationsTab />}
 
-            {userData.length > 0?
-              <>
-                {currentTab === 'security' && <SecurityTab userData={userData}/>}
-              </>
-              : null
-            }
-          </Grid>
-        </Grid>
-      </Container>
-      <Footer />
-    </SidebarLayout>:null
-      }
+                {userData.length > 0?
+                  <>
+                    {currentTab === 'security' && <SecurityTab userData={userData}/>}
+                  </>
+                  : null
+                }
+              </Grid>
+            </Grid>
+          </Container>
+          <Footer/>
+        </SidebarLayout>
+      :
+        (
+          <PermissionDeniedDialog/>
+        )
+    :
+      <LoginDialog/>
+    }
     </>
   );
 }

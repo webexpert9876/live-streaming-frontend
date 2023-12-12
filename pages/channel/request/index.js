@@ -57,7 +57,13 @@ function ChannelRequest(){
     const authState = useSelector(selectAuthUser)
     const router = useRouter();
   const [authUserDetail, setAuthUserDetail] = useState(useSelector(selectAuthUser));
+
   const [userInfo, setUserInfo] = useState({});
+  const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [allowUser, setAllowUser] = useState(false);
+
   const [channelInfo, setChannelInfo]= useState({});
   const [hideAvatarImage, setHideAvatarImage] = useState(false);
   const [channelProfilePic, setChannelProfilePic] = useState('');
@@ -153,12 +159,12 @@ function ChannelRequest(){
     //   }
 
     // }
-    let userId = JSON.parse(localStorage.getItem('authUser'));
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
     function getUserAllDetails(){
       client.query({
         variables: {
-          usersId: userId._id,
-          artistId: userId._id,
+          usersId: userData[0]._id,
+          artistId: userData[0]._id,
         },
         query: gql`
             query Query($usersId: ID, $artistId: String) {
@@ -205,8 +211,27 @@ function ChannelRequest(){
         //   setArtistStreamDetail(result.data.streams)
       });
     }
-    getUserAllDetails();
-  }, [])
+
+    if(isUserAvailable){   
+        if(isFetchedApi){
+          console.log('fetch')
+          setIsUserAvailable(false);
+          setIsFetchedApi(false);
+          getUserAllDetails();
+        }
+    }
+
+    // getUserAllDetails();
+  }, [isUserAvailable])
+
+    useEffect(()=>{
+        if(authState && Object.keys(authState).length > 0){
+            if(isFetchedApi){
+            setUserData([{...authState}])
+            setIsUserAvailable(true);
+            }
+        }
+    },[authState])
 
   useEffect(()=>{
 

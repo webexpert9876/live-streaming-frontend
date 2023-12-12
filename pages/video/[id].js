@@ -770,9 +770,9 @@ export default function Videos(){
                                     <LiveStreamChatHistory oldReceivedMessages={oldReceivedMessages}/>
                                 </Box>
                             </>
-                            : <Box mt={"100px"}>
+                            : <Box mt={'100px'} sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
                                 <Typography variant="h3" component={'h3'}>
-                                    video not found..!!
+                                    Video Not Found ...!!!
                                 </Typography>
                             </Box>
                         }

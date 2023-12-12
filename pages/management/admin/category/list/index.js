@@ -48,10 +48,15 @@ import CategoryEdit from "src/components/category/CategoryEdit";
 import AddCategory from "src/components/category/AddCategory";
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
+import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
 
 
 function TattooCategory() {
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
 //  For pagination
   const [page, setPage] = useState(0);
@@ -85,53 +90,88 @@ function TattooCategory() {
     // if(userInfo.length == 0){
     //   setUserInfo(authState);
     // }
-    let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getUserAllDetails(){
-      client.query({
-        variables: {
-          usersId: userId._id
-        },
-        query: gql`
-            query Query($usersId: ID) {
-                users(id: $usersId) {
-                    _id
-                    firstName
-                    lastName
-                    username
-                    email
-                    password
-                    profilePicture
-                    urlSlug
-                    jwtToken
-                    role
-                    channelId
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
+    async function getUserAllDetails(){
+        const roleInfo = await client.query({
+            variables: {
+                "rolesId": userData[0].role
+            },
+            query: gql`
+                query Query($rolesId: ID) {
+                    roles(id: $rolesId) {
+                        role
+                    }
                 }
-                tattooCategories {
-                    _id
-                    urlSlug
-                    title
-                    description
-                    createdAt
-                    profilePicture
-                    tags
-                }
-                tagForStream {
-                    text
-                    id
-                }
-            }
-        `,
-      }).then((result) => {
-
-          setUserData(result.data.users);
-          setTattooCategoryList(result.data.tattooCategories);
-          setShowAllCategoriesDetails(result.data.tattooCategories);
-          setTagList(result.data.tagForStream)
-          setIsCheckPaginationChange(true)
+            `,
         });
+          
+        if(roleInfo.data.roles[0].role == 'admin'){
+            setIsAdminUser(true);
+            client.query({
+                variables: {
+                usersId: userData[0]._id
+                },
+                query: gql`
+                    query Query($usersId: ID) {
+                        users(id: $usersId) {
+                            _id
+                            firstName
+                            lastName
+                            username
+                            email
+                            password
+                            profilePicture
+                            urlSlug
+                            jwtToken
+                            role
+                            channelId
+                        }
+                        tattooCategories {
+                            _id
+                            urlSlug
+                            title
+                            description
+                            createdAt
+                            profilePicture
+                            tags
+                        }
+                        tagForStream {
+                            text
+                            id
+                        }
+                    }
+                `,
+            }).then((result) => {
+
+                setUserData(result.data.users);
+                setTattooCategoryList(result.data.tattooCategories);
+                setShowAllCategoriesDetails(result.data.tattooCategories);
+                setTagList(result.data.tagForStream)
+                setIsCheckPaginationChange(true)
+            });
+        } else {
+            setIsAdminUser(false);
+        }
     }
-    getUserAllDetails();
-  },[])
+
+    if(isUserAvailable){
+            
+        if(isFetchedApi){
+          console.log('fetch')
+          setIsUserAvailable(false);
+          setIsFetchedApi(false);
+          getUserAllDetails();
+        }
+    }
+    // getUserAllDetails();
+  },[isUserAvailable])
+
+    useEffect(()=>{
+        if(authState && Object.keys(authState).length > 0){
+            setUserData([{...authState}])
+            setIsUserAvailable(true);
+        }
+    },[authState])
 
   useEffect(()=>{
     if(isCheckPaginationChange){
@@ -274,201 +314,208 @@ function TattooCategory() {
         <>
             {/* <SidebarLayout userData={[{role: '647f15e20d8b7330ed890da4'}]}> */}
             {userData.length > 0?
-                <SidebarLayout userData={userData}>
-                    <Head>
-                        <title>All Tattoo Category</title>
-                    </Head>
-                    {
-                        isTattooCategoryEditing?
-                            <>
-                                <PageTitleWrapper>
-                                    <PageHeader categoryAddFunction={handleAddingCategory}/>
-                                </PageTitleWrapper>
-                                <Container maxWidth="lg">
-                                    <Grid
-                                        container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="stretch"
-                                        spacing={3}
-                                    >
-                                        <Grid item xs={12}></Grid>
-                                        <Card style={{width: "97%"}}>
-                                            <CardHeader title="Tattoo Categories" />
-                                            <Divider />
-                                            <TableContainer>
-                                                <Table>
-                                                    <TableHead>
-                                                        <TableRow>
-                                                            <TableCell>Title</TableCell>
-                                                            <TableCell>Description</TableCell>
-                                                            <TableCell>Picture</TableCell>
-                                                            <TableCell align='center'>Tags</TableCell>
-                                                            <TableCell align="right">Actions</TableCell>
-                                                        </TableRow>
-                                                    </TableHead>
-                                                    <TableBody>
-                                                        {showAllCategoriesDetails.map((category) => {
-                                                            return (
-                                                                <TableRow hover key={category._id}>
-                                                                    <TableCell>
-                                                                        <Typography
-                                                                            variant="body1"
-                                                                            fontWeight="bold"
-                                                                            color="text.primary"
-                                                                            gutterBottom
-                                                                        >
-                                                                            {category.title}
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <Typography
-                                                                            variant="body1"
-                                                                            fontWeight="bold"
-                                                                            color="text.primary"
-                                                                            gutterBottom
-                                                                        >
-                                                                            {category.description.slice(0, 80)}...
-                                                                        </Typography>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <img width={50} height={50} src={`${process.env.NEXT_PUBLIC_S3_URL}/${category.profilePicture}`}></img>
-                                                                    </TableCell>
-                                                                    <TableCell align='center'>
-                                                                        <Typography
-                                                                            variant="body1"
-                                                                            fontWeight="bold"
-                                                                            color="text.primary"
-                                                                            gutterBottom
-                                                                            noWrap
-                                                                        >
-                                                                            {category.tags.slice(0,2).map((tag, index)=>{
-                                                                                return(<Button key={index} variant="contained" onClick={()=> router.push(`/tag/${tag}`)} sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
-                                                                                {/* <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link> */}{tag}
-                                                                            </Button>)
-                                                                            })}
-                                                                        </Typography>
-                                                            
-                                                                    </TableCell>
-                                                                    <TableCell align="right">
-                                                                        <Tooltip title="Edit Tattoo Category" arrow>
-                                                                            <IconButton
-                                                                                sx={{
-                                                                                    '&:hover': {
-                                                                                        background: theme.colors.primary.lighter
-                                                                                    },
-                                                                                    color: theme.palette.primary.main
-                                                                                }}
-                                                                                color="inherit"
-                                                                                size="small"
-                                                                                onClick={()=>{handleClickOpen('tattooCategoryEdit', category)}}
+                isAdminUser?
+                    (<SidebarLayout userData={userData}>
+                        <Head>
+                            <title>All Tattoo Category</title>
+                        </Head>
+                        {
+                            isTattooCategoryEditing?
+                                <>
+                                    <PageTitleWrapper>
+                                        <PageHeader categoryAddFunction={handleAddingCategory}/>
+                                    </PageTitleWrapper>
+                                    <Container maxWidth="lg">
+                                        <Grid
+                                            container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="stretch"
+                                            spacing={3}
+                                        >
+                                            <Grid item xs={12}></Grid>
+                                            <Card style={{width: "97%"}}>
+                                                <CardHeader title="Tattoo Categories" />
+                                                <Divider />
+                                                <TableContainer>
+                                                    <Table>
+                                                        <TableHead>
+                                                            <TableRow>
+                                                                <TableCell>Title</TableCell>
+                                                                <TableCell>Description</TableCell>
+                                                                <TableCell>Picture</TableCell>
+                                                                <TableCell align='center'>Tags</TableCell>
+                                                                <TableCell align="right">Actions</TableCell>
+                                                            </TableRow>
+                                                        </TableHead>
+                                                        <TableBody>
+                                                            {showAllCategoriesDetails.map((category) => {
+                                                                return (
+                                                                    <TableRow hover key={category._id}>
+                                                                        <TableCell>
+                                                                            <Typography
+                                                                                variant="body1"
+                                                                                fontWeight="bold"
+                                                                                color="text.primary"
+                                                                                gutterBottom
                                                                             >
-                                                                                <EditTwoToneIcon fontSize="small" />
-                                                                            </IconButton>
-                                                                        </Tooltip>
-                                                                        <Tooltip title="Delete Tattoo Category" arrow>
-                                                                            <IconButton
-                                                                                sx={{
-                                                                                    '&:hover': { background: theme.colors.error.lighter },
-                                                                                    color: theme.palette.error.main
-                                                                                }}
-                                                                                color="inherit"
-                                                                                size="small"
-                                                                                onClick={()=>{handleClickOpen('tattooCategoryDelete', category)}}
+                                                                                {category.title}
+                                                                            </Typography>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Typography
+                                                                                variant="body1"
+                                                                                fontWeight="bold"
+                                                                                color="text.primary"
+                                                                                gutterBottom
                                                                             >
-                                                                                <DeleteTwoToneIcon fontSize="small" />
-                                                                            </IconButton>
-                                                                        </Tooltip>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            );
-                                                        })}
-                                                    </TableBody>
-                                                </Table>
-                                            </TableContainer>
-                                            <Box p={2}>
-                                                <TablePagination
-                                                    component="div"
-                                                    count={tattooCategoryList.length}
-                                                    onPageChange={handlePageChange}
-                                                    onRowsPerPageChange={handleLimitChange}
-                                                    page={page}
-                                                    rowsPerPage={limit}
-                                                    rowsPerPageOptions={[5, 10, 25, 30]}
+                                                                                {category.description.slice(0, 80)}...
+                                                                            </Typography>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <img width={50} height={50} src={`${process.env.NEXT_PUBLIC_S3_URL}/${category.profilePicture}`}></img>
+                                                                        </TableCell>
+                                                                        <TableCell align='center'>
+                                                                            <Typography
+                                                                                variant="body1"
+                                                                                fontWeight="bold"
+                                                                                color="text.primary"
+                                                                                gutterBottom
+                                                                                noWrap
+                                                                            >
+                                                                                {category.tags.slice(0,2).map((tag, index)=>{
+                                                                                    return(<Button key={index} variant="contained" onClick={()=> router.push(`/tag/${tag}`)} sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
+                                                                                    {/* <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link> */}{tag}
+                                                                                </Button>)
+                                                                                })}
+                                                                            </Typography>
+                                                                
+                                                                        </TableCell>
+                                                                        <TableCell align="right">
+                                                                            <Tooltip title="Edit Tattoo Category" arrow>
+                                                                                <IconButton
+                                                                                    sx={{
+                                                                                        '&:hover': {
+                                                                                            background: theme.colors.primary.lighter
+                                                                                        },
+                                                                                        color: theme.palette.primary.main
+                                                                                    }}
+                                                                                    color="inherit"
+                                                                                    size="small"
+                                                                                    onClick={()=>{handleClickOpen('tattooCategoryEdit', category)}}
+                                                                                >
+                                                                                    <EditTwoToneIcon fontSize="small" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                            <Tooltip title="Delete Tattoo Category" arrow>
+                                                                                <IconButton
+                                                                                    sx={{
+                                                                                        '&:hover': { background: theme.colors.error.lighter },
+                                                                                        color: theme.palette.error.main
+                                                                                    }}
+                                                                                    color="inherit"
+                                                                                    size="small"
+                                                                                    onClick={()=>{handleClickOpen('tattooCategoryDelete', category)}}
+                                                                                >
+                                                                                    <DeleteTwoToneIcon fontSize="small" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                );
+                                                            })}
+                                                        </TableBody>
+                                                    </Table>
+                                                </TableContainer>
+                                                <Box p={2}>
+                                                    <TablePagination
+                                                        component="div"
+                                                        count={tattooCategoryList.length}
+                                                        onPageChange={handlePageChange}
+                                                        onRowsPerPageChange={handleLimitChange}
+                                                        page={page}
+                                                        rowsPerPage={limit}
+                                                        rowsPerPageOptions={[5, 10, 25, 30]}
+                                                    />
+                                                </Box>
+                                            </Card>
+                                        </Grid>
+                                        
+                    {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
+                                        <Dialog open={openDeleteDialog} onClose={()=>handleClose('tattooCategoryDelete')}>
+                                            <DialogTitle>Delete Tattoo Category Details</DialogTitle>
+                                            <DialogContent>
+                                                <DialogContentText>
+                                                    Are you sure? You want delete this Category. If you want to delete this Category type delete in input box.
+                                                </DialogContentText>
+                                                <TextField
+                                                    autoFocus
+                                                    margin="dense"
+                                                    id="delete-text"
+                                                    label="Delete"
+                                                    type="text"
+                                                    fullWidth
+                                                    variant="standard"
+                                                    value={deleteInputValue}
+                                                    onChange={(e)=>{setDeleteInputValue(e.target.value)}}
                                                 />
-                                            </Box>
-                                        </Card>
-                                    </Grid>
-                                    
-                {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
-                                    <Dialog open={openDeleteDialog} onClose={()=>handleClose('tattooCategoryDelete')}>
-                                        <DialogTitle>Delete Tattoo Category Details</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText>
-                                                Are you sure? You want delete this Category. If you want to delete this Category type delete in input box.
-                                            </DialogContentText>
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="delete-text"
-                                                label="Delete"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                                value={deleteInputValue}
-                                                onChange={(e)=>{setDeleteInputValue(e.target.value)}}
-                                            />
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={()=>handleClose('tattooCategoryDelete')}>Cancel</Button>
-                                            <Button onClick={handleDeleteCategory}>Delete</Button>
-                                        </DialogActions>
-                                    </Dialog>
-                                </Container >
-                            </>
-                        :
-                            isAddingTattooCategory?
-                                userData && tagList &&
-                                <AddCategory 
-                                    userData={userData}
-                                    tagData={tagList}
-                                    cancelBtnFunction={handleCancelBtnFunction}
-                                    tagUpdateFunction={handleTagListUpdate}
-                                    newCategoryAddFunction={handleAddNewCategory}
-                                />
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={()=>handleClose('tattooCategoryDelete')}>Cancel</Button>
+                                                <Button onClick={handleDeleteCategory}>Delete</Button>
+                                            </DialogActions>
+                                        </Dialog>
+                                    </Container >
+                                </>
                             :
-                                // (userData && selectedRowDetails && tattooCategoryList && tagList) ? 
-                                (userData && selectedRowDetails && tagList) ? 
-                                    <CategoryEdit 
-                                        userData={userData} 
-                                        tattooCategoryDetail={selectedRowDetails}
-                                        // tattooCategoryList={tattooCategoryList}
+                                isAddingTattooCategory?
+                                    userData && tagList &&
+                                    <AddCategory 
+                                        userData={userData}
                                         tagData={tagList}
                                         cancelBtnFunction={handleCancelBtnFunction}
-                                        categoryUpdateFunction={handleListCategoryUpdate}
                                         tagUpdateFunction={handleTagListUpdate}
-                                    /> 
-                                    : null
-                    }
+                                        newCategoryAddFunction={handleAddNewCategory}
+                                    />
+                                :
+                                    // (userData && selectedRowDetails && tattooCategoryList && tagList) ? 
+                                    (userData && selectedRowDetails && tagList) ? 
+                                        <CategoryEdit 
+                                            userData={userData} 
+                                            tattooCategoryDetail={selectedRowDetails}
+                                            // tattooCategoryList={tattooCategoryList}
+                                            tagData={tagList}
+                                            cancelBtnFunction={handleCancelBtnFunction}
+                                            categoryUpdateFunction={handleListCategoryUpdate}
+                                            tagUpdateFunction={handleTagListUpdate}
+                                        /> 
+                                        : null
+                        }
 
-                {/* --------------------------------------------------------Error or success message------------------------------------------ */}
-                    <Stack spacing={2} sx={{ width: '100%' }}>
-                        <Snackbar anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }} open={open}
-                        autoHideDuration={6000}
-                        onClose={handleMessageBoxClose} >
-                        <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
-                            {apiResponseMessage}
-                        </Alert>
-                        </Snackbar>
-                    </Stack>
+                    {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+                        <Stack spacing={2} sx={{ width: '100%' }}>
+                            <Snackbar anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }} open={open}
+                            autoHideDuration={6000}
+                            onClose={handleMessageBoxClose} >
+                            <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                                {apiResponseMessage}
+                            </Alert>
+                            </Snackbar>
+                        </Stack>
 
 
-                    <Footer />
-                </SidebarLayout>
-            : null}
+                        <Footer />
+                    </SidebarLayout>)
+                :
+                    (
+                        <PermissionDeniedDialog/>
+                    )
+            : 
+                <LoginDialog/>
+            }
 
         </>
     );

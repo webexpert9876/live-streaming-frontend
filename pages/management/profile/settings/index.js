@@ -16,6 +16,7 @@ import { gql } from "@apollo/client";
 import EditProfileTab from 'src/content/Management/Users/settings/EditProfileTab';
 import NotificationsTab from 'src/content/Management/Users/settings/NotificationsTab';
 import SecurityTab from 'src/content/Management/Users/settings/SecurityTab';
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
 
 const TabsWrapper = styled(Tabs)(
   () => `
@@ -28,7 +29,12 @@ const TabsWrapper = styled(Tabs)(
 function ManagementUserSettings() {
   const [currentTab, setCurrentTab] = useState('edit_profile');
   const [tattooCategoryList, setTattooCategoryList]= useState([]);
+
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [allowUser, setAllowUser] = useState(false);
+
   const [userInfo, setUserInfo]= useState({});
   const authState = useSelector(selectAuthUser)
   const router = useRouter();
@@ -37,11 +43,12 @@ function ManagementUserSettings() {
     // if(userInfo.length == 0){
     //   setUserInfo(authState);
     // }
-    let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getTattooCategoryList(){
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
+    async function getTattooCategoryList(){
+
       client.query({
         variables: {
-          usersId: userId._id,
+          usersId: userData[0]._id,
         },
         query: gql`
             query Query($usersId: ID) {
@@ -73,8 +80,27 @@ function ManagementUserSettings() {
           setTattooCategoryList(result.data.tattooCategories);
       });
     }
-    getTattooCategoryList();
-  },[])
+
+    if(isUserAvailable){   
+      if(isFetchedApi){
+        console.log('fetch')
+        setIsUserAvailable(false);
+        setIsFetchedApi(false);
+        getTattooCategoryList();
+      }
+    }
+    
+    // getTattooCategoryList();
+  },[isUserAvailable]);
+
+  useEffect(()=>{
+    if(authState && Object.keys(authState).length > 0){
+        if(isFetchedApi){
+          setUserData([{...authState}])
+          setIsUserAvailable(true);
+        }
+    }
+  },[authState])
 
   const tabs = [
     // { value: 'activity', label: 'Activity' },
@@ -89,55 +115,58 @@ function ManagementUserSettings() {
 
   return (
     <>
-    {userData.length > 0?<SidebarLayout userData={userData}>
-    <Head>
-        <title>Settings - Applications</title>
-      </Head>
-      <PageTitleWrapper>
-        <PageHeader />
-      </PageTitleWrapper>
-      <Container maxWidth="lg">
-        <Grid
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={3}
-        >
-          <Grid item xs={12}>
-            <TabsWrapper
-              onChange={handleTabsChange}
-              value={currentTab}
-              variant="scrollable"
-              scrollButtons="auto"
-              textColor="primary"
-              indicatorColor="primary"
-            >
-              {tabs.map((tab) => (
-                <Tab key={tab.value} label={tab.label} value={tab.value} />
-              ))}
-            </TabsWrapper>
+    {userData.length > 0?
+      <SidebarLayout userData={userData}>
+        <Head>
+          <title>Settings - Applications</title>
+        </Head>
+        <PageTitleWrapper>
+          <PageHeader />
+        </PageTitleWrapper>
+        <Container maxWidth="lg">
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="stretch"
+            spacing={3}
+          >
+            <Grid item xs={12}>
+              <TabsWrapper
+                onChange={handleTabsChange}
+                value={currentTab}
+                variant="scrollable"
+                scrollButtons="auto"
+                textColor="primary"
+                indicatorColor="primary"
+              >
+                {tabs.map((tab) => (
+                  <Tab key={tab.value} label={tab.label} value={tab.value} />
+                ))}
+              </TabsWrapper>
+            </Grid>
+            <Grid item xs={12}>
+              {/* {currentTab === 'activity' && <ActivityTab />} */}
+              {tattooCategoryList.length > 0 && userData.length > 0 ?
+                <>
+                  {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
+                </>
+              : null }
+              {currentTab === 'notifications' && <NotificationsTab />}
+              {userData.length > 0?
+                <>
+                  {currentTab === 'security' && <SecurityTab userData={userData}/>}
+                </>
+                : null
+              }
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            {/* {currentTab === 'activity' && <ActivityTab />} */}
-            {tattooCategoryList.length > 0 && userData.length > 0 ?
-              <>
-                {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
-              </>
-            : null }
-            {currentTab === 'notifications' && <NotificationsTab />}
-            {userData.length > 0?
-              <>
-                {currentTab === 'security' && <SecurityTab userData={userData}/>}
-              </>
-              : null
-            }
-          </Grid>
-        </Grid>
-      </Container>
-      <Footer />
-    </SidebarLayout>:null
-      }
+        </Container>
+        <Footer />
+      </SidebarLayout>
+    :
+      <LoginDialog/>
+    }
     </>
   );
 }

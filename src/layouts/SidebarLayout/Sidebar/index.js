@@ -42,6 +42,7 @@ function Sidebar({userData}) {
             xs: 'none',
             lg: 'inline-block'
           },
+          marginTop: '90px',
           position: 'fixed',
           left: 0,
           top: 0,
@@ -54,7 +55,7 @@ function Sidebar({userData}) {
         }}
       >
         <Scrollbar>
-          <Box mt={3}>
+          {/* <Box mt={3}>
             <Box
               mx={2}
               sx={{
@@ -63,14 +64,14 @@ function Sidebar({userData}) {
             >
               <Logo />
             </Box>
-          </Box>
-          <Divider
+          </Box> */}
+          {/* <Divider
             sx={{
               mt: theme.spacing(3),
               mx: theme.spacing(2),
               background: theme.colors.alpha.trueWhite[10]
             }}
-          />
+          /> */}
           <SidebarMenu userData={userData}/>
         </Scrollbar>
         {/* <Divider

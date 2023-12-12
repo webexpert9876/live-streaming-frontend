@@ -26,12 +26,7 @@ import {
     MenuItem,
     Typography,
     useTheme,
-    CardHeader,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle
+    CardHeader
 } from '@mui/material';
 
 import Label from 'src/components/Label';
@@ -39,7 +34,12 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import client from "../../../../../graphql";
 import { gql } from "@apollo/client";
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthUser } from 'store/slices/authSlice';
+import { useRouter } from 'next/router';
 import axios from 'axios';
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
+import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
 
 
 const ChannelListPage = () => {
@@ -50,6 +50,12 @@ const ChannelListPage = () => {
   });
 
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const authState = useSelector(selectAuthUser)
+  const router = useRouter();
+
   const [allChannelDetails, setAllChannelDetails]= useState([]);
   const [showAllChannelDetails, setShowAllChannelDetails]= useState([]);
   const [isCheckStatusChange, setIsCheckStatusChange]= useState(false);
@@ -88,54 +94,89 @@ const ChannelListPage = () => {
 
 
   useEffect(()=>{
-    let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getUserAllDetails(){
-      client.query({
-        variables: {
-          usersId: userId._id,
-        },
-        query: gql`
-            query Query($usersId: ID) {
-                users(id: $usersId) {
-                    _id
-                    firstName
-                    lastName
-                    username
-                    email
-                    password
-                    profilePicture
-                    urlSlug
-                    jwtToken
-                    role
-                    channelId
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
+    async function getUserAllDetails(){
+        const roleInfo = await client.query({
+            variables: {
+                "rolesId": userData[0].role
+            },
+            query: gql`
+                query Query($rolesId: ID) {
+                    roles(id: $rolesId) {
+                        role
+                    }
                 }
-                channels {
-                    channelName
-                    _id
-                    channelCoverImage
-                    blocked
-                    channelPicture
-                    createdAt
-                    description
-                    isApproved
-                    location
-                    subscribers
-                    updatedAt
-                    urlSlug
-                    userId
-                }
-            }
-        `,
-      }).then((result) => {
-          setUserData(result.data.users);
-          setAllChannelDetails(result.data.channels);
-          setShowAllChannelDetails(result.data.channels);
-          setFilterCount(result.data.channels.length);
-          setIsCheckStatusChange(true)
+            `,
         });
+
+        if(roleInfo.data.roles[0].role == 'admin'){
+            setIsAdminUser(true);
+            client.query({
+              variables: {
+                usersId: userData[0]._id,
+              },
+              query: gql`
+                  query Query($usersId: ID) {
+                      users(id: $usersId) {
+                          _id
+                          firstName
+                          lastName
+                          username
+                          email
+                          password
+                          profilePicture
+                          urlSlug
+                          jwtToken
+                          role
+                          channelId
+                      }
+                      channels {
+                          channelName
+                          _id
+                          channelCoverImage
+                          blocked
+                          channelPicture
+                          createdAt
+                          description
+                          isApproved
+                          location
+                          subscribers
+                          updatedAt
+                          urlSlug
+                          userId
+                      }
+                  }
+              `,
+            }).then((result) => {
+                setUserData(result.data.users);
+                setAllChannelDetails(result.data.channels);
+                setShowAllChannelDetails(result.data.channels);
+                setFilterCount(result.data.channels.length);
+                setIsCheckStatusChange(true)
+            });
+        } else {
+            setIsAdminUser(false);
+        }
     }
-    getUserAllDetails();
-  },[])
+    
+    if(isUserAvailable){
+        
+        if(isFetchedApi){
+          console.log('fetch')
+          setIsUserAvailable(false);
+          setIsFetchedApi(false);
+          getUserAllDetails();
+        }
+    }
+    // getUserAllDetails();
+  },[isUserAvailable])
+
+  useEffect(()=>{
+    if(authState && Object.keys(authState).length > 0){
+        setUserData([{...authState}])
+        setIsUserAvailable(true);
+    }
+},[authState])
 
   useEffect(()=>{
     if(isCheckStatusChange){
@@ -255,6 +296,7 @@ const applyPagination = (allChannels, page, limit) => {
   return (
     <>
         {userData.length > 0?
+            isAdminUser?
                 <SidebarLayout userData={userData}>
                     <Head>
                         <title>All Channels</title>
@@ -412,81 +454,18 @@ const applyPagination = (allChannels, page, limit) => {
                                             </Box>
                                             </Card>
                                     </Grid>
-                                    
-                {/* ---------------------------------------Video Delete box---------------------------------- */}
-                                    {/* <Dialog open={openDeleteDialog} onClose={()=>handleClose('videoDelete')}>
-                                        <DialogTitle>Delete Video Details</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText>
-                                                Are you sure? You want delete this video. If you want to delete this video type delete in input box.
-                                            </DialogContentText>
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="delete-text"
-                                                label="Delete"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                                value={deleteInputValue}
-                                                onChange={(e)=>{setDeleteInputValue(e.target.value)}}
-                                            />
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={()=>handleClose('videoDelete')}>Cancel</Button>
-                                            <Button onClick={handleDeleteVideo}>Delete</Button>
-                                        </DialogActions>
-                                    </Dialog> */}
-
-                    {/* ---------------------------------------Video edit box---------------------------------- */}
-                                    {/* <Dialog open={openVideoEditDialog} onClose={()=>handleClose('videoEdit')}>
-                                        <DialogTitle>Edit Video Details</DialogTitle>
-                                        <DialogContent>
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="title"
-                                                label="Video Title"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                            />
-                                            <TextField
-                                                autoFocus
-                                                margin="dense"
-                                                id="description"
-                                                label="Video description"
-                                                type="text"
-                                                fullWidth
-                                                variant="standard"
-                                            />
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={()=>handleClose('videoEdit')}>Cancel</Button>
-                                            <Button >Update</Button>
-                                        </DialogActions>
-                                    </Dialog> */}
-
                                 </Container >
                             </>
                     }
-
-                {/* --------------------------------------------------------Error or success message------------------------------------------ */}
-                    {/* <Stack spacing={2} sx={{ width: '100%' }}>
-                        <Snackbar anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }} open={open} autoHideDuration={6000} onClose={handleMessageBoxClose} >
-                        <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
-                            {apiResponseMessage}
-                        </Alert>
-                        </Snackbar>
-                    </Stack> */}
-
-
                     <Footer />
                 </SidebarLayout>
-            : null}
+            :
+                (
+                    <PermissionDeniedDialog/>
+                )
+        : 
+            <LoginDialog/>
+        }
     </>
   );
 };

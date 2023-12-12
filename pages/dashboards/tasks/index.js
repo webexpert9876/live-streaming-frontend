@@ -24,7 +24,11 @@ import Checklist from 'src/content/Dashboards/Tasks/Checklist';
 import Profile from 'src/content/Dashboards/Tasks/Profile';
 import TaskSearch from 'src/content/Dashboards/Tasks/TaskSearch';
 import client from "../../../graphql";
+import { selectAuthUser } from 'store/slices/authSlice';
 import { gql } from "@apollo/client";
+import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
 
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
@@ -110,9 +114,12 @@ const TabsContainerWrapper = styled(Box)(
 
 function DashboardTasks() {
   const theme = useTheme();
-
-  const [currentTab, setCurrentTab] = useState('analytics');
+  const authState = useSelector(selectAuthUser)
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [currentTab, setCurrentTab] = useState('analytics');
+  const router = useRouter();
 
   const tabs = [
     { value: 'analytics', label: 'Analytics Overview' },
@@ -121,11 +128,11 @@ function DashboardTasks() {
 
   useEffect(()=>{
 
-    let userId = JSON.parse(localStorage.getItem('authUser'));
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
     function getUserAllDetails(){
       client.query({
         variables: {
-          usersId: userId._id
+          usersId: userData[0]._id
         },
         query: gql`
             query Query($usersId: ID) {
@@ -152,8 +159,25 @@ function DashboardTasks() {
           setUserData(result.data.users);
         });
     }
-    getUserAllDetails();
-  },[])
+
+    if(isUserAvailable){
+            
+      if(isFetchedApi){
+        console.log('fetch')
+        setIsUserAvailable(false);
+        setIsFetchedApi(false);
+        getUserAllDetails();
+      }
+    }
+    // getUserAllDetails();
+  },[isUserAvailable])
+
+  useEffect(()=>{
+    if(authState && Object.keys(authState).length > 0){
+        setUserData([{...authState}])
+        setIsUserAvailable(true);
+    }
+},[authState])
 
   const handleTabsChange = (_event, value) => {
     setCurrentTab(value);
@@ -263,8 +287,9 @@ function DashboardTasks() {
           </Container>
           <Footer />
         </SidebarLayout>
-      : null}
-
+      : 
+        <LoginDialog/>
+      }
     </>
   );
 }

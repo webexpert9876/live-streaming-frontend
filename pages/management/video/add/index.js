@@ -20,7 +20,8 @@ import {
     NativeSelect,
     Avatar,
     Slider,
-    Alert
+    Alert,
+    Dialog
 } from '@mui/material';
 import AvatarEditor from 'react-avatar-editor';
 import {v4 as uuidv4} from 'uuid';
@@ -40,6 +41,8 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Text from '../../../../src/components/Text'
 import LinearProgressWithLabel from '../../../../src/components/ProgressBar/LinearProgressBar'
+import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
+import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
 
 const KeyCodes = {
     comma: 188,
@@ -49,6 +52,10 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Video = () => {
   const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+  const [allowUser, setAllowUser] = useState(false);
+
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -110,68 +117,105 @@ const Video = () => {
 
   const [progress, setProgress] = useState(0);
 
-  useEffect(()=>{
+    useEffect(()=>{
 
-    let userId = JSON.parse(localStorage.getItem('authUser'));
-    function getUserAllDetails(){
-      client.query({
-        variables: {
-          usersId: userId._id
-        },
-        query: gql`
-            query Query($usersId: ID) {
-                users(id: $usersId) {
-                    _id
-                    firstName
-                    lastName
-                    username
-                    email
-                    profilePicture
-                    urlSlug
-                    jwtToken
-                    role
-                    channelId
-                    channelDetails {
-                        channelName
-                        _id
-                        channelPicture
-                        channelCoverImage
-                        description
-                        subscribers
-                        userId
-                        urlSlug
-                        location
-                        createdAt
-                        socialLinks {
-                            platform
-                            url
+        // let userId = JSON.parse(localStorage.getItem('authUser'));
+        async function getUserAllDetails(){
+            const roleInfo = await client.query({
+                variables: {
+                    "rolesId": userData[0].role
+                },
+                query: gql`
+                    query Query($rolesId: ID) {
+                        roles(id: $rolesId) {
+                            role
                         }
                     }
-                    interestedStyleDetail {
-                        title
-                        _id
-                    }
-                }
-                tattooCategories {
-                    _id
-                    urlSlug
-                    title
-                }
-                tagForStream {
-                    text
-                    id
-                }
+                `,
+            });
+
+            if(roleInfo.data.roles[0].role == 'admin' || roleInfo.data.roles[0].role == 'artist'){
+
+                client.query({
+                    variables: {
+                    usersId: userData[0]._id
+                    },
+                    query: gql`
+                        query Query($usersId: ID) {
+                            users(id: $usersId) {
+                                _id
+                                firstName
+                                lastName
+                                username
+                                email
+                                profilePicture
+                                urlSlug
+                                jwtToken
+                                role
+                                channelId
+                                channelDetails {
+                                    channelName
+                                    _id
+                                    channelPicture
+                                    channelCoverImage
+                                    description
+                                    subscribers
+                                    userId
+                                    urlSlug
+                                    location
+                                    createdAt
+                                    socialLinks {
+                                        platform
+                                        url
+                                    }
+                                }
+                                interestedStyleDetail {
+                                    title
+                                    _id
+                                }
+                            }
+                            tattooCategories {
+                                _id
+                                urlSlug
+                                title
+                            }
+                            tagForStream {
+                                text
+                                id
+                            }
+                        }
+                    `,
+                }).then((result) => {
+                    setUserData(result.data.users);
+                    setTattooCategoryList(result.data.tattooCategories);
+                //   setTagList(result.data.tagForStream);
+                    setSuggestions(result.data.tagForStream);
+                    setAllowUser(true);
+                });
+            } else {
+                setAllowUser(false);
             }
-        `,
-      }).then((result) => {
-          setUserData(result.data.users);
-          setTattooCategoryList(result.data.tattooCategories);
-        //   setTagList(result.data.tagForStream);
-          setSuggestions(result.data.tagForStream);
-        });
-    }
-    getUserAllDetails();
-  },[])
+        }
+
+        if(isUserAvailable){   
+            if(isFetchedApi){
+            console.log('fetch')
+            setIsUserAvailable(false);
+            setIsFetchedApi(false);
+            getUserAllDetails();
+            }
+        }
+        // getUserAllDetails();
+    },[isUserAvailable])
+
+    useEffect(()=>{
+        if(authState && Object.keys(authState).length > 0){
+            if(isFetchedApi){
+                setUserData([{...authState}])
+                setIsUserAvailable(true);
+            }
+        }
+    },[authState])
 
     useEffect(async ()=>{
         if(isAddingVideo){
@@ -492,306 +536,311 @@ const Video = () => {
     return (
         <>
             {userData.length > 0?
-                <SidebarLayout userData={userData}>
-                    <Head>
-                        <title>Add Video</title>
-                    </Head>
-                    
-                    <Container maxWidth="lg" >
-                        <Grid
-                            container
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="stretch"
-                            spacing={3}
-                            mt={3}
-                        >
-                            {/* <Grid item xs={12}></Grid> */}
-                            <Card style={{width: "97%"}}>
-                                <Box sx={{display: 'flex'}}>
-                                    <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={()=>{router.push('/components/videos')}}>
-                                        <IconButton color="primary" sx={{ p: 2 }}>
-                                            <ArrowBackTwoToneIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <CardHeader
-                                        title="Add Video"
-                                    />
-                                </Box>
-                                <Divider />
-                                <Box>
-                                    <CardContent sx={{ p: 4 }}>
-                                        <Typography variant="subtitle2">
-                                            <Grid container spacing={0}>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={1} pr={3} pb={2}>
-                                                        Title:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Text color="black">
-                                                        <TextField
-                                                            autoFocus
-                                                            margin="dense"
-                                                            id="title"
-                                                            type="text"
-                                                            fullWidth
-                                                            variant="standard"
-                                                            name='title'
-                                                            value={videoInput.title}
-                                                            onChange={handleFormChange}
-                                                            required
-                                                            error={openTitleError}
-                                                            helperText={openTitleError?titleErrorMessage:null}
-                                                        />
-                                                    </Text>
-                                                    {/* {openTitleError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                                            {titleErrorMessage}
-                                                    </Box>: null} */}
-                                                </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={1} pr={3} pb={2}>
-                                                        Description:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Typography width={250} color="black">
-                                                        <TextField
-                                                            autoFocus
-                                                            margin="dense"
-                                                            id="description"
-                                                            multiline
-                                                            type="text"
-                                                            fullWidth
-                                                            variant="standard"
-                                                            name='description'
-                                                            value={videoInput.description}
-                                                            onChange={handleFormChange}
-                                                            required
-                                                            error={openDescriptionError}
-                                                            helperText={openDescriptionError?descriptionErrorMessage:null}
-                                                        />
-                                                    </Typography>
-                                                    {/* {openDescriptionError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                                        {descriptionErrorMessage}
-                                                    </Box>: null} */}
-                                                </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={2} pr={3} pb={2}>
-                                                        Tags:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Text color="black">
-                                                        <Box mt={2}>
-                                                            <ReactTags
-                                                                tags={tags}
-                                                                renderSuggestion = {({ text }) => <div style={{}}>{text}</div>}
-                                                                suggestions={suggestions}
-                                                                delimiters={delimiters}
-                                                                handleDelete={handleDelete}
-                                                                handleAddition={handleAddition}
-                                                                handleDrag={handleDrag}
-                                                                handleTagClick={handleTagClick}
-                                                                inputFieldPosition="top"
-                                                                autocomplete
-                                                            />
+                allowUser?
+                    <SidebarLayout userData={userData}>
+                        <Head>
+                            <title>Add Video</title>
+                        </Head>
+                        
+                        <Container maxWidth="lg" >
+                            <Grid
+                                container
+                                direction="row"
+                                justifyContent="center"
+                                alignItems="stretch"
+                                spacing={3}
+                                mt={3}
+                            >
+                                {/* <Grid item xs={12}></Grid> */}
+                                <Card style={{width: "97%"}}>
+                                    <Box sx={{display: 'flex'}}>
+                                        <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={()=>{router.push('/components/videos')}}>
+                                            <IconButton color="primary" sx={{ p: 2 }}>
+                                                <ArrowBackTwoToneIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <CardHeader
+                                            title="Add Video"
+                                        />
+                                    </Box>
+                                    <Divider />
+                                    <Box>
+                                        <CardContent sx={{ p: 4 }}>
+                                            <Typography variant="subtitle2">
+                                                <Grid container spacing={0}>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box mt={1} pr={3} pb={2}>
+                                                            Title:
                                                         </Box>
-                                                    </Text>
-                                                </Grid>
-                                                {tattooCategoryList.length>0?
-                                                    <>
-                                                        <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                            <Box mt={1} pr={3} pb={2}>
-                                                                Tattoo Category:
-                                                            </Box>
-                                                        </Grid>
-                                                        <Grid item xs={12} sm={8} md={9}>
-                                                            <Typography width={250} mt={1.5} color="black">
-                                                                <FormControl fullWidth>
-                                                                    <NativeSelect
-                                                                        defaultValue={tattooCategoryList[0]._id}
-                                                                        onChange={handleFormChange}
-                                                                        inputProps={{
-                                                                            name: 'tattooCategoryId',
-                                                                            id: 'uncontrolled-native',
-                                                                        }}
-                                                                    >
-                                                                        {tattooCategoryList.map((category)=>(
-                                                                            <option key={category._id} value={category._id}>{category.title}</option>
-                                                                        ))}
-                                                                    </NativeSelect>
-                                                                </FormControl>
-                                                            </Typography>
-                                                            {openTattooCategoryIdError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                                                {tattooCategoryIdErrorMessage}
-                                                            </Box>: null}
-                                                        </Grid>
-                                                    </>
-                                                : null}
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={2} pr={3} pb={2}>
-                                                        Video status:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Typography width={250} mt={1.5} color="black">
-                                                        <FormControl fullWidth>
-                                                            <NativeSelect
-                                                                defaultValue={false}
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9}>
+                                                        <Text color="black">
+                                                            <TextField
+                                                                autoFocus
+                                                                margin="dense"
+                                                                id="title"
+                                                                type="text"
+                                                                fullWidth
+                                                                variant="standard"
+                                                                name='title'
+                                                                value={videoInput.title}
                                                                 onChange={handleFormChange}
-                                                                inputProps={{
-                                                                    name: 'isPublished',
-                                                                    id: 'uncontrolled-native',
-                                                                }}
-                                                            >
-                                                                <option key={1} value={true}>Publish</option>
-                                                                <option key={2} value={false}>Draft</option>
-                                                            </NativeSelect>
-                                                        </FormControl>
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={2} pr={3} pb={2}>
-                                                        Video Privacy:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Typography width={250} mt={1.5} color="black">
-                                                        <FormControl fullWidth>
-                                                            <NativeSelect
-                                                                defaultValue={'public'}
+                                                                required
+                                                                error={openTitleError}
+                                                                helperText={openTitleError?titleErrorMessage:null}
+                                                            />
+                                                        </Text>
+                                                        {/* {openTitleError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                                {titleErrorMessage}
+                                                        </Box>: null} */}
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box mt={1} pr={3} pb={2}>
+                                                            Description:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9}>
+                                                        <Typography width={250} color="black">
+                                                            <TextField
+                                                                autoFocus
+                                                                margin="dense"
+                                                                id="description"
+                                                                multiline
+                                                                type="text"
+                                                                fullWidth
+                                                                variant="standard"
+                                                                name='description'
+                                                                value={videoInput.description}
                                                                 onChange={handleFormChange}
-                                                                inputProps={{
-                                                                    name: 'videoPreviewStatus',
-                                                                    id: 'uncontrolled-native',
-                                                                }}
-                                                            >
-                                                                <option key={1} value={'public'}>Public</option>
-                                                                <option key={2} value={'private'}>Private</option>
-                                                                <option key={3} value={'subscriber'}>Subscriber</option>
-                                                            </NativeSelect>
-                                                        </FormControl>
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box pr={3} pb={2}>
-                                                        Upload Video:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
-                                                    <Box >
-                                                        <Button
-                                                            variant="contained"
-                                                            width="100%"
-                                                            sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
-                                                        >
-                                                            <input type="file" ref={videoInputRef}  accept="video/*" onChange={handleVideoFileChange} />
-                                                        </Button>
-                                                    </Box>
-                                                    {progress > 0 ?<LinearProgressWithLabel value={progress} />: null}
-                                                    {openVideoError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                                        {videoErrorMessage}
-                                                    </Box>: null}
-                                                </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box pr={3} pb={2}>
-                                                        Video Preview Image:
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
-                                                    <Box >
-                                                        {hideAvatarImage?
-                                                            null
-                                                        :
-                                                        <Typography sx={{marginTop: '10px'}}>
-                                                            {userUploadedImage?
-                                                                <img style={prvVideoBanner} src={userUploadedImage}/> 
-                                                            :
-                                                                <Avatar
-                                                                    variant='rounded'
-                                                                    src={picture.croppedImg}
-                                                                    style={prvVideoBanner}
-                                                                    sx={{ padding: "5" }}
-                                                                />
-                                                            }
+                                                                required
+                                                                error={openDescriptionError}
+                                                                helperText={openDescriptionError?descriptionErrorMessage:null}
+                                                            />
                                                         </Typography>
-                                                        }
-                                                        {/* {hideAvatarImage?<Avatar
-                                                        src={picture.croppedImg}
-                                                        style={{ width: "100%", height: "auto", padding: "5" }}
-                                                        />: null} */}
-                                                        {picture.cropperOpen && (
-                                                            <Box display="block">
-                                                                <AvatarEditor
-                                                                    ref={setEditorRef}
-                                                                    image={picture.img}
-                                                                    width={1600}
-                                                                    height={890}
-                                                                    border={50}
-                                                                    color={[255, 255, 255, 0.6]} // RGBA
-                                                                    rotate={0}
-                                                                    scale={picture.zoom}
-                                                                    style={prvVideoBanner}
+                                                        {/* {openDescriptionError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                            {descriptionErrorMessage}
+                                                        </Box>: null} */}
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box mt={2} pr={3} pb={2}>
+                                                            Tags:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9}>
+                                                        <Text color="black">
+                                                            <Box mt={2}>
+                                                                <ReactTags
+                                                                    tags={tags}
+                                                                    renderSuggestion = {({ text }) => <div style={{}}>{text}</div>}
+                                                                    suggestions={suggestions}
+                                                                    delimiters={delimiters}
+                                                                    handleDelete={handleDelete}
+                                                                    handleAddition={handleAddition}
+                                                                    handleDrag={handleDrag}
+                                                                    handleTagClick={handleTagClick}
+                                                                    inputFieldPosition="top"
+                                                                    autocomplete
                                                                 />
-                                                                <Slider
-                                                                    aria-label="raceSlider"
-                                                                    value={picture.zoom}
-                                                                    min={1}
-                                                                    max={10}
-                                                                    step={0.1}
-                                                                    onChange={handleSlider}
-                                                                ></Slider>
-                                                                <Box>
-                                                                    <Button variant="contained" onClick={handleCancel}>
-                                                                        Cancel
-                                                                    </Button>
-                                                                    <Button onClick={handleSave}> Save</Button>
-                                                                </Box>
                                                             </Box>
-                                                        )}
-                                                        <Button
-                                                            variant="contained"
-                                                            width="100%"
-                                                            sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
-                                                        >
-                                                            <input type="file" ref={imageInputRef} accept="image/*" onChange={handleFileChange} />
-                                                        </Button>
-                                                    </Box>
-                                                    {/* {progress > 0 ?<LinearProgressWithLabel value={progress} />: null} */}
-                                                    {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
-                                                        {imageErrorMessage}
-                                                    </Box>: null}
+                                                        </Text>
+                                                    </Grid>
+                                                    {tattooCategoryList.length>0?
+                                                        <>
+                                                            <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                                <Box mt={1} pr={3} pb={2}>
+                                                                    Tattoo Category:
+                                                                </Box>
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={8} md={9}>
+                                                                <Typography width={250} mt={1.5} color="black">
+                                                                    <FormControl fullWidth>
+                                                                        <NativeSelect
+                                                                            defaultValue={tattooCategoryList[0]._id}
+                                                                            onChange={handleFormChange}
+                                                                            inputProps={{
+                                                                                name: 'tattooCategoryId',
+                                                                                id: 'uncontrolled-native',
+                                                                            }}
+                                                                        >
+                                                                            {tattooCategoryList.map((category)=>(
+                                                                                <option key={category._id} value={category._id}>{category.title}</option>
+                                                                            ))}
+                                                                        </NativeSelect>
+                                                                    </FormControl>
+                                                                </Typography>
+                                                                {openTattooCategoryIdError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                                    {tattooCategoryIdErrorMessage}
+                                                                </Box>: null}
+                                                            </Grid>
+                                                        </>
+                                                    : null}
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box mt={2} pr={3} pb={2}>
+                                                            Video status:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9}>
+                                                        <Typography width={250} mt={1.5} color="black">
+                                                            <FormControl fullWidth>
+                                                                <NativeSelect
+                                                                    defaultValue={false}
+                                                                    onChange={handleFormChange}
+                                                                    inputProps={{
+                                                                        name: 'isPublished',
+                                                                        id: 'uncontrolled-native',
+                                                                    }}
+                                                                >
+                                                                    <option key={1} value={true}>Publish</option>
+                                                                    <option key={2} value={false}>Draft</option>
+                                                                </NativeSelect>
+                                                            </FormControl>
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box mt={2} pr={3} pb={2}>
+                                                            Video Privacy:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9}>
+                                                        <Typography width={250} mt={1.5} color="black">
+                                                            <FormControl fullWidth>
+                                                                <NativeSelect
+                                                                    defaultValue={'public'}
+                                                                    onChange={handleFormChange}
+                                                                    inputProps={{
+                                                                        name: 'videoPreviewStatus',
+                                                                        id: 'uncontrolled-native',
+                                                                    }}
+                                                                >
+                                                                    <option key={1} value={'public'}>Public</option>
+                                                                    <option key={2} value={'private'}>Private</option>
+                                                                    <option key={3} value={'subscriber'}>Subscriber</option>
+                                                                </NativeSelect>
+                                                            </FormControl>
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box pr={3} pb={2}>
+                                                            Upload Video:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
+                                                        <Box >
+                                                            <Button
+                                                                variant="contained"
+                                                                width="100%"
+                                                                sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
+                                                            >
+                                                                <input type="file" ref={videoInputRef}  accept="video/*" onChange={handleVideoFileChange} />
+                                                            </Button>
+                                                        </Box>
+                                                        {progress > 0 ?<LinearProgressWithLabel value={progress} />: null}
+                                                        {openVideoError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                            {videoErrorMessage}
+                                                        </Box>: null}
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                        <Box pr={3} pb={2}>
+                                                            Video Preview Image:
+                                                        </Box>
+                                                    </Grid>
+                                                    <Grid item xs={12} sm={8} md={9} sx={{paddingBottom: '20px'}}>
+                                                        <Box >
+                                                            {hideAvatarImage?
+                                                                null
+                                                            :
+                                                            <Typography sx={{marginTop: '10px'}}>
+                                                                {userUploadedImage?
+                                                                    <img style={prvVideoBanner} src={userUploadedImage}/> 
+                                                                :
+                                                                    <Avatar
+                                                                        variant='rounded'
+                                                                        src={picture.croppedImg}
+                                                                        style={prvVideoBanner}
+                                                                        sx={{ padding: "5" }}
+                                                                    />
+                                                                }
+                                                            </Typography>
+                                                            }
+                                                            {/* {hideAvatarImage?<Avatar
+                                                            src={picture.croppedImg}
+                                                            style={{ width: "100%", height: "auto", padding: "5" }}
+                                                            />: null} */}
+                                                            {picture.cropperOpen && (
+                                                                <Box display="block">
+                                                                    <AvatarEditor
+                                                                        ref={setEditorRef}
+                                                                        image={picture.img}
+                                                                        width={1600}
+                                                                        height={890}
+                                                                        border={50}
+                                                                        color={[255, 255, 255, 0.6]} // RGBA
+                                                                        rotate={0}
+                                                                        scale={picture.zoom}
+                                                                        style={prvVideoBanner}
+                                                                    />
+                                                                    <Slider
+                                                                        aria-label="raceSlider"
+                                                                        value={picture.zoom}
+                                                                        min={1}
+                                                                        max={10}
+                                                                        step={0.1}
+                                                                        onChange={handleSlider}
+                                                                    ></Slider>
+                                                                    <Box>
+                                                                        <Button variant="contained" onClick={handleCancel}>
+                                                                            Cancel
+                                                                        </Button>
+                                                                        <Button onClick={handleSave}> Save</Button>
+                                                                    </Box>
+                                                                </Box>
+                                                            )}
+                                                            <Button
+                                                                variant="contained"
+                                                                width="100%"
+                                                                sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
+                                                            >
+                                                                <input type="file" ref={imageInputRef} accept="image/*" onChange={handleFileChange} />
+                                                            </Button>
+                                                        </Box>
+                                                        {/* {progress > 0 ?<LinearProgressWithLabel value={progress} />: null} */}
+                                                        {openImageError?<Box sx={{color: 'red', fontWeight: 600}}>
+                                                            {imageErrorMessage}
+                                                        </Box>: null}
+                                                    </Grid>
                                                 </Grid>
-                                            </Grid>
-                                        </Typography>
-                                        <Typography sx={{textAlign: 'end'}}>
-                                            <Button onClick={()=>{router.push('/components/videos')}} disabled={loading}>Cancel</Button>
-                                            <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Video...' : 'Add Video'}</Button>
-                                        </Typography>
-                                    </CardContent>
-                                </Box>
-                            </Card>
-                        </Grid>
-                    </Container >
+                                            </Typography>
+                                            <Typography sx={{textAlign: 'end'}}>
+                                                <Button onClick={()=>{router.push('/components/videos')}} disabled={loading}>Cancel</Button>
+                                                <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Video...' : 'Add Video'}</Button>
+                                            </Typography>
+                                        </CardContent>
+                                    </Box>
+                                </Card>
+                            </Grid>
+                        </Container >
 
-                {/* --------------------------------------------------------Error or success message------------------------------------------ */}
-                    <Stack spacing={2} sx={{ width: '100%' }}>
-                        <Snackbar anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }} open={open}
-                        autoHideDuration={6000}
-                        onClose={handleMessageBoxClose} >
-                        <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
-                            {apiResponseMessage}
-                        </Alert>
-                        </Snackbar>
-                    </Stack>
-                    
-                    <Footer />
-                </SidebarLayout>
-            : null}
+                    {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+                        <Stack spacing={2} sx={{ width: '100%' }}>
+                            <Snackbar anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }} open={open}
+                            autoHideDuration={6000}
+                            onClose={handleMessageBoxClose} >
+                            <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                                {apiResponseMessage}
+                            </Alert>
+                            </Snackbar>
+                        </Stack>
+                        
+                        <Footer />
+                    </SidebarLayout>
+                :
+                    <PermissionDeniedDialog/>
+            : 
+                <LoginDialog/>
+            }
 
         </>
     );

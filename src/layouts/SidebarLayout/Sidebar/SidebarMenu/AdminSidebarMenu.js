@@ -18,26 +18,13 @@ import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
 import MmsTwoToneIcon from '@mui/icons-material/MmsTwoTone';
 import TableChartTwoToneIcon from '@mui/icons-material/TableChartTwoTone';
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
-import BallotTwoToneIcon from '@mui/icons-material/BallotTwoTone';
-import BeachAccessTwoToneIcon from '@mui/icons-material/BeachAccessTwoTone';
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone';
-import FilterVintageTwoToneIcon from '@mui/icons-material/FilterVintageTwoTone';
-import HowToVoteTwoToneIcon from '@mui/icons-material/HowToVoteTwoTone';
-import LocalPharmacyTwoToneIcon from '@mui/icons-material/LocalPharmacyTwoTone';
-import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
-import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
-import TrafficTwoToneIcon from '@mui/icons-material/TrafficTwoTone';
-import CheckBoxTwoToneIcon from '@mui/icons-material/CheckBoxTwoTone';
-import ChromeReaderModeTwoToneIcon from '@mui/icons-material/ChromeReaderModeTwoTone';
-import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone';
-import CameraFrontTwoToneIcon from '@mui/icons-material/CameraFrontTwoTone';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
 import HistoryIcon from '@mui/icons-material/History';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import StreamIcon from '@mui/icons-material/Stream';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -213,7 +200,7 @@ function UserSidebarMenu({userData}){
                         </List>
                     </SubMenuWrapper>
                 </List>
-                <List
+                {/* <List
                     component="div"
                     subheader={
                         <ListSubheader component="div" disableSticky>
@@ -255,7 +242,7 @@ function UserSidebarMenu({userData}){
                             </ListItem>
                         </List>
                     </SubMenuWrapper>
-                </List>
+                </List> */}
                 <List
                     component="div"
                     subheader={
@@ -317,6 +304,23 @@ function UserSidebarMenu({userData}){
                                     </Button>
                                 </NextLink>
                             </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/dashboards/channel/stream" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/dashboards/channel/stream'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<StreamIcon />}
+                                    >
+                                        Stream Management
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
                         </List>
                     </SubMenuWrapper>
                 </List>
@@ -331,6 +335,21 @@ function UserSidebarMenu({userData}){
                     <SubMenuWrapper>
                         <List component="div">
                             <ListItem component="div">
+                                <NextLink href="/management/channel" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/channel' ? 'active' : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<AccountCircleTwoToneIcon />}
+                                    >
+                                        Channel Details
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            {/* <ListItem component="div">
                                 <NextLink href="/management/profile" passHref>
                                     <Button
                                         className={
@@ -344,12 +363,29 @@ function UserSidebarMenu({userData}){
                                         User Profile
                                     </Button>
                                 </NextLink>
-                            </ListItem>
-                            <ListItem component="div">
+                            </ListItem> */}
+                            {/* <ListItem component="div">
                                 <NextLink href="/management/profile/settings" passHref>
                                     <Button
                                         className={
                                             currentRoute === '/management/profile/settings'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<SettingsIcon />}
+                                    >
+                                        Account Settings
+                                    </Button>
+                                </NextLink>
+                            </ListItem> */}
+                            <ListItem component="div">
+                                <NextLink href="/management/channel/settings" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/channel/settings'
                                                 ? 'active'
                                                 : ''
                                         }
