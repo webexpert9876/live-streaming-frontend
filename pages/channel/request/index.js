@@ -81,6 +81,8 @@ function ChannelRequest(){
   const [channelDetailSubmit, setChannelDetailSubmit]= useState(false);
   const [isChannelApproved, setIsChannelApproved] = useState(false);
   const [isAppliedForChannel, setIsAppliedForChannel ] = useState(false);
+  const [isChannelDeclined, setIsChannelDeclined ] = useState(false);
+  const [showChannelForm, setShowChannelForm ] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -186,6 +188,7 @@ function ChannelRequest(){
                     location
                     userId
                     urlSlug
+                    reason
                 }
             }
         `,
@@ -195,16 +198,22 @@ function ChannelRequest(){
         
         if(result.data.channels.length > 0){
 
-            let isApproved = `${result.data.channels[0].isApproved}`;
+            let isApproved = result.data.channels[0].isApproved;
 
-            if(isApproved == 'true' && (result.data.users[0].channelId !== null || result.data.users[0].channelId !== undefined)){
+            if(isApproved == 'approved' && (result.data.users[0].channelId !== null || result.data.users[0].channelId !== undefined)){
                 setIsChannelApproved(true);
-            } else if(isApproved == 'false'  && (result.data.users[0].channelId !== null || result.data.users[0].channelId !== undefined)){
+            } else if(isApproved == 'pending'){
                 setIsAppliedForChannel(true);
+            } else if(isApproved == 'declined'){
+                setIsChannelDeclined(true);
+            } else {
+                setShowChannelForm(true);
             }
         } else {
-            setIsChannelApproved(false);
-            setIsAppliedForChannel(false);
+            // setIsChannelApproved(false);
+            // setIsAppliedForChannel(false);
+            // setIsChannelDeclined(false);
+            setShowChannelForm(true);
         }
         //   setTagList(result.data.tagForStream)
         //   setTattooCategoryList(result.data.tattooCategories);
@@ -263,6 +272,7 @@ function ChannelRequest(){
         // setUserSelectedProfilePic([])
         handleMessageBoxOpen()
         setChannelDetailSubmit(false)
+        setShowChannelForm(false);
       }).catch((error)=>{
         console.log('error', error);
         const errorMessage = error.response.data.message;
@@ -478,8 +488,8 @@ function ChannelRequest(){
                         </Box>
                         <Divider />
                         <Box>
-                            {isChannelApproved?
-                                <CardContent sx={{ p: 4 }}>
+                            <CardContent sx={{ p: 4 }}>
+                                { isChannelApproved &&
                                     <Box p={10} textAlign={'center'}>
                                         <Typography sx={{ fontWeight: 800, fontSize:18}} mb={1}>
                                             Your Channel Has Been Proved
@@ -488,240 +498,265 @@ function ChannelRequest(){
                                             Go to channel
                                         </Button>
                                     </Box>
-                                </CardContent>
-                            :
-                                <CardContent sx={{ p: 4 }}>
-                                    {isAppliedForChannel? 
-                                        <Typography sx={{textAlign: 'center', fontWeight: 800, fontSize:18}} p={10}>
+                                }
+                                { isAppliedForChannel &&  
+                                    <Box>
+                                        <Typography sx={{textAlign: 'center', fontWeight: 800, fontSize:18}} p={5}>
                                             Your Request For Channel Submitted Successfully...!!!
                                         </Typography>
-                                    :
-                                        <>
-                                            <Typography variant="subtitle2">
-                                                <Grid container spacing={0}>
-                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={1} pr={3} pb={2}>
-                                                            Channel Name:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9}>
-                                                        <Text color="black">
-                                                            <TextField
-                                                                autoFocus
-                                                                margin="dense"
-                                                                id="channelName"
-                                                                type="text"
-                                                                fullWidth
-                                                                variant="standard"
-                                                                name='channelName'
-                                                                value={channelProfileInput.channelName}
-                                                                onChange={handleFormChange}
-                                                                required
-                                                                error={errorObject.channelName.error}
-                                                                helperText={errorObject.channelName.error?errorObject.channelName.message:null}
-                                                            />
-                                                        </Text>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={1} pr={3} pb={2}>
-                                                            Description:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9}>
-                                                        <Typography width={250} color="black">
-                                                            <TextField
-                                                                autoFocus
-                                                                margin="dense"
-                                                                id="description"
-                                                                multiline
-                                                                minRows={3}
-                                                                type="text"
-                                                                fullWidth
-                                                                // variant="standard"
-                                                                name='description'
-                                                                value={channelProfileInput.description}
-                                                                onChange={handleFormChange}
-                                                                required
-                                                                error={errorObject.description.error}
-                                                                helperText={errorObject.description.error?errorObject.description.message:null}
-                                                            />
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={1} pr={3} pb={2}>
-                                                            Experience:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9} mt={2}>
-                                                        <Typography width={250} color="black">
-                                                            <FormControl fullWidth>
-                                                                <InputLabel id="demo-simple-select-label">Experience</InputLabel>
-                                                                <Select
-                                                                    labelId="demo-simple-select-label"
-                                                                    id="demo-simple-select"
-                                                                    value={channelProfileInput.experience}
-                                                                    label="Experience"
-                                                                    name='experience'
-                                                                    onChange={handleFormChange}
-                                                                    required
-                                                                >
-                                                                    <MenuItem value={'0'}>{'Fresher/Beginner'}</MenuItem>
-                                                                    <MenuItem value={1}>{'1 years'}</MenuItem>
-                                                                    <MenuItem value={2}>{'2 years'}</MenuItem>
-                                                                    <MenuItem value={3}>{'3 years'}</MenuItem>
-                                                                    <MenuItem value={4}>{'4 years'}</MenuItem>
-                                                                    <MenuItem value={5}>{'5+ years'}</MenuItem>
-                                                                </Select>
-                                                            </FormControl>
-                                                        </Typography>
-                                                        {errorObject.experience.error? <Box sx={{color: 'red', fontWeight: 600}}>
-                                                            {errorObject.experience.message}
-                                                        </Box>:null}
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={1} pr={3} pb={2}>
-                                                            Platform where you stream live if any:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9} mt={4}>
-                                                        <Typography width={250} color="black">
-                                                            <TextField
-                                                                autoFocus
-                                                                margin="dense"
-                                                                id="otherPlatformUrl"
-                                                                multiline
-                                                                type="text"
-                                                                fullWidth
-                                                                variant="standard"
-                                                                name='otherPlatformUrl'
-                                                                onChange={handleFormChange}
-                                                                value={channelProfileInput.otherPlatformUrl}
-                                                                required
-                                                                error={errorObject.otherPlatformUrl.error}
-                                                                helperText={errorObject.otherPlatformUrl.error?errorObject.otherPlatformUrl.message:null}
-                                                            />
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={1} pr={3} pb={2}>
-                                                            Location:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9} mt={2}>
-                                                        <Typography width={250} color="black">
-                                                            <TextField
-                                                                autoFocus
-                                                                margin="dense"
-                                                                id="location"
-                                                                multiline
-                                                                type="text"
-                                                                fullWidth
-                                                                variant="standard"
-                                                                name='location'
-                                                                onChange={handleFormChange}
-                                                                value={channelProfileInput.location}
-                                                                required
-                                                                error={errorObject.location.error}
-                                                                helperText={errorObject.location.error?errorObject.location.message:null}
-                                                            />
-                                                        </Typography>
-                                                    </Grid>
-                                                    {/* <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                        <Box mt={2} pr={3} pb={2}>
-                                                            Social Links:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9}>
-                                                        <Typography width={250} color="black">
-                                                        {socialInputs.map((item)=>(
-                                                            <TextField
+                                        <Typography sx={{textAlign: 'center', fontWeight: 800, fontSize:18}} pb={10}>
+                                            Your Request Pending...!!!
+                                        </Typography>
+                                    </Box>
+                                }
+                                { isChannelDeclined && 
+                                    <Box p={10} textAlign={'center'}>
+                                        <Typography sx={{ fontWeight: 800, fontSize:18}} mb={1}>
+                                            Your Channel Has Been Declined
+                                        </Typography>
+                                        {channelInfo.reason && 
+                                            <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                                                <Typography sx={{ fontWeight: 800, fontSize:18}} mb={1}>
+                                                    {`Declined reason : `}&nbsp;
+                                                </Typography>
+                                                <Typography sx={{ fontWeight: 800, fontSize:18}} mb={1}>
+                                                    {channelInfo.reason}
+                                                </Typography>
+                                            </Box>
+                                        }
+                                        {/* <Button onClick={()=>router.push(`/channel/${channelInfo.urlSlug}`)}>
+                                            Go to channel
+                                        </Button> */}
+                                    </Box>
+                                }
+
+                                { showChannelForm && 
+                                    <>
+                                        <Typography variant="subtitle2">
+                                            <Grid container spacing={0}>
+                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={1} pr={3} pb={2}>
+                                                        Channel Name:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9}>
+                                                    <Text color="black">
+                                                        <TextField
                                                             autoFocus
                                                             margin="dense"
-                                                            id={`${item.platform}`}
-                                                            label={`${item.platform} url (Optional)`}
+                                                            id="channelName"
                                                             type="text"
                                                             fullWidth
                                                             variant="standard"
-                                                            name={`${item.platform}`}
-                                                            value={`${item.url}`}
-                                                            // onChange={(e)=>handleSocialLinks(e, item.platform)}
-                                                            />
-                                                        ))}
-                                                        </Typography>
-                                                    </Grid> */}
-                                                    <Grid item xs={12} sm={4} md={3} mt={5} textAlign={{ sm: 'right' }}>
-                                                        <Box pr={3} pb={2}>
-                                                            Channel Profile Picture:
-                                                        </Box>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm={8} md={9} mt={2} sx={{paddingBottom: '20px'}}>
-                                                        <Typography variant='body1' component={'div'}>
-                                                            <Box>
-                                                            {hideAvatarImage?
-                                                                null
-                                                            :
-                                                                <Typography sx={{marginTop: '10px'}}>
-                                                                {userUploadedImage?
-                                                                    <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={userUploadedImage}/> 
-                                                                :
-                                                                // channelProfilePic? 
-                                                                //     <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelProfilePic}`}/> 
-                                                                //     : 
-                                                                    <Avatar
-                                                                    src={picture.croppedImg}
-                                                                    sx={{ width: 150, height: 150, padding: "5" }}
-                                                                    />
-                                                                }
-                                                                </Typography>
-                                                            }
-                                                            {picture.cropperOpen && (
-                                                                <Box display="block">
-                                                                <AvatarEditor
-                                                                    ref={setEditorRef}
-                                                                    image={picture.img}
-                                                                    width={200}
-                                                                    height={200}
-                                                                    border={50}
-                                                                    color={[255, 255, 255, 0.6]} // RGBA
-                                                                    rotate={0}
-                                                                    scale={picture.zoom}
-                                                                />
-                                                                <Slider
-                                                                    aria-label="raceSlider"
-                                                                    value={picture.zoom}
-                                                                    min={1}
-                                                                    max={10}
-                                                                    step={0.1}
-                                                                    onChange={handleSlider}
-                                                                ></Slider>
-                                                                <Box>
-                                                                    <Button variant="contained" onClick={handleCancel}>
-                                                                    Cancel
-                                                                    </Button>
-                                                                    <Button onClick={handleSave}> Save</Button>
-                                                                </Box>
-                                                                </Box>
-                                                            )}
-                                                            <Button
-                                                                variant="contained"
-                                                                width="100%"
-                                                                sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
-                                                            >
-                                                                <input type="file" accept="image/*" onChange={handleFileChange} />
-                                                            </Button>
-                                                            </Box>
-                                                        </Typography>
-                                                    </Grid>
+                                                            name='channelName'
+                                                            value={channelProfileInput.channelName}
+                                                            onChange={handleFormChange}
+                                                            required
+                                                            error={errorObject.channelName.error}
+                                                            helperText={errorObject.channelName.error?errorObject.channelName.message:null}
+                                                        />
+                                                    </Text>
                                                 </Grid>
-                                            </Typography>
-                                            <Typography sx={{textAlign: 'end'}}>
-                                                {/* <Button disabled={loading}>Cancel</Button> */}
-                                                <Button onClick={handleFormSubmit} disabled={loading}>{loading?'Requesting':'Apply'}</Button>
-                                            </Typography>
-                                        </>
-                                    }
-                                </CardContent>
-                            }
+                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={1} pr={3} pb={2}>
+                                                        Description:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9}>
+                                                    <Typography width={250} color="black">
+                                                        <TextField
+                                                            autoFocus
+                                                            margin="dense"
+                                                            id="description"
+                                                            multiline
+                                                            minRows={3}
+                                                            type="text"
+                                                            fullWidth
+                                                            // variant="standard"
+                                                            name='description'
+                                                            value={channelProfileInput.description}
+                                                            onChange={handleFormChange}
+                                                            required
+                                                            error={errorObject.description.error}
+                                                            helperText={errorObject.description.error?errorObject.description.message:null}
+                                                        />
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={1} pr={3} pb={2}>
+                                                        Experience:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9} mt={2}>
+                                                    <Typography width={250} color="black">
+                                                        <FormControl fullWidth>
+                                                            <InputLabel id="demo-simple-select-label">Experience</InputLabel>
+                                                            <Select
+                                                                labelId="demo-simple-select-label"
+                                                                id="demo-simple-select"
+                                                                value={channelProfileInput.experience}
+                                                                label="Experience"
+                                                                name='experience'
+                                                                onChange={handleFormChange}
+                                                                required
+                                                            >
+                                                                <MenuItem value={'0'}>{'Fresher/Beginner'}</MenuItem>
+                                                                <MenuItem value={1}>{'1 years'}</MenuItem>
+                                                                <MenuItem value={2}>{'2 years'}</MenuItem>
+                                                                <MenuItem value={3}>{'3 years'}</MenuItem>
+                                                                <MenuItem value={4}>{'4 years'}</MenuItem>
+                                                                <MenuItem value={5}>{'5+ years'}</MenuItem>
+                                                            </Select>
+                                                        </FormControl>
+                                                    </Typography>
+                                                    {errorObject.experience.error? <Box sx={{color: 'red', fontWeight: 600}}>
+                                                        {errorObject.experience.message}
+                                                    </Box>:null}
+                                                </Grid>
+                                                <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={1} pr={3} pb={2}>
+                                                        Platform where you stream live if any:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9} mt={4}>
+                                                    <Typography width={250} color="black">
+                                                        <TextField
+                                                            autoFocus
+                                                            margin="dense"
+                                                            id="otherPlatformUrl"
+                                                            multiline
+                                                            type="text"
+                                                            fullWidth
+                                                            variant="standard"
+                                                            name='otherPlatformUrl'
+                                                            onChange={handleFormChange}
+                                                            value={channelProfileInput.otherPlatformUrl}
+                                                            required
+                                                            error={errorObject.otherPlatformUrl.error}
+                                                            helperText={errorObject.otherPlatformUrl.error?errorObject.otherPlatformUrl.message:null}
+                                                        />
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid item xs={12} sm={4} md={3} mt={2} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={1} pr={3} pb={2}>
+                                                        Location:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9} mt={2}>
+                                                    <Typography width={250} color="black">
+                                                        <TextField
+                                                            autoFocus
+                                                            margin="dense"
+                                                            id="location"
+                                                            multiline
+                                                            type="text"
+                                                            fullWidth
+                                                            variant="standard"
+                                                            name='location'
+                                                            onChange={handleFormChange}
+                                                            value={channelProfileInput.location}
+                                                            required
+                                                            error={errorObject.location.error}
+                                                            helperText={errorObject.location.error?errorObject.location.message:null}
+                                                        />
+                                                    </Typography>
+                                                </Grid>
+                                                {/* <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                                                    <Box mt={2} pr={3} pb={2}>
+                                                        Social Links:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9}>
+                                                    <Typography width={250} color="black">
+                                                    {socialInputs.map((item)=>(
+                                                        <TextField
+                                                        autoFocus
+                                                        margin="dense"
+                                                        id={`${item.platform}`}
+                                                        label={`${item.platform} url (Optional)`}
+                                                        type="text"
+                                                        fullWidth
+                                                        variant="standard"
+                                                        name={`${item.platform}`}
+                                                        value={`${item.url}`}
+                                                        // onChange={(e)=>handleSocialLinks(e, item.platform)}
+                                                        />
+                                                    ))}
+                                                    </Typography>
+                                                </Grid> */}
+                                                <Grid item xs={12} sm={4} md={3} mt={5} textAlign={{ sm: 'right' }}>
+                                                    <Box pr={3} pb={2}>
+                                                        Channel Profile Picture:
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={8} md={9} mt={2} sx={{paddingBottom: '20px'}}>
+                                                    <Typography variant='body1' component={'div'}>
+                                                        <Box>
+                                                        {hideAvatarImage?
+                                                            null
+                                                        :
+                                                            <Typography sx={{marginTop: '10px'}}>
+                                                            {userUploadedImage?
+                                                                <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={userUploadedImage}/> 
+                                                            :
+                                                            // channelProfilePic? 
+                                                            //     <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelProfilePic}`}/> 
+                                                            //     : 
+                                                                <Avatar
+                                                                src={picture.croppedImg}
+                                                                sx={{ width: 150, height: 150, padding: "5" }}
+                                                                />
+                                                            }
+                                                            </Typography>
+                                                        }
+                                                        {picture.cropperOpen && (
+                                                            <Box display="block">
+                                                            <AvatarEditor
+                                                                ref={setEditorRef}
+                                                                image={picture.img}
+                                                                width={200}
+                                                                height={200}
+                                                                border={50}
+                                                                color={[255, 255, 255, 0.6]} // RGBA
+                                                                rotate={0}
+                                                                scale={picture.zoom}
+                                                            />
+                                                            <Slider
+                                                                aria-label="raceSlider"
+                                                                value={picture.zoom}
+                                                                min={1}
+                                                                max={10}
+                                                                step={0.1}
+                                                                onChange={handleSlider}
+                                                            ></Slider>
+                                                            <Box>
+                                                                <Button variant="contained" onClick={handleCancel}>
+                                                                Cancel
+                                                                </Button>
+                                                                <Button onClick={handleSave}> Save</Button>
+                                                            </Box>
+                                                            </Box>
+                                                        )}
+                                                        <Button
+                                                            variant="contained"
+                                                            width="100%"
+                                                            sx={{marginTop: '10px', padding: '10px 0px 10px 20px'}}
+                                                        >
+                                                            <input type="file" accept="image/*" onChange={handleFileChange} />
+                                                        </Button>
+                                                        </Box>
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
+                                        </Typography>
+                                        <Typography sx={{textAlign: 'end'}}>
+                                            {/* <Button disabled={loading}>Cancel</Button> */}
+                                            <Button onClick={handleFormSubmit} disabled={loading}>{loading?'Requesting':'Apply'}</Button>
+                                        </Typography>
+                                    </>
+                                }
+                                
+                            </CardContent>
                         </Box>
                     </Card>
                 </Grid>

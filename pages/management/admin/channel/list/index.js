@@ -37,7 +37,7 @@ import { gql } from "@apollo/client";
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import axios, { all } from 'axios';
 import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
 import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
 
@@ -77,20 +77,31 @@ const ChannelListPage = () => {
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
 
-  const statusOptions = [
-    {
-        id: 'all',
-        name: 'All'
-    },
-    {
-        id: true,
-        name: 'Approved'
-    },
-    {
-        id: false,
-        name: 'Unapproved'
-    },
-];
+    const statusOptions = [
+        {
+            id: 'all',
+            name: 'All'
+        },
+        {
+            id: 'approved',
+            name: 'Approved'
+        },
+        {
+            id: 'pending',
+            name: 'Pending'
+        },
+        {
+            id: 'declined',
+            name: 'Declined'
+        }
+    ];
+
+const filterStatusOption = {
+    null: 'all',
+    approved: 'approved',
+    declined: 'declined',
+    pending: 'pending'
+  };
 
 
   useEffect(()=>{
@@ -195,18 +206,48 @@ const ChannelListPage = () => {
 
   const getStatusLabel = (channelStatus) => {
     const map = {
-        unapproved: {
-            text: 'Unapproved',
+        // unapproved: {
+        //     text: 'Unapproved',
+        //     color: 'warning'
+        // },
+        pending: {
+            text: 'Pending',
             color: 'warning'
+        },
+        declined: {
+            text: 'Declined',
+            color: 'error'
         },
         approved: {
             text: 'Approved',
             color: 'success'
         }
     };
-    let channelCheck = `${channelStatus}` == 'true'? 'approved': 'unapproved';
+    let channelCheck = channelStatus == 'approved'? 'approved': ( channelStatus == 'declined'? 'declined': 'pending');
 
     const { text, color } = map[channelCheck];
+
+    return <Label color={color}>{text}</Label>;
+  };
+
+  const getBlockedStatusLabel = (channelStatus) => {
+    const map = {
+        // unapproved: {
+        //     text: 'Unapproved',
+        //     color: 'warning'
+        // },
+        'true': {
+            text: 'Blocked',
+            color: 'error'
+        },
+        'false': {
+            text: 'Unblocked',
+            color: 'success'
+        }
+    };
+    // let channelCheck = channelStatus == 'approved'? 'approved': ( channelStatus == 'declined'? 'declined': 'pending');
+
+    const { text, color } = map[channelStatus];
 
     return <Label color={color}>{text}</Label>;
 };
@@ -215,21 +256,10 @@ const applyFilters = (allChannels, filters) => {
   return allChannels.filter((allChannel) => {
     let matches = true;
 
-    if(filters.status == false){
-        
-        if ( allChannel.isApproved !== `${filters.status}`) {
-            matches = false;
-        }
-    } else if(filters.status == true) {
-        if (allChannel.isApproved !== `${filters.status}`) {
-            matches = false;
-        }
-    } else if(filters.status == null) {
-        
-        if (filters.status && allChannel.isApproved !== `${filters.status}`) {
-            matches = false;
-        }
+    if (filters.status && allChannel.isApproved !== filters.status) {
+        matches = false;
     }
+
     return matches;
   });
 };
@@ -275,7 +305,8 @@ const applyPagination = (allChannels, page, limit) => {
         
         const updatedArray = allChannelDetails.map(obj => {
             if (obj._id === id) {
-            //   return { ...obj, ...videoData }; 
+            //   return { ...obj, ...videoData };
+                console.log('channelData', channelData)
                 return { ...channelData }; 
             }
             return obj; // Keep other objects unchanged
@@ -331,7 +362,8 @@ const applyPagination = (allChannels, page, limit) => {
                                                     <FormControl fullWidth variant="outlined">
                                                     <InputLabel>Channel Status</InputLabel>
                                                     <Select
-                                                        value={filters.status == null ? 'all': filters.status ? true: false}
+                                                        // value={filters.status == null ? 'all': (filters.status == 'approved' ? 'approved' : filters.status == 'declined' ? 'declined' : 'pending')}
+                                                        value={filterStatusOption[filters.status] || all}
                                                         onChange={handleStatusChange}
                                                         label="Status"
                                                         autoWidth
@@ -404,23 +436,31 @@ const applyPagination = (allChannels, page, limit) => {
                                                             </Typography> */}
                                                         </TableCell>
                                                         <TableCell >
-                                                            {channel.blocked}
+                                                            <Typography
+                                                                variant="body1"
+                                                                fontWeight="bold"
+                                                                color="text.primary"
+                                                                gutterBottom
+                                                                noWrap
+                                                            >
+                                                                {getBlockedStatusLabel(`${channel.blocked}` == 'true'? 'true': 'false')}
+                                                            </Typography>
                                                         </TableCell>
                                                         <TableCell align="right">
                                                             <Tooltip title="Edit Channel" arrow>
-                                                            <IconButton
-                                                                sx={{
-                                                                '&:hover': {
-                                                                    background: theme.colors.primary.lighter
-                                                                },
-                                                                color: theme.palette.primary.main
-                                                                }}
-                                                                color="inherit"
-                                                                size="small"
-                                                                onClick={()=>handleEditChannel(channel)}
-                                                            >
-                                                                <EditTwoToneIcon fontSize="small" />
-                                                            </IconButton>
+                                                                <IconButton
+                                                                    sx={{
+                                                                    '&:hover': {
+                                                                        background: theme.colors.primary.lighter
+                                                                    },
+                                                                    color: theme.palette.primary.main
+                                                                    }}
+                                                                    color="inherit"
+                                                                    size="small"
+                                                                    onClick={()=>handleEditChannel(channel)}
+                                                                >
+                                                                    <EditTwoToneIcon fontSize="small" />
+                                                                </IconButton>
                                                             </Tooltip>
                                                             <Tooltip title="Delete Channel" arrow>
                                                             <IconButton

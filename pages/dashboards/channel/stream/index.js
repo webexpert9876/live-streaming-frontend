@@ -82,7 +82,21 @@ function ManageLiveStream(params) {
     useEffect(async ()=>{
         if (userDetails && userIsLogedIn) {
 
-            if(userDetails.role === '647f15e80d8b7330ed890da6'){
+            const roleInfo = await client.query({
+                query: gql`
+                query Query($rolesId: ID) {
+                    roles(id: $rolesId) {
+                        role
+                    }
+                }
+            `,
+                variables: {
+                    "rolesId": userDetails.role
+                }
+            });
+            console.log('roleInfo', roleInfo.data)
+            if(roleInfo.data.roles[0].role === 'artist' || roleInfo.data.roles[0].role === 'admin'){
+                console.log('roleInfo', roleInfo.data)
                 console.log('userDetails', userDetails)
                 console.log('userIsLogedIn', userIsLogedIn)
                     

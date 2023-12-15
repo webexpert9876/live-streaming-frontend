@@ -1,7 +1,9 @@
 import * as React from 'react';
 import {Box, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, Button} from '@mui/material';
+import { useRouter } from 'next/router';
 
 function permissionDeniedDialog() {
+    const router = useRouter();
     return (
         <>
             <Dialog

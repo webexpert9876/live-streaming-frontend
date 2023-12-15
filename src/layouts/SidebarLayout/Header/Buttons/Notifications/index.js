@@ -113,8 +113,9 @@ function HeaderNotifications() {
       const countUnreadNotification = ()=>{
         console.log('useEffect ', notificationList)
         const countReadNotifications = notificationList.reduce((count, notificationInfo) => {
-          if( notificationInfo.notificationType == 'single'){
-            if (notificationInfo.isRead === false) {
+          let notificationType = notificationInfo.notificationType;
+          if( notificationType == 'single' || notificationType == 'block' || notificationType == 'unblock' || notificationType == 'approved' || notificationType == 'declined'){
+            if (`${notificationInfo.isRead}` === 'false') {
               return count + 1;
             }
           } else if(notificationInfo.notificationType == 'live'){
@@ -172,23 +173,22 @@ function HeaderNotifications() {
 
     // Event for new follower notification
     socket.on('newFollower', ({ userInfo, followingInfo, notificationDetails})=>{
-      // console.log('userInfo', userInfo);
-      // console.log('followingInfo', followingInfo);
       setNewReceiveNotification(notificationDetails);
       setAddReceiveNotification(true);
-     
     });
     
     // Event for unfollowing notification
     socket.on('removeFollow', ({ notificationDetails})=>{
-      
-      console.log('notificationDetails', notificationDetails);
-      
       if(notificationDetails){
         setRemoveReceiveNotification(notificationDetails);
         setIsRemoveNotification(true);
-        
       }
+    });
+    
+    socket.on('channelApproveAndBlock', ({ userInfo, notificationDetails})=>{
+      console.log('approve block notification received');
+      setNewReceiveNotification(notificationDetails);
+      setAddReceiveNotification(true);
     });
     
   }
@@ -202,7 +202,8 @@ function HeaderNotifications() {
   };
 
   const handleNotificationOpen =async (notificationDetail)=>{
-    if(notificationDetail.notificationType == 'single'){
+    let notificationTypeInfo = notificationDetail.notificationType;
+    if(notificationTypeInfo == 'single'){
       
       let userUrlInfo = await client.query({
         query: gql`
@@ -240,7 +241,7 @@ function HeaderNotifications() {
       }
 
 
-    } else if(notificationDetail.notificationType == 'live'){
+    } else if(notificationTypeInfo == 'live'){
       let channelInfo = await client.query({
         query: gql`
             query Query ($usersId: ID) {
@@ -268,6 +269,70 @@ function HeaderNotifications() {
 
       if(result){
         router.push(`/channel/${channelInfo[0].urlSlug}`)
+      }
+    } else if(notificationTypeInfo == 'approved' || notificationTypeInfo == 'unblock'){
+      console.log('notificationDetail=======================', notificationDetail)
+      let channelInfo = await client.query({
+        query: gql`
+            query Query ($usersId: ID) {
+              users(id: $usersId) {
+                channelDetails {
+                  urlSlug
+                }
+              }
+            }
+          `,
+        variables: {
+            "usersId": userInfo._id
+        }
+      }).then((result) => {
+          return result.data.users[0].channelDetails
+      });
+
+      const result = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/notification/${notificationDetail._id}`, {userId: userInfo._id}, { headers: { 'x-access-token': userInfo.jwtToken } });
+      console.log('result notification for live', result);
+      
+      setRemoveReceiveNotification(notificationDetail);
+      setIsRemoveNotification(true)
+
+      setOpen(false);
+
+      if(result){
+        router.push(`/channel/${channelInfo[0].urlSlug}`)
+      }
+    } else if(notificationTypeInfo == 'declined' || notificationTypeInfo == 'block' || notificationTypeInfo == 'pending'){
+      // console.log('notificationDetail=======================', notificationDetail)
+      // let channelInfo = await client.query({
+      //   query: gql`
+      //       query Query ($usersId: ID) {
+      //         users(id: $usersId) {
+      //           channelDetails {
+      //             urlSlug
+      //           }
+      //         }
+      //       }
+      //     `,
+      //   variables: {
+      //       "usersId": userInfo._id
+      //   }
+      // }).then((result) => {
+      //     return result.data.users[0].channelDetails
+      // });
+
+      const result = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/notification/${notificationDetail._id}`, {userId: userInfo._id}, { headers: { 'x-access-token': userInfo.jwtToken } });
+      console.log('result notification for live', result);
+      
+      if(result){
+        const newNotificationList = notificationList.map((notification)=>{
+          if (notification._id === notificationDetail._id) {
+            return { ...notification, isRead: true };
+          }
+          return notification;
+        });
+         console.log('newNotificationList single notification', newNotificationList);
+         sortNotifications(newNotificationList);
+
+        setOpen(false);
       }
     }
   }
