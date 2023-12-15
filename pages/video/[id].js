@@ -284,9 +284,9 @@ export default function Videos(){
                             console.log('videoDetails.userId', videoInfo.videos[0].userId)
                             console.log('result.data.roles[0].role', result.data.roles[0].role)
                             
-                            if(userDetails._id != videoInfo.videos[0].userId && result.data.roles[0].role != 'admin'){
+                            if(userDetails._id != videoInfo.videos[0].userId && result.data.roles[0].role != 'admin' && videoInfo.videos[0].videoPreviewStatus == 'private'){
                                 console.log('result.data.roles[0].role', result.data.roles[0].role)
-                                setIsPrivateVideo(true)
+                                setIsPrivateVideo(true);
                             }
 
                             if(result.data.subscriptionDetails.length > 0){
@@ -344,7 +344,7 @@ export default function Videos(){
                         setShowPlayer(true);
                         setIsSubscribedUser(false)
                         if(videoInfo.videos[0].videoPreviewStatus == 'private'){
-                        setIsPrivateVideo(true);
+                            setIsPrivateVideo(true);
                         }
                     }
                 } else if(channelApproveStatus == 'approved' && `${channelBlockedStatus}` == 'true') {
