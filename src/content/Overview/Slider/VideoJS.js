@@ -8,7 +8,7 @@ export const VideoJS = (props) => {
   const [isOffline, setIsOffline] = React.useState(props.options.className == 'offline-video'? true: false)
   const videoRef = React.useRef(null);
   const playerRef = React.useRef(null);
-  const {options, onReady} = props;
+  const {options} = props;
 
   
   React.useEffect(() => {
@@ -35,7 +35,7 @@ export const VideoJS = (props) => {
 
       const player = playerRef.current = videojs(videoElement, options, () => {
         videojs.log('player is ready');
-        onReady && onReady(player);
+        handlePlayerReady && handlePlayerReady(player);
       });
 
       player.qualityLevels();
@@ -61,6 +61,19 @@ export const VideoJS = (props) => {
       }
     };
   }, [playerRef]);
+
+  const handlePlayerReady = (player) => {
+    // playerRef.current = player;
+    console.log('player ready running')
+    // You can handle player events here, for example:
+    player.on('waiting', () => {
+        videojs.log('player is waiting');
+    });
+
+    player.on('dispose', () => {
+        videojs.log('player will dispose');
+    });
+};
 
   return (
     // <div data-vjs-player>

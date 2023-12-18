@@ -4,8 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import LiveStreamChatAdmin from '../../../../src/content/Channel/LiveStreamChatAdmin';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../store/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import VideoJS from '../../../../src/content/Overview/Slider/VideoJS';
-import videojs from 'video.js';
+// import VideoJS from '../../../../src/content/Overview/Slider/VideoJS';
 import { Box, Typography, Card, CardActions, CardContent, Button, Dialog, DialogContent, DialogTitle, Slide, Backdrop, CircularProgress } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import EditStreamTab from '../../../../src/content/Management/Users/settings/EditStreamTab'
@@ -13,6 +12,10 @@ import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import { makeStyles } from '@mui/styles';
 import { useRouter } from "next/router";
 import LockIcon from '@mui/icons-material/Lock';
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
+import httpSourceSelector from 'videojs-http-source-selector';
+import 'videojs-contrib-quality-levels';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,10 +63,12 @@ function ManageLiveStream(params) {
     const [viewer, setViewer] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isArtist, setIsArtist] = useState(false);
-    const playerRef = useRef(null);
     const classes = useStyles();
     const [open, setOpen] = useState(true);
     const router = useRouter();
+    const videoRef = React.useRef(null);
+    const playerRef = React.useRef(null);
+    const [showPlayer, setShowPlayer] = useState(false)
 
     const handleOpen = () => {
         setOpen(true);
@@ -231,7 +236,7 @@ function ManageLiveStream(params) {
                     }).then((result) => {
                         console.log('chatMessages result.data.chatMessages', result.data)
                         setOldChatMessages(result.data.chatMessages)
-                        
+                        setShowPlayer(true);
                         return result.data.chatMessages
                     });
                 }
@@ -245,15 +250,69 @@ function ManageLiveStream(params) {
         }
     }, [userIsLogedIn])
 
-
+    React.useEffect(() => {
+        if(showPlayer){
+            setTimeout(()=>{
+                if (!playerRef.current) {
+                  
+                  videojs.registerPlugin("httpSourceSelector", httpSourceSelector);
+                  
+                  const videoElement = document.createElement("video-js");
+                  videoElement.classList.add('vjs-big-play-centered');
+                  videoRef.current.appendChild(videoElement);
+            
+                  const player = playerRef.current = videojs(videoElement, {
+                    autoplay: true,
+                    controls: true,
+                    responsive: true,
+                    fluid: true,
+                    className: 'online-video',
+                    sources: [{
+                        src: `${liveStreamInfo[0].streamUrl}`,
+                        type: 'application/x-mpegURL'
+                    }]
+                }, () => {
+                    videojs.log('player is ready');
+                    handlePlayerReady && handlePlayerReady(player);
+                  });
+            
+                  player.qualityLevels();
+                  player.httpSourceSelector();
+                  
+                } else {
+                  const player = playerRef.current;
+            
+                  player.autoplay(true);
+                  player.src([{
+                    src: `${liveStreamInfo[0].streamUrl}`,
+                    type: 'application/x-mpegURL'
+                    }]);
+                }
+            }, 2000)
+        }
+    
+    }, [showPlayer, videoRef]);
+    
+      // Dispose the Video.js player when the functional component unmounts
+    React.useEffect(() => {
+        const player = playerRef.current;
+    
+        return () => {
+          if (player && !player.isDisposed()) {
+            player.dispose();
+            playerRef.current = null;
+          }
+        };
+    }, [playerRef]);
+    
     const handlePlayerReady = (player) => {
-        playerRef.current = player;
-
+        // playerRef.current = player;
+        console.log('player ready running')
         // You can handle player events here, for example:
         player.on('waiting', () => {
             videojs.log('player is waiting');
         });
-
+    
         player.on('dispose', () => {
             videojs.log('player will dispose');
         });
@@ -272,18 +331,14 @@ function ManageLiveStream(params) {
                             {liveStreamInfo.length > 0 ?
                                 <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px', marginLeft: '10px', ...scrollCss }}>
                                     <Box px={2}>
-                                        <VideoJS options={{
-                                            autoplay: true,
-                                            controls: true,
-                                            responsive: true,
-                                            fluid: true,
-                                            className: 'online-video',
+                                        {/* <VideoJS options={{ autoplay: true, controls: true, responsive: true, fluid: true, className: 'online-video',
                                             sources: [{
                                                 src: `${liveStreamInfo[0].streamUrl}`,
                                                 // src: `https://cdn.flowplayer.com/a30bd6bc-f98b-47bc-abf5-97633d4faea0/hls/de3f6ca7-2db3-4689-8160-0f574a5996ad/playlist.m3u8`,
                                                 type: 'application/x-mpegURL'
                                             }]
-                                        }} onReady={handlePlayerReady} />
+                                        }} onReady={handlePlayerReady} /> */}
+                                        <div ref={videoRef} />
                                     </Box>
                                     {/* <Box sx={{ m:'18px' }}>
                                         <Card>
