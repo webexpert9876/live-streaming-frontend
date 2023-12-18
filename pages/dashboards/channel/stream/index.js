@@ -284,8 +284,8 @@ function ManageLiveStream(params) {
             
                   player.autoplay(true);
                   player.src([{
-                    src: `${liveStreamInfo[0].streamUrl}`,
-                    type: 'application/x-mpegURL'
+                        src: `${liveStreamInfo[0].streamUrl}`,
+                        type: 'application/x-mpegURL'
                     }]);
                 }
             }, 2000)

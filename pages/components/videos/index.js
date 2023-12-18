@@ -2,7 +2,6 @@ import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import numeral from 'numeral';
 import PropTypes from 'prop-types';
 import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
@@ -586,6 +585,12 @@ const Video = () => {
         }
     }
 
+    // This function calculate how many days ago video uploaded or stream
+    function handleDateFormat(uploadDate) {
+       const date = format(new Date(parseInt(uploadDate)), "dd-MM-yyyy")
+       return date;
+    }
+
     return (
         <>
             {/* <SidebarLayout userData={[{role: '647f15e20d8b7330ed890da4'}]}> */}
@@ -659,6 +664,7 @@ const Video = () => {
                                                                 <TableCell align="right">Views</TableCell>
                                                                 <TableCell align="right">Status</TableCell>
                                                                 <TableCell align="right">Video Privacy</TableCell>
+                                                                <TableCell align="right">Uploaded Date</TableCell>
                                                                 <TableCell align="right">Actions</TableCell>
                                                             </TableRow>
                                                         </TableHead>
@@ -722,6 +728,11 @@ const Video = () => {
                                                                         </TableCell>
                                                                         <TableCell align="right">
                                                                             {getVideoPrivacyLabel(video.videoPreviewStatus)}
+                                                                        </TableCell>
+                                                                        <TableCell align="right">
+                                                                            {/* {calculateDaysAgo(video.createdAt)} */}
+                                                                            {/* {format(new Date(parseInt(video.createdAt)), "dd-MM-yyyy")} */}
+                                                                            {handleDateFormat(video.createdAt)}
                                                                         </TableCell>
                                                                         <TableCell align="right">
                                                                             <Tooltip title="Edit Video Details" arrow>
