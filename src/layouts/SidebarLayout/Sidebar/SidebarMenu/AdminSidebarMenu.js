@@ -25,6 +25,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StreamIcon from '@mui/icons-material/Stream';
+import GroupIcon from '@mui/icons-material/Group';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -300,7 +301,24 @@ function UserSidebarMenu({userData}){
                                         onClick={closeSidebar}
                                         startIcon={<TableChartTwoToneIcon />}
                                     >
-                                        Manage channels
+                                        Manage channels list
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/management/admin/user/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/admin/user/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<GroupIcon />}
+                                    >
+                                        Manage users list
                                     </Button>
                                 </NextLink>
                             </ListItem>

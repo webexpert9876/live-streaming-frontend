@@ -26,7 +26,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-export default function ChannelName() {
+export default function UserProfile() {
     const [userInfo, setUserInfo] = useState({});
 
     let userDetails = useSelector(selectAuthUser);
