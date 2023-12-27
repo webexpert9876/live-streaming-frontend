@@ -78,30 +78,13 @@ const UserListPage = () => {
   const [apiMessageType, setApiMessageType] = useState('');
 
     const statusOptions = [
-        {
-            id: 'all',
-            name: 'All'
-        },
-        {
-            id: 'user',
-            name: 'User'
-        },
-        {
-            id: 'artist',
-            name: 'Artist'
-        },
-        {
-            id: 'admin',
-            name: 'Admin'
-        }
+        { id: 'all', name: 'All' },
+        { id: 'user', name: 'User' },
+        { id: 'artist', name: 'Artist' },
+        { id: 'admin', name: 'Admin' }
     ];
 
-const filterStatusOption = {
-    null: 'all',
-    user: 'user',
-    artist: 'artist',
-    admin: 'admin'
-  };
+    const filterStatusOption = { null: 'all', user: 'user', artist: 'artist', admin: 'admin' };
 
 
   useEffect(()=>{
@@ -399,99 +382,99 @@ const applyPagination = (allUsers, page, limit) => {
                                                     <TableCell>Email</TableCell>
                                                     <TableCell>Role</TableCell>
                                                     <TableCell >Blocked status</TableCell>
-                                                    <TableCell align="right">Actions</TableCell>
+                                                    <TableCell align="center">Actions</TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     {showAllUserDetails.map((user) => {
-                                                    return (
-                                                        <TableRow hover key={user._id}>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                            {user.firstName} {user.lastName}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                            {user.username}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                                {user.email}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell >
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
-                                                            >
-                                                                {user.roleDetails[0].role}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell >
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
-                                                            >
-                                                                {getBlockedStatusLabel(`${user.blocked}` == 'true'? 'true': 'false')}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Tooltip title="Edit User" arrow>
-                                                                <IconButton
-                                                                    sx={{
-                                                                    '&:hover': {
-                                                                        background: theme.colors.primary.lighter
-                                                                    },
-                                                                    color: theme.palette.primary.main
-                                                                    }}
-                                                                    color="inherit"
-                                                                    size="small"
-                                                                    onClick={()=>handleEditUser(user)}
-                                                                >
-                                                                    <EditTwoToneIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            {/* <Tooltip title="Delete User" arrow>
-                                                                <IconButton
-                                                                    sx={{
-                                                                    '&:hover': { background: theme.colors.error.lighter },
-                                                                    color: theme.palette.error.main
-                                                                    }}
-                                                                    color="inherit"
-                                                                    size="small"
-                                                                >
-                                                                    <DeleteTwoToneIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip> */}
-                                                        </TableCell>
-                                                        </TableRow>
-                                                    );
+                                                        return (
+                                                            <TableRow hover key={user._id}>
+                                                                <TableCell>
+                                                                    <Typography
+                                                                    variant="body1"
+                                                                    fontWeight="bold"
+                                                                    color="text.primary"
+                                                                    gutterBottom
+                                                                    noWrap
+                                                                    >
+                                                                    {user.firstName} {user.lastName}
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Typography
+                                                                    variant="body1"
+                                                                    fontWeight="bold"
+                                                                    color="text.primary"
+                                                                    gutterBottom
+                                                                    noWrap
+                                                                    >
+                                                                    {user.username}
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Typography
+                                                                    variant="body1"
+                                                                    fontWeight="bold"
+                                                                    color="text.primary"
+                                                                    gutterBottom
+                                                                    noWrap
+                                                                    >
+                                                                        {user.email}
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell >
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                        color="text.primary"
+                                                                        gutterBottom
+                                                                        noWrap
+                                                                    >
+                                                                        {user.roleDetails[0].role}
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell >
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                        color="text.primary"
+                                                                        gutterBottom
+                                                                        noWrap
+                                                                    >
+                                                                        {getBlockedStatusLabel(`${user.blocked}` == 'true'? 'true': 'false')}
+                                                                    </Typography>
+                                                                </TableCell>
+                                                                <TableCell align="center">
+                                                                    <Tooltip title="Edit User" arrow>
+                                                                        <IconButton
+                                                                            sx={{
+                                                                            '&:hover': {
+                                                                                background: theme.colors.primary.lighter
+                                                                            },
+                                                                            color: theme.palette.primary.main
+                                                                            }}
+                                                                            color="inherit"
+                                                                            size="small"
+                                                                            onClick={()=>handleEditUser(user)}
+                                                                        >
+                                                                            <EditTwoToneIcon fontSize="small" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                    {/* <Tooltip title="Delete User" arrow>
+                                                                        <IconButton
+                                                                            sx={{
+                                                                            '&:hover': { background: theme.colors.error.lighter },
+                                                                            color: theme.palette.error.main
+                                                                            }}
+                                                                            color="inherit"
+                                                                            size="small"
+                                                                        >
+                                                                            <DeleteTwoToneIcon fontSize="small" />
+                                                                        </IconButton>
+                                                                    </Tooltip> */}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        );
                                                     })}
                                                 </TableBody>
                                                 </Table>
@@ -511,7 +494,7 @@ const applyPagination = (allUsers, page, limit) => {
                                     </Grid>
                                 </Container >
                             </>
-                    }
+                        }
                     <Footer />
                 </SidebarLayout>
             :

@@ -74,6 +74,8 @@ function HeaderUserbox() {
   const dispatch = useDispatch();
   const [roleInfo , setRoleInfo] = useState({});
   const [isFetched, setIsFetched] = useState(false)
+  const [isLogout, setIsLogout] = useState(false);
+  const [userDetail, setUserDetail] = useState({});
   const router = useRouter();
 
  
@@ -94,6 +96,7 @@ function HeaderUserbox() {
     if(authState != undefined || authState != null){
       if(authState.role != null){
         setIsFetched(true);
+        setUserDetail(authState);
       }
     }
   }, [authState]);
@@ -125,6 +128,17 @@ function HeaderUserbox() {
     }
   },[isFetched])
 
+  useEffect(()=>{
+    if(isLogout){
+      axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout/${userDetail._id}`).then((result)=>{
+        dispatch(logout());
+        dispatch(setAuthUser(null));
+        dispatch(setAuthState(false));
+        router.push('/auth/login');
+      })
+    }
+  }, [isLogout])
+
   const ref = useRef(null);
   const [isOpen, setOpen] = useState(false);
 
@@ -138,11 +152,8 @@ function HeaderUserbox() {
 
 
   const handleLogout = () => {
-    dispatch(logout());
-    dispatch(setAuthUser(null));
-    dispatch(setAuthState(false));
-    router.push('/auth/login');
-
+    setIsLogout(true);
+    // router.push('/auth/login');
   };
 
 

@@ -1,6 +1,6 @@
 
 import { useDispatch } from 'react-redux';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,7 +19,8 @@ import axios from 'axios';
 import Container from '@mui/material/Container';
 import { useRouter } from 'next/router';
 import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
-
+import GoogleIcon from '@mui/icons-material/Google';
+import Image from 'next/image'
 
 
 
@@ -33,7 +34,15 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSignInGoogle, setIsSignInGoogle] = useState(false);
   const router = useRouter();
+
+
+  useEffect(()=>{
+    if(isSignInGoogle){
+      window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/signin`, "_self");
+    }
+  },[isSignInGoogle])
 
   const handleUsernameChange = (event) => {
     setEmail(event.target.value);
@@ -75,7 +84,8 @@ const LoginForm = () => {
     authUser: state.auth.authUser, // Replace 'auth' with the key where your authUser is stored in the Redux store
   });
 
-  function Copyright(props) {
+
+  function HomeButton(props) {
     return (
       <Typography variant="body2" color="text.secondary" align="center" {...props}>
         <Button variant="contained"
@@ -183,7 +193,27 @@ const LoginForm = () => {
                       </Link>
                     </Grid>
                   </Grid>
-                  <Copyright sx={{ mt: 5 }} />
+                  <Box sx={{textAlign: 'center'}}>
+                    <Typography variant='h5' component='h5' mt={2}>OR</Typography>
+                    <Button variant='outlined' sx={{color: 'white', width: '150px', marginTop: '16px'}} onClick={()=>{setIsSignInGoogle(true)}}>
+                    {/* <Button variant='outlined' startIcon={<GoogleIcon color='error'/>} sx={{color: 'white', width: '150px', marginTop: '16px'}} onClick={()=>{setIsSignInGoogle(true)}}> */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap:'10px' }}>
+                        <Box mt={'5px'}>
+                          <Image
+                            src='/google-logo-9808.png'
+                            alt="google logo"
+                            width="20px"
+                            height="20px"
+                            marginTop='5px'
+                          />
+                        </Box>
+                        <Box>
+                          <Typography variant='span' component='span'>Google</Typography>
+                        </Box>
+                      </Box>
+                    </Button>
+                  </Box>
+                  <HomeButton sx={{ mt: 5 }} />
                 </Box>
               </Container>
             </FormControl>

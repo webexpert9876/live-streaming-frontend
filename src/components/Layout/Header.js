@@ -18,6 +18,9 @@ import {
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 
+import client from "../../../graphql";
+import { gql } from "@apollo/client";
+
 import Logo from "../LogoSign";
 import { selectRouteInfo } from '../../../store/slices/routeSlice';
 
@@ -75,19 +78,78 @@ const Header = () => {
     const theme = useTheme();
     const authStateUser = useSelector(selectAuthUser);
     const dispatch = useDispatch();
+    const [loginType, setLoginType] = useState('')
+    const [userDetail, setUserDetail] = useState([])
+
+
+
+    useEffect(async ()=>{
+        if(!router.query.id) {
+            setLoginType('normal');
+            return;
+        }
+
+        // setSlug(router.query.channelName[0].toUpperCase() + router.query.channelName.slice(1));
+        
+        // setChannelSlug(router.query.channelName);
+        // setIsFetchingChannel(true)
+        console.log('id', router.query.id)
+        await client.query({
+            query: gql`
+                query Query ($usersId: ID) {
+                    users(id: $usersId) {
+                        _id
+                        blocked
+                        channelId
+                        email
+                        firstName
+                        interestStyles
+                        isActive
+                        jwtToken
+                        lastName
+                        profilePicture
+                        role
+                        urlSlug
+                        username
+                    }
+                }
+            `,
+            variables: {
+                "usersId": router.query.id
+            }
+        }).then((result) => {
+            if(result.data.users.length > 0){
+                localStorage.setItem('authUser', JSON.stringify(result.data.users[0]));
+                localStorage.setItem('authState', true);
+                
+                dispatch(setAuthState(true));
+                dispatch(setAuthUser(result.data.users[0]));
+                setLoginType('google');
+                setIsLoggedIn(true);
+                setUserDetail([...result.data.users]);
+                // console.log(response.data);
+                router.push('/dashboards/tasks');
+            }
+        });
+    }, [router.query.id]);
 
     useEffect(() => {
-        let check = localStorage.getItem("authState")
-        let authUser = JSON.parse(localStorage.getItem('authUser'))
-        let authState = JSON.parse(localStorage.getItem('authState'))
-        if (authUser) {
-            dispatch(setAuthUser(authUser));
-            dispatch(setAuthState(authState));
+        if(loginType == 'normal'){
+
+            let check = localStorage.getItem("authState")
+            let authUser = JSON.parse(localStorage.getItem('authUser'))
+            let authState = JSON.parse(localStorage.getItem('authState'))
+            if (authUser) {
+                dispatch(setAuthUser(authUser));
+                dispatch(setAuthState(authState));
+                setUserDetail([authUser]);
+            }
+            if (JSON.parse(check) == true) {
+                setIsLoggedIn(true)
+            }
         }
-        if (JSON.parse(check) == true) {
-            setIsLoggedIn(true)
-        }
-    }, [])
+    }, [loginType])
+
     useEffect(() => {
         if (authState == true) {
             setIsLoggedIn(true)
@@ -95,6 +157,7 @@ const Header = () => {
             setIsLoggedIn(false)
         }
     }, [authState])
+
     return (
         <>
             {router.pathname.includes('/auth') ? null : (isLoggedIn ? (<HeaderWrapperLogin
@@ -129,8 +192,12 @@ const Header = () => {
                     <Logo />
                 </Stack>
                 <Box display="flex" alignItems="center">
-                    <HeaderButtons />
-                    <HeaderUserbox />
+                    {userDetail.length > 0 && 
+                    <>
+                        <HeaderButtons />
+                        <HeaderUserbox />
+                    </>
+                    }
                     <Box
                         component="span"
                         sx={{

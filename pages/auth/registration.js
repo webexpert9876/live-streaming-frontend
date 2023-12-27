@@ -24,6 +24,7 @@ import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -69,10 +70,15 @@ export default function SignInSide() {
   const [errorMessage, setErrorMessage] = useState('');  
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignInGoogle, setIsSignInGoogle] = useState(false);
   const router = useRouter();
 
 
-
+  useEffect(()=>{
+    if(isSignInGoogle){
+      window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/signin`, "_self");
+    }
+  },[isSignInGoogle])
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -357,6 +363,26 @@ export default function SignInSide() {
                   </Link>
                 </Grid>
               </Grid>
+              <Box sx={{textAlign: 'center'}}>
+                <Typography variant='h5' component='h5' mt={2}>OR</Typography>
+                <Button variant='outlined' sx={{color: 'white', width: '150px', marginTop: '16px'}} onClick={()=>{setIsSignInGoogle(true)}}>
+                {/* <Button variant='outlined' startIcon={<GoogleIcon color='error'/>} sx={{color: 'white', width: '150px', marginTop: '16px'}} onClick={()=>{setIsSignInGoogle(true)}}> */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap:'10px' }}>
+                    <Box mt={'5px'}>
+                      <Image
+                        src='/google-logo-9808.png'
+                        alt="google logo"
+                        width="20px"
+                        height="20px"
+                        marginTop='5px'
+                      />
+                    </Box>
+                    <Box>
+                      <Typography variant='span' component='span'>Google</Typography>
+                    </Box>
+                  </Box>
+                </Button>
+              </Box>
             </Box>
           </Box>
           <Copyright sx={{ mt: 5 }} />
