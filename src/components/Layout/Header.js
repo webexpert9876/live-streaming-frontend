@@ -93,7 +93,6 @@ const Header = () => {
         
         // setChannelSlug(router.query.channelName);
         // setIsFetchingChannel(true)
-        console.log('id', router.query.id)
         await client.query({
             query: gql`
                 query Query ($usersId: ID) {
@@ -140,18 +139,19 @@ const Header = () => {
             let authUser = JSON.parse(localStorage.getItem('authUser'))
             let authState = JSON.parse(localStorage.getItem('authState'))
             if (authUser) {
+                setUserDetail([authUser]);
                 dispatch(setAuthUser(authUser));
                 dispatch(setAuthState(authState));
-                setUserDetail([authUser]);
-            }
-            if (JSON.parse(check) == true) {
-                setIsLoggedIn(true)
+                if (JSON.parse(check) == true) {
+                    setIsLoggedIn(true)
+                }
             }
         }
     }, [loginType])
 
     useEffect(() => {
         if (authState == true) {
+            setUserDetail([authStateUser]);
             setIsLoggedIn(true)
         } else {
             setIsLoggedIn(false)
