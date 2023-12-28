@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 import { useState, useEffect } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
-import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, MenuItem, Avatar, Menu, Toolbar, AppBar, Tab, Backdrop  } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, Avatar, Tab } from "@mui/material";
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
@@ -29,6 +29,7 @@ import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import httpSourceSelector from 'videojs-http-source-selector';
 import 'videojs-contrib-quality-levels';
+import { makeStyles } from '@mui/styles';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -37,6 +38,28 @@ const Item = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.secondary,
+}));
+
+const useStyles = makeStyles((theme) => ({
+    container: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    },
+    box: {
+      width: '30%',
+      padding: '20px',
+      border: '1px solid #ccc',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      cursor: 'pointer',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.05)',
+      },
+    },
+    selectedBox: {
+      border: '2px solid blue',
+    },
 }));
 
 export default function ChannelName() {
@@ -72,7 +95,16 @@ export default function ChannelName() {
     const [isStatusPendingChannel, setIsStatusPendingChannel] = useState(false);
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
-    const [showPlayer, setShowPlayer] = useState(false)
+    const [showPlayer, setShowPlayer] = useState(false);
+    const [openBuySubscription, setOpenBuySubscription] = useState(false);
+    const classes = useStyles();
+    const [selectedBox, setSelectedBox] = useState(null);
+    const [boxesData, setBoxesData] = useState([
+        { id: 1, planDuration:'month', timeDuration: 1, price: 10},
+        { id: 2, planDuration:'month', timeDuration: 6, price: 50},
+        { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
+      ]
+    );
 
     useEffect(async ()=>{
         if(!router.query.channelName) {
@@ -338,7 +370,10 @@ export default function ChannelName() {
                             setAllVideos(result.data.videos);
                         });
                     }
-                    setShowPlayer(true)
+
+                    if(streamInfo.liveStreamings.length > 0){
+                        setShowPlayer(true)
+                    }
                 } else if(channelStatus == 'approved' && channelBlockedStatus == 'true') {
                     setIsBlockedChannel(true);
                 } else if(channelStatus == 'pending' || channelStatus == 'declined') {
@@ -539,7 +574,7 @@ export default function ChannelName() {
     const handleSubscribeChannel = async (checkSubscribe) => {
 
         if (checkSubscribe) {
-            console.log('Subscribe')
+            console.log('Subscribe');
             // try {
             //     const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/follower`, { userId: userDetail._id, channelId: channelDetails._id, isFollowing: true }, { headers: { 'x-access-token': userDetail.jwtToken } });
             //     if (result) {
@@ -561,6 +596,15 @@ export default function ChannelName() {
 
     const headerMargin = {
         marginTop: "90px"
+    }
+    
+    const handleBoxClick = (subscriptionDetail, boxNumber) => {
+        console.log('subscriptionDetail boxNumber', subscriptionDetail);
+        setSelectedBox(boxNumber);
+    };
+
+    const handleSubscriptionPurchase = (subscriptionDetail)=>{
+        console.log('subscriptionDetail', subscriptionDetail);
     }
 
     return (
@@ -681,15 +725,12 @@ export default function ChannelName() {
                                                                 <Button onClick={()=>handleSubscribeChannel(false)} variant="contained" startIcon={<StarIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
                                                                 :
                                                                 (Object.keys(userDetail).length === 0 ?
-                                                                    <Tooltip title={<React.Fragment>Please <Link 
-                                                                    // href={`/auth/login`}
-                                                                    onClick={()=> router.push("/auth/login")}
-                                                                    style={{cursor:"pointer"}}
-                                                                    >login</Link> to subscribe channel</React.Fragment>} placement="right-start">
+                                                                    <Tooltip title={<React.Fragment>Please
+                                                                        <Link onClick={()=> router.push("/auth/login")} style={{cursor:"pointer"}}>login</Link> to subscribe channel</React.Fragment>} placement="right-start">
                                                                         <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                                                                     </Tooltip>
-                                                                    :
-                                                                    <Button onClick={()=>handleSubscribeChannel(true)} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                :
+                                                                    <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                                                                 )
                                                             )
                                                             : null}
@@ -700,9 +741,9 @@ export default function ChannelName() {
                                                             <PermIdentityIcon/>
                                                             <Typography variant="h5" component={'h5'}>{countLiveViewing(viewers)} viewers</Typography>
                                                         </Typography>
-                                                        <Typography variant="body1" component={'span'}>
+                                                        {/* <Typography variant="body1" component={'span'}>
                                                             123
-                                                        </Typography>
+                                                        </Typography> */}
                                                     </Typography>
                                                 </Item>
                                             </Box>}
@@ -1050,6 +1091,39 @@ export default function ChannelName() {
                 }
                 {isClickOnChannel && currentBroadcast && userDetail && channelDetails ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} channelInfo={channelDetails} /> : null}
             </Box >
+
+            <Dialog
+                open={openBuySubscription}
+                onClose={()=>setOpenBuySubscription(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth={true}
+                maxWidth={'sm'}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Subscribe channel"}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="div" component={'div'} className={classes.container}>
+                        {boxesData.map((box, index) => (
+                            <Box
+                                key={box.id}
+                                className={`${classes.box} ${selectedBox === index ? classes.selectedBox : ''}`}
+                                onClick={() => handleBoxClick(box, index)}
+                            >
+                                <Typography variant="h4" component="h4">{`${box.timeDuration} ${box.planDuration}`}</Typography>
+                                <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDuration}`}</Typography>
+                            </Box>
+                        ))}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
+                    <Button autoFocus>
+                        Agree
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

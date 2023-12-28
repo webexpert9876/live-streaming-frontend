@@ -438,7 +438,13 @@ function EditProfileTab(props) {
                           <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={userUploadedImage}/> 
                         :
                           userProfilePic? 
-                            <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                            <>
+                              {userProfilePic.startsWith('https')?
+                                <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${userProfilePic}`}/>
+                                :
+                                <img style={{width: '150px', height: '150px', borderRadius: '50%'}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/>
+                              }
+                            </>
                           : 
                             <Avatar
                             src={picture.croppedImg}
@@ -551,8 +557,14 @@ function EditProfileTab(props) {
                   </Text> */}
                   {/* {authState.profilePicture?<img src={`${process.env.NEXT_PUBLIC_S3_URL}/${authState.profilePicture}`}></img>: <img src={`https://picsum.photos/seed/picsum/200/300`}></img>} */}
                   {/* {userProfilePic?<img  src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}></img>: <img src={`https://picsum.photos/seed/picsum/200/300`}></img>} */}
-                  {userProfilePic? 
-                    <img style={{width: '150px', height: '150px', borderRadius: '50%'}} alt={`profile image not found`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/> 
+                  {userProfilePic?
+                    <>
+                      { userProfilePic.startsWith('https')?
+                        <img style={{width: '150px', height: '150px', borderRadius: '50%'}} alt={`profile image not found`} src={`${userProfilePic}`}/>
+                        :
+                        <img style={{width: '150px', height: '150px', borderRadius: '50%'}} alt={`profile image not found`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${userProfilePic}`}/>
+                      }
+                    </>
                     : <Avatar
                       src={picture.croppedImg}
                       sx={{ width: 150, height: 150, padding: "5" }}
