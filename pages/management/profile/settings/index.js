@@ -105,7 +105,7 @@ function ManagementUserSettings() {
   const tabs = [
     // { value: 'activity', label: 'Activity' },
     { value: 'edit_profile', label: 'Edit Profile' },
-    { value: 'notifications', label: 'Notifications' },
+    // { value: 'notifications', label: 'Notifications' },
     { value: 'security', label: 'Passwords/Security' }
   ];
 
@@ -152,7 +152,7 @@ function ManagementUserSettings() {
                   {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
                 </>
               : null }
-              {currentTab === 'notifications' && <NotificationsTab />}
+              {/* {currentTab === 'notifications' && <NotificationsTab />} */}
               {userData.length > 0?
                 <>
                   {currentTab === 'security' && <SecurityTab userData={userData}/>}

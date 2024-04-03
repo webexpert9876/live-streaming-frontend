@@ -19,7 +19,7 @@ import { gql } from "@apollo/client";
 import EditChannelTab from 'src/content/Management/Users/settings/EditChannelTab';
 import EditStreamTab from 'src/content/Management/Users/settings/EditStreamTab';
 import EditProfileTab from 'src/content/Management/Users/settings/EditProfileTab';
-import NotificationsTab from 'src/content/Management/Users/settings/NotificationsTab';
+// import NotificationsTab from 'src/content/Management/Users/settings/NotificationsTab';
 import SecurityTab from 'src/content/Management/Users/settings/SecurityTab';
 import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
 import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
@@ -168,7 +168,7 @@ function ManagementChannelSettings() {
     { value: 'channel', label: 'Edit Channel' },
     { value: 'edit_profile', label: 'Edit Profile' },
     { value: 'edit_stream', label: 'Edit Stream' },
-    { value: 'notifications', label: 'Notifications' },
+    // { value: 'notifications', label: 'Notifications' },
     { value: 'security', label: 'Passwords/Security' }
   ];
 
@@ -231,7 +231,7 @@ function ManagementChannelSettings() {
                       {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
                     </>
                 }
-                {currentTab === 'notifications' && <NotificationsTab />}
+                {/* {currentTab === 'notifications' && <NotificationsTab />} */}
 
                 {userData.length > 0?
                   <>

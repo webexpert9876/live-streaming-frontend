@@ -194,7 +194,7 @@ function HeaderUserbox() {
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
           {
-            authState.profilePicture.startsWith('https')?
+            authState && authState.profilePicture && authState.profilePicture.startsWith('https')?
               <Avatar variant="rounded" alt={authState?.firstName} src={`${authState.profilePicture}`}/>
             :
               <Avatar variant="rounded" alt={authState?.firstName} src={authState?authState.profilePicture?`${process.env.NEXT_PUBLIC_S3_URL}/${authState?.profilePicture}`: '': ''}/>
@@ -209,7 +209,8 @@ function HeaderUserbox() {
         <Divider sx={{ mb: 0 }} />
         {roleInfo.role == 'admin' && 
           <List sx={{ p: 1 }} component="nav">
-            <NextLink href="/management/profile/settings" passHref>
+            {/* <NextLink href="/management/profile/settings" passHref> */}
+            <NextLink href="/management/channel/settings" passHref>
               <ListItem onClick={()=>{setOpen(false)}} button>
                 <SettingsIcon fontSize="small" />
                 <ListItemText primary="Account Settings" />

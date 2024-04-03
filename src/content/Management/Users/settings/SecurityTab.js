@@ -431,7 +431,7 @@ function SecurityTab({userData}) {
                   <Button onClick={handleChangePassSubmit} disabled={loading}>{loading? 'Changing...': 'Change'}</Button>
                 </DialogActions>
               </Dialog>
-              <Divider component="li" />
+              {/* <Divider component="li" />
               <ListItem sx={{ p: 3 }}>
                 <ListItemText
                   primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
@@ -443,11 +443,12 @@ function SecurityTab({userData}) {
                   secondary="Enable PIN verification for all sign in attempts"
                 />
                 <Switch color="primary" />
-              </ListItem>
+              </ListItem> */}
             </List>
           </Card>
         </Grid>
-        <Grid item xs={12}>
+
+        {/* <Grid item xs={12}>
           <Card>
             <CardHeader
               subheaderTypographyProps={{}}
@@ -508,7 +509,8 @@ function SecurityTab({userData}) {
               />
             </Box>
           </Card>
-        </Grid>
+        </Grid> */}
+
       </Grid>
       <Stack spacing={2} sx={{ width: '100%' }}>
         <Snackbar anchorOrigin={{
