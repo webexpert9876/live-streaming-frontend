@@ -155,8 +155,12 @@ export default function ChannelName() {
             if(channelInfo.channels.length > 0 ){
                 let channelStatus = channelInfo.channels[0].isApproved;
                 let channelBlockedStatus = channelInfo.channels[0].blocked;
+                console.log('channelBlockedStatus--', channelBlockedStatus)
+                console.log('channelStatus--', channelStatus)
+
                 if(channelStatus == 'approved' && channelBlockedStatus == 'false'){
                     console.log('channel found')
+                    setIsStatusPendingChannel(false);
                     let streamInfo = await client.query({
                         query: gql`
                         query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!) {
@@ -377,7 +381,10 @@ export default function ChannelName() {
                 } else if(channelStatus == 'approved' && channelBlockedStatus == 'true') {
                     setIsBlockedChannel(true);
                 } else if(channelStatus == 'pending' || channelStatus == 'declined') {
+                    // console.log('channelBlockedStatus--', channelBlockedStatus)
+                    // console.log('channelStatus--', channelStatus)
                     setIsStatusPendingChannel(true);
+                    setShowChannelDetails(false);
                 }
             }
             setIsFetchingChannel(false)
@@ -389,14 +396,18 @@ export default function ChannelName() {
     React.useEffect(() => {
         if(showPlayer){
             setTimeout(()=>{
+
+                if(playerRef.current){
+                    playerRef.current.dispose();
+                    playerRef.current = null
+                }
+                
                 if (!playerRef.current) {
-                  
                   videojs.registerPlugin("httpSourceSelector", httpSourceSelector);
                   
                   const videoElement = document.createElement("video-js");
                   videoElement.classList.add('vjs-big-play-centered');
                   videoRef.current.appendChild(videoElement);
-            
                   const player = playerRef.current = videojs(videoElement, {
                     autoplay: true,
                     controls: true,
@@ -417,13 +428,13 @@ export default function ChannelName() {
                   
                 } else {
                   const player = playerRef.current;
-            
                   player.autoplay(true);
                   player.src([{
                     src: `${currentBroadcast.streamUrl}`,
                     type: 'application/x-mpegURL'
                     }]);
                 }
+                setShowPlayer(false)
             }, 0)
         }
     
@@ -1120,7 +1131,7 @@ export default function ChannelName() {
                 <DialogActions>
                     <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
                     <Button autoFocus>
-                        Agree
+                        Buy
                     </Button>
                 </DialogActions>
             </Dialog>
