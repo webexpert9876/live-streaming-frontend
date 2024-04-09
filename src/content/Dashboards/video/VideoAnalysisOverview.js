@@ -8,8 +8,8 @@ import {
   LinearProgress,
   styled
 } from '@mui/material';
-import AssignmentTurnedInTwoToneIcon from '@mui/icons-material/AssignmentTurnedInTwoTone';
-import CancelPresentationTwoToneIcon from '@mui/icons-material/CancelPresentationTwoTone';
+import StreamIcon from '@mui/icons-material/Stream';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 
 const RootWrapper = styled(Card)(
   ({ theme }) => `
@@ -59,7 +59,7 @@ const LinearProgressWrapper = styled(LinearProgress)(
 `
 );
 
-function Performance() {
+function VideoAnalysisOverview(props) {
   const theme = useTheme();
 
   return (
@@ -78,7 +78,7 @@ function Performance() {
           color: `${theme.colors.alpha.white[100]}`
         }}
       >
-        Performance
+        Video Overview
       </Typography>
       <CardContent>
         <Box
@@ -95,12 +95,12 @@ function Performance() {
             }}
             variant="rounded"
           >
-            <AssignmentTurnedInTwoToneIcon fontSize="large" />
+            <OndemandVideoIcon fontSize="large" />
           </AvatarSuccess>
           <Box>
-            <Typography variant="h1">23</Typography>
+            <Typography variant="h1">{props.uploadVideoCount}</Typography>
             <TypographySecondary variant="subtitle2" noWrap>
-              tasks created
+              Uploaded videos
             </TypographySecondary>
           </Box>
         </Box>
@@ -118,25 +118,18 @@ function Performance() {
             }}
             variant="rounded"
           >
-            <CancelPresentationTwoToneIcon fontSize="large" />
+            <StreamIcon fontSize="large" />
           </AvatarError>
           <Box>
-            <Typography variant="h1">5</Typography>
+            <Typography variant="h1">{props.streamVideoCount}</Typography>
             <TypographySecondary variant="subtitle2" noWrap>
-              tasks closed
+              Streamed video
             </TypographySecondary>
           </Box>
-        </Box>
-        <Box pt={3}>
-          <LinearProgressWrapper
-            value={73}
-            color="primary"
-            variant="determinate"
-          />
         </Box>
       </CardContent>
     </RootWrapper>
   );
 }
 
-export default Performance;
+export default VideoAnalysisOverview;

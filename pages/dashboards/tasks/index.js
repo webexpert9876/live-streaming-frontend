@@ -17,8 +17,10 @@ import {
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 
 import TeamOverview from 'src/content/Dashboards/Tasks/TeamOverview';
-import TasksAnalytics from 'src/content/Dashboards/Tasks/TasksAnalytics';
-import Performance from 'src/content/Dashboards/Tasks/Performance';
+import ChannelAnalytics from 'src/content/Dashboards/Tasks/ChannelAnalytics';
+import Analysis from 'src/content/Dashboards/Tasks/Analysis';
+import VideoAnalytics from 'src/content/Dashboards/video/VideoAnalytics';
+import VideoAnalysisOverview from 'src/content/Dashboards/video/VideoAnalysisOverview';
 import Projects from 'src/content/Dashboards/Tasks/Projects';
 import Checklist from 'src/content/Dashboards/Tasks/Checklist';
 import Profile from 'src/content/Dashboards/Tasks/Profile';
@@ -119,11 +121,24 @@ function DashboardTasks() {
   const [isUserAvailable, setIsUserAvailable] = useState(false);
   const [isFetchedApi, setIsFetchedApi] = useState(true);
   const [currentTab, setCurrentTab] = useState('analytics');
+  
+  const [channelDetail, setChannelDetail] = useState([]);
+  const [channelAnanlysisData, setChannelAnanlysisData] = useState([]);
+  
+  // const [channelDetail, setChannelDetail] = useState([]);
+  const [videoUploadAnanlysisData, setVideoUploadAnanlysisData] = useState([]);
+  const [videoStreamAnanlysisData, setVideoStreamAnanlysisData] = useState([]);
+
+  const [uploadVideoCount, setUploadVideoCount] = useState(0);
+  const [streamVideoCount, setStreamVideoCount] = useState(0);
+
+  const [isFetchVideoData, setIsFetchVideoData] = useState(false);
+  
   const router = useRouter();
 
   const tabs = [
-    { value: 'analytics', label: 'Analytics Overview' },
-    { value: 'taskSearch', label: 'Task Search' }
+    { value: 'analytics', label: 'Channel Analytics Overview' },
+    // { value: 'taskSearch', label: 'Task Search' }
   ];
 
   useEffect(()=>{
@@ -148,6 +163,13 @@ function DashboardTasks() {
                     jwtToken
                     role
                     channelId
+                    channelDetails {
+                      _id
+                      channelName
+                      urlSlug
+                      userId
+                      subscribers
+                    }
                     interestedStyleDetail {
                         title
                         _id
@@ -156,8 +178,9 @@ function DashboardTasks() {
             }
         `,
       }).then((result) => {
-          setUserData(result.data.users);
-        });
+        setUserData(result.data.users);
+        setChannelDetail(result.data.users[0].channelDetails);
+      });
     }
 
     if(isUserAvailable){
@@ -179,6 +202,130 @@ function DashboardTasks() {
     }
 },[authState])
 
+  useEffect(()=>{
+
+    if(channelDetail.length > 0){
+      let currentDate = new Date();
+      let currentYear = currentDate.getFullYear();
+
+      client.query({
+        variables: {
+          getChannelAnalysisByChannelIdId: channelDetail[0]._id,
+          // videoAnalysisId: channelDetail[0]._id
+          videoAnalysisId: "64f5b09f6830acb8e65aa00f",
+          year: `${currentYear - 1}`
+        },
+        query: gql`
+          query Query($getChannelAnalysisByChannelIdId: ID, $videoAnalysisId: ID, $year: String) {
+            getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelIdId) {
+              _id
+              numberofvisit
+            }
+            videoAnalysis(id: $videoAnalysisId, year: $year) {
+              _id
+              uploadedVideo
+              streamedVideo
+            }
+          }
+        `,
+      }).then((result)=>{
+
+        let channelAnanlysis = result.data.getChannelAnalysisByChannelId
+        
+        let videoAnalytics = result.data.videoAnalysis
+        
+        let channelArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+        channelAnanlysis.forEach((item)=>{
+          let indexToReplace = parseInt(item._id);
+          channelArray[indexToReplace - 1] = item.numberofvisit;
+        });
+
+        let videoUploadArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let videoStreamArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        videoAnalytics.forEach((item)=>{
+          let indexToReplace = parseInt(item._id);
+          videoUploadArray[indexToReplace - 1] = item.uploadedVideo;
+          videoStreamArray[indexToReplace - 1] = item.streamedVideo;
+        });
+
+        setChannelAnanlysisData(channelArray);
+        setVideoUploadAnanlysisData(videoUploadArray)
+        setVideoStreamAnanlysisData(videoStreamArray)
+        
+        let videoUploadSum = videoUploadArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        let videoStreamSum = videoStreamArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+        setUploadVideoCount(videoUploadSum)
+        setStreamVideoCount(videoStreamSum)
+      })
+    }
+  }, [channelDetail])
+  
+  // useEffect(()=>{
+
+  //   if(channelDetail.length > 0){
+  //     let currentDate = new Date();
+  //     let currentYear = currentDate.getFullYear();
+
+  //     client.query({
+  //       variables: {
+  //         getChannelAnalysisByChannelIdId: channelDetail[0]._id,
+  //         // videoAnalysisId: channelDetail[0]._id
+  //         videoAnalysisId: "64f5b09f6830acb8e65aa00f",
+  //         year: `${currentYear}`
+  //       },
+  //       query: gql`
+  //         query Query($getChannelAnalysisByChannelIdId: ID, $videoAnalysisId: ID, $year: String) {
+  //           getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelIdId) {
+  //             _id
+  //             numberofvisit
+  //           }
+  //           videoAnalysis(id: $videoAnalysisId, year: $year) {
+  //             _id
+  //             uploadedVideo
+  //             streamedVideo
+  //           }
+  //         }
+  //       `,
+  //     }).then((result)=>{
+
+  //       let channelAnanlysis = result.data.getChannelAnalysisByChannelId
+        
+  //       let videoAnalytics = result.data.videoAnalysis
+        
+  //       let channelArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+  //       channelAnanlysis.forEach((item)=>{
+  //         let indexToReplace = parseInt(item._id);
+  //         channelArray[indexToReplace - 1] = item.numberofvisit;
+  //       });
+
+  //       let videoUploadArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  //       let videoStreamArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  //       videoAnalytics.forEach((item)=>{
+  //         let indexToReplace = parseInt(item._id);
+  //         videoUploadArray[indexToReplace - 1] = item.uploadedVideo;
+  //         videoStreamArray[indexToReplace - 1] = item.streamedVideo;
+  //       });
+
+  //       setChannelAnanlysisData(channelArray);
+  //       setVideoUploadAnanlysisData(videoUploadArray)
+  //       setVideoStreamAnanlysisData(videoStreamArray)
+        
+  //       let videoUploadSum = videoUploadArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  //       let videoStreamSum = videoStreamArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  //       setUploadVideoCount(videoUploadSum)
+  //       setStreamVideoCount(videoStreamSum)
+  //     })
+  //   }
+  // }, [channelDetail])
+
+
+
   const handleTabsChange = (_event, value) => {
     setCurrentTab(value);
   };
@@ -188,7 +335,7 @@ function DashboardTasks() {
       {userData.length > 0?
         <SidebarLayout userData={userData}>
           <Head>
-            <title>Tasks Dashboard</title>
+            <title>Channel Analytics Dashboard</title>
           </Head>
           <PageTitleWrapper>
             <PageHeader />
@@ -218,13 +365,13 @@ function DashboardTasks() {
               >
                 {currentTab === 'analytics' && (
                   <>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Box p={4}>
                         <TeamOverview />
                       </Box>
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12}>
-                      <Divider />
+                      {/* <Divider /> */}
                       <Box
                         p={4}
                         sx={{
@@ -233,16 +380,16 @@ function DashboardTasks() {
                       >
                         <Grid container spacing={4}>
                           <Grid item xs={12} sm={6} md={8}>
-                            <TasksAnalytics />
+                            {channelAnanlysisData.length > 0 && channelDetail.length > 0 && <ChannelAnalytics channelAnanlysisData={channelAnanlysisData} channelDetail={channelDetail}/>}
                           </Grid>
                           <Grid item xs={12} sm={6} md={4}>
-                            <Performance />
+                            { channelDetail.length > 0 && <Analysis channelDetail={channelDetail} /> }
                           </Grid>
                         </Grid>
                       </Box>
                       <Divider />
                     </Grid>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Box p={4}>
                         <Projects />
                       </Box>
@@ -272,16 +419,46 @@ function DashboardTasks() {
                           </Grid>
                         </Grid>
                       </Box>
-                    </Grid>
+                    </Grid> */}
                   </>
                 )}
-                {currentTab === 'taskSearch' && (
+                {/* {currentTab === 'taskSearch' && (
                   <Grid item xs={12}>
                     <Box p={4}>
                       <TaskSearch />
                     </Box>
                   </Grid>
-                )}
+                )} */}
+              </Grid>
+            </Card>
+
+            <Card variant="outlined" style={{marginTop: "10px"}}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="center"
+                alignItems="stretch"
+                spacing={0}
+              >
+                <Grid item xs={12}>
+                  {/* <Divider /> */}
+                  <Box
+                    p={4}
+                    sx={{
+                      background: `${theme.colors.alpha.black[5]}`
+                    }}
+                  >
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} sm={6} md={8}>
+                        { videoUploadAnanlysisData.length > 0 && videoStreamAnanlysisData.length > 0 && <VideoAnalytics videoUploadData={videoUploadAnanlysisData} videoStreamData={videoStreamAnanlysisData}/>}
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={4}>
+                        { uploadVideoCount >= 0 && streamVideoCount >= 0 && <VideoAnalysisOverview uploadVideoCount={uploadVideoCount} streamVideoCount={streamVideoCount} /> }
+                      </Grid>
+                    </Grid>
+                  </Box>
+                  <Divider />
+                </Grid>
               </Grid>
             </Card>
           </Container>

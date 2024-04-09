@@ -7,8 +7,13 @@ import {
   Avatar,
   styled
 } from '@mui/material';
+import { useState, useEffect } from 'react';
 import DocumentScannerTwoToneIcon from '@mui/icons-material/DocumentScannerTwoTone';
 import AddAlertTwoToneIcon from '@mui/icons-material/AddAlertTwoTone';
+import client from "../../../../graphql";
+import { selectAuthUser } from 'store/slices/authSlice';
+import { gql } from "@apollo/client";
+import { useSelector, useDispatch } from 'react-redux';
 
 const AvatarPageTitle = styled(Avatar)(
   ({ theme }) => `
@@ -35,10 +40,70 @@ const AvatarPageTitle = styled(Avatar)(
 );
 
 function PageHeader() {
+
+  const authState = useSelector(selectAuthUser)
+  const [userData, setUserData] = useState([]);
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [isFetchedApi, setIsFetchedApi] = useState(true);
+
   const user = {
     name: 'Catherine Pike',
     avatar: '/static/images/avatars/1.jpg'
   };
+
+  useEffect(()=>{
+
+    // let userId = JSON.parse(localStorage.getItem('authUser'));
+    function getUserAllDetails(){
+      client.query({
+        variables: {
+          usersId: userData[0]._id
+        },
+        query: gql`
+            query Query($usersId: ID) {
+                users(id: $usersId) {
+                    _id
+                    firstName
+                    lastName
+                    username
+                    email
+                    password
+                    profilePicture
+                    urlSlug
+                    jwtToken
+                    role
+                    channelId
+                    interestedStyleDetail {
+                        title
+                        _id
+                    }
+                }
+            }
+        `,
+      }).then((result) => {
+        console.log("result.data.users", result.data.users)
+        setUserData(result.data.users);
+      });
+    }
+
+    if(isUserAvailable){
+            
+      if(isFetchedApi){
+        console.log('fetch')
+        setIsUserAvailable(false);
+        setIsFetchedApi(false);
+        getUserAllDetails();
+      }
+    }
+    // getUserAllDetails();
+  },[isUserAvailable])
+
+  useEffect(()=>{
+    if(authState && Object.keys(authState).length > 0){
+        setUserData([{...authState}])
+        setIsUserAvailable(true);
+    }
+  },[authState])
 
   return (
     <Box
@@ -48,24 +113,28 @@ function PageHeader() {
       justifyContent="space-between"
     >
       <Box display="flex" alignItems="center">
-        <AvatarPageTitle variant="rounded">
+        {/* <AvatarPageTitle variant="rounded">
           <AddAlertTwoToneIcon fontSize="large" />
-        </AvatarPageTitle>
+        </AvatarPageTitle> */}
         <Box>
-          <Typography variant="h3" component="h3" gutterBottom>
-            Welcome, {user.name}!
-          </Typography>
-          <Typography variant="subtitle2">
+          {
+            userData.length > 0? 
+            <Typography variant="h3" component="h3" gutterBottom>
+              Welcome, {userData[0].firstName} {userData[0].lastName}
+            </Typography>:
+              null
+          }
+          {/* <Typography variant="subtitle2">
             Manage your day to day tasks with style! Enjoy a well built UI
             system.
-          </Typography>
+          </Typography> */}
         </Box>
       </Box>
-      <Box mt={{ xs: 3, md: 0 }}>
+      {/* <Box mt={{ xs: 3, md: 0 }}>
         <Button variant="contained" startIcon={<DocumentScannerTwoToneIcon />}>
           Export
         </Button>
-      </Box>
+      </Box> */}
     </Box>
   );
 }

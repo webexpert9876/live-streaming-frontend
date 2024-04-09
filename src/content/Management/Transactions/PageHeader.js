@@ -17,7 +17,7 @@ function PageHeader() {
           {user.name}, these are your recent transactions
         </Typography>
       </Grid>
-      <Grid item>
+      {/* <Grid item>
         <Button
           sx={{ mt: { xs: 2, md: 0 } }}
           variant="contained"
@@ -25,7 +25,7 @@ function PageHeader() {
         >
           Create transaction
         </Button>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 }
