@@ -363,10 +363,10 @@ function UserSidebarMenu({userData}){
                     <SubMenuWrapper>
                         <List component="div">
                             <ListItem component="div">
-                                <NextLink href="/components/videos" passHref>
+                                <NextLink href="/videos" passHref>
                                     <Button
                                         className={
-                                            currentRoute === '/components/videos' ? 'active' : ''
+                                            currentRoute === '/videos' ? 'active' : ''
                                         }
                                         disableRipple
                                         component="a"

@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
 import { Typography, Button, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAuthState } from '../../../store/slices/authSlice';
-import { selectAuthUser } from '../../../store/slices/authSlice';
-import { setAuthUser, setAuthState } from '../../../store/slices/authSlice';
+import { selectAuthState } from '../../store/slices/authSlice';
+import { selectAuthUser } from '../../store/slices/authSlice';
+import { setAuthUser, setAuthState } from '../../store/slices/authSlice';
 import { useRouter } from 'next/router';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';

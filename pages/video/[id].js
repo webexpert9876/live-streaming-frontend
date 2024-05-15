@@ -1,9 +1,28 @@
 import client from "../../graphql";
 import { gql } from "@apollo/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LeftMenu from '../../src/content/Overview/LeftMenu/index';
 import Paper from '@mui/material/Paper';
-import { Box, Grid, Link, Typography, Container, Button, Card, CardMedia, Tooltip, Divider, CardContent, Avatar} from "@mui/material";
+import { 
+    Box,
+    Grid,
+    Link,
+    Typography,
+    Container,
+    Button,
+    TextField,
+    Tooltip,
+    Divider,
+    CardContent,
+    Avatar,
+    InputAdornment, 
+    Dialog,
+    DialogActions, 
+    DialogContent, 
+    DialogContentText, 
+    DialogTitle 
+} from "@mui/material";
+
 import styled from "@emotion/styled";
 import React from 'react';
 // import VideoJS from '../../src/content/Overview/Slider/VideoJS';
@@ -20,6 +39,19 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import axios from "axios";
 import LockIcon from '@mui/icons-material/Lock';
+import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
+import dynamic from 'next/dynamic';
+import { makeStyles } from '@mui/styles';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
+const EmojiPicker = dynamic(
+    () => {
+      return import('emoji-picker-react');
+    },
+    { ssr: false }
+  );
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -28,6 +60,21 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
+
+const commentButton = { marginTop: '10px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
+const commentUpdateButton = { marginTop: '10px', border: 'none', background: '#9147FF', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
+const cmtUpdateCancelButton = { marginTop: '10px', marginRight: "10px", border: 'none', background: 'rgb(145 71 255 / 29%)', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
+
+
+const useStyles = makeStyles({
+    scrollableContent: {
+      overflowY: 'scroll',
+      height: "500px",
+      '&::-webkit-scrollbar': {
+        display: 'none',
+      },
+    },
+  });
 
 
 export default function Videos(){
@@ -61,7 +108,29 @@ export default function Videos(){
 
     const [viewerRole, setViewerRole] = useState('');
     const [isPrivateVideo, setIsPrivateVideo] = useState(false);
+    
+    const [commentList, setCommentList] = useState([]);
+    const [comment, setComment] = useState('');
+    const [isClickOnEmoji, setIsClickOnEmoji] = useState(false);
+    const [isAddedComment, setIsAddedComment] = useState(false);
+    
+    const [isEditingComment, setIsEditingComment] = useState(false);
+    const [isDeletingComment, setIsDeletingComment] = useState(false);
+    
+    const [isUpdatingCommentInDB, setIsUpdatingCommentInDB] = useState(false);
+    const [editCommentDetails, setEditCommentDetails ] = useState({});
+    const [deleteCommentId, setDeleteCommentId ] = useState('');
+
+    const [openToolTip, setOpenToolTip] = useState(false);
+
+    const [open, setOpen] = React.useState(false);
+    
+    const [disableDeleteBtn, setDisableDeleteBtn] = useState(false);
+    
+    const classes = useStyles();
+
     const router = useRouter();
+    const commentSectionRef = useRef(null);
 
     let isViewCreated = false;
     let subscribeUser = false;
@@ -82,7 +151,7 @@ export default function Videos(){
             setIsFetchingVideo(false)
             let videoInfo = await client.query({
                 query: gql`
-                    query Query($videoId: String) {
+                    query Query($videoId: String, $videoIdForComment: String) {
                         videos(videoId: $videoId) {
                             _id
                             title
@@ -113,18 +182,39 @@ export default function Videos(){
                                 urlSlug
                             }
                         }
+                        comments(videoId: $videoIdForComment) {
+                            _id
+                            text
+                            createdAt
+                            userId
+                            videoId
+                            userDetail {
+                              _id
+                              firstName
+                              lastName
+                              username
+                              profilePicture
+                              urlSlug
+                            }
+                          }
                     }
                   
                 `,
                 variables: {
                     "videoId": videoId,
+                    "videoIdForComment": videoId
                 }
             }).then((result) => {
+                console.log("result.data---------", result.data);
                 return result.data
             });
 
             console.log('videoInfo', videoInfo.videos.length )
             
+            if(videoInfo.comments.length > 0) {
+                setCommentList(videoInfo.comments);
+            }
+
             if(videoInfo.videos.length > 0){
                 
                 console.log('video found ')
@@ -365,6 +455,11 @@ export default function Videos(){
 
             
             setIsPageLoading(false)
+            
+            const commentSection = commentSectionRef.current;
+            if (commentSection) {
+                commentSection.scrollTop = commentSection.scrollHeight - commentSection.clientHeight;
+            }
         }
     }, [isFetchingVideo])
 
@@ -408,7 +503,7 @@ export default function Videos(){
                         viewData.videoId= videoInfor._id
                     }
                     axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/create/view`, viewData ).then((data)=>{
-                        console.log(data)
+                        console.log("-------", data)
                     });
                 }
             }
@@ -573,6 +668,138 @@ export default function Videos(){
         return qualities;
     }
 
+    const handleEmojiOpen = () =>{
+        setIsClickOnEmoji(!isClickOnEmoji);
+    }
+
+    const onEmojiClick = (emojiObject, event) => {
+        setComment(
+          (comment) =>
+            comment + (emojiObject ? emojiObject.emoji : null)
+        );
+        setChosenEmoji(emojiObject);
+    };
+
+    // Adding comment in db
+    useEffect(async () => {
+        if(isAddedComment) {
+            let commentData= {
+                text: comment,
+                userId: userDetail._id,
+                videoId: videoId
+            }
+
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/comment`, commentData, {headers: {'x-access-token': userDetail.jwtToken}
+            }).then((result)=>{
+                
+                let commentWithUserDetail = {
+                    ...result.data.comment,
+                    userDetail: [userDetail]
+                }
+                let newCommentList = [...commentList, commentWithUserDetail];
+
+                setCommentList(newCommentList);
+                setComment("");
+                const commentSection = commentSectionRef.current;
+                
+                if (commentSection) {
+                    commentSection.scrollTop = commentSection.scrollHeight - commentSection.clientHeight;
+                }
+                setIsAddedComment(false)
+            })
+        }
+    }, [isAddedComment])
+
+    // Updating comment in db
+    useEffect(async ()=>{
+        if(isUpdatingCommentInDB) {
+
+            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/comment/${editCommentDetails._id}`, {text: comment}, {headers: {'x-access-token': userDetail.jwtToken}})
+                .then((response) => {
+                    console.log("comment updarte response", response);
+                    
+                    const updatedCommentList = commentList.map(item =>
+                        item._id === editCommentDetails._id ? { ...item, text: comment } : item
+                    );
+
+                    setCommentList(updatedCommentList);
+                    setComment('');
+                    setIsUpdatingCommentInDB(false);
+                    setIsEditingComment(false);
+                    setEditCommentDetails('')
+                })
+                .catch((error) => {
+                    // Handle errors
+                    console.log("comment updarte error", error);
+                })
+
+        }
+    }, [isUpdatingCommentInDB]);
+    
+    useEffect(async ()=>{
+        if(isDeletingComment) {
+
+            axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/delete/comment/${deleteCommentId}`, {headers: {'x-access-token': userDetail.jwtToken}})
+                .then((response) => {
+                    console.log("comment updarte response", response);
+
+                    const filteredItems = commentList.filter(item => item._id !== deleteCommentId);
+
+                    setCommentList(filteredItems);
+                    setIsDeletingComment(false);
+                    setOpen(false);
+                })
+                .catch((error) => {
+                    // Handle errors
+                    console.log("comment updarte error", error);
+                })
+
+        }
+    }, [isDeletingComment]);
+
+    const handleWriteComment = () =>{
+        setIsAddedComment(true)
+    }
+    
+    const toggleToolTipClick = (index) => {
+        setOpenToolTip(openToolTip === index ? null : index);
+    };
+
+    const handleCommentDelete = (commentData, index) =>{
+        console.log("comment deleted")
+        setDeleteCommentId(commentData._id);
+        setOpenToolTip(openToolTip === index ? null : index);
+        setOpen(true);
+    }
+    const handleCommentEdit = (commentData, index) =>{
+        console.log("comment edit", commentData)
+        setIsEditingComment(true);
+        setComment(commentData.text);
+        setOpenToolTip(openToolTip === index ? null : index);
+        setEditCommentDetails(commentData);
+    }
+
+    const handleCommentEditCancel = () =>{
+        setOpenToolTip(null);
+        setIsEditingComment(false);
+        setComment('');
+    }
+
+    const handleCommentUpdate = () =>{
+        setIsUpdatingCommentInDB(true)
+    }
+
+
+    const handleClose = () => {
+        setOpen(false);
+        setDeleteCommentId('')
+    };
+
+    const handleConfirmDelete= () =>{
+        setIsDeletingComment(true);
+        setDisableDeleteBtn(true);
+    }
+
     return (
         <>
             {/* {isLockVideo?
@@ -596,74 +823,78 @@ export default function Videos(){
                     <>
                         {showPlayer ?
                             <>    
-                                <Box component="main" sx={{ flexGrow: 1, marginTop: '-8px', width: '100%'  }}>
+                                <Box component="main" sx={{ flexGrow: 1, marginTop: '91px', width: '100%', marginBottom: "30px"  }}>
                                     <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px', position: 'relative' }}>
                                         {
                                             isLockVideo?
-                                            <>
-                                                <Box sx={{filter: 'blur(5px)'}}>
-                                                    <VideoJS  options={{
-                                                        autoplay: false,
-                                                        controls: true,
-                                                        responsive: true,
-                                                        fluid: true,
-                                                        poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
-                                                        className: 'video-page-player',
-                                                        sources: [{
-                                                            // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
-                                                            // src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${videoDetails.url}`,
-                                                            src: ``,
-                                                            type: "video/mp4"
-                                                        }]
-                                                    }} />
-                                                </Box>
-                                                <Box sx={{ position: 'absolute', top: '50%', right: '45%', textAlign: 'center'}}>
-                                                    <LockIcon fontSize="large"/>
-                                                    <Typography variant="h4" component='h4' >Unlock video by subscribe channel</Typography>
-                                                </Box>
-                                            </>
+                                                <>
+                                                    <Box sx={{filter: 'blur(5px)'}}>
+                                                        <VideoJS  options={{
+                                                            autoplay: false,
+                                                            controls: true,
+                                                            responsive: true,
+                                                            fluid: true,
+                                                            poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
+                                                            className: 'video-page-player',
+                                                            sources: [{
+                                                                // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
+                                                                // src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${videoDetails.url}`,
+                                                                src: ``,
+                                                                type: "video/mp4"
+                                                            }]
+                                                        }} />
+                                                    </Box>
+                                                    <Box sx={{ position: 'absolute', top: '50%', right: '45%', textAlign: 'center'}}>
+                                                        <LockIcon fontSize="large"/>
+                                                        <Typography variant="h4" component='h4' >Unlock video by subscribe channel</Typography>
+                                                    </Box>
+                                                </>
                                             :
                                                 // videoDetails.videoPreviewStatus != 'private' ?
-                                                !isPrivateVideo ?
-                                                    <VideoJS options = {{
-                                                        playbackRates: [0.5, 1, 1.25, 1.5, 2],
-                                                        autoplay: false,
-                                                        controls: true,
-                                                        responsive: true,
-                                                        fluid: true,
-                                                        poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
-                                                        className: 'video-page-player',
-                                                        // fill: true,
-                                                        controlBar: {
-                                                        children: [
-                                                            "playToggle",
-                                                            "progressControl",
-                                                            "volumePanel",
-                                                            "qualitySelector",
-                                                            "fullscreenToggle"
-                                                        ]
-                                                        },
-                                                        sources: showQualityUrl(videoDetails.videoQualityUrl)
-                                                    } }
-                                                    onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
-                                                :
-                                                    <>
-                                                        <Box sx={{filter: 'blur(5px)'}}>
-                                                            <VideoJS  options={{
+                                                (
+                                                    !isPrivateVideo ?
+                                                        (
+                                                            <VideoJS options = {{
+                                                                playbackRates: [0.5, 1, 1.25, 1.5, 2],
                                                                 autoplay: false,
                                                                 controls: true,
                                                                 responsive: true,
                                                                 fluid: true,
                                                                 poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
                                                                 className: 'video-page-player',
-                                                                sources: [{src: ``}]
-                                                            }} />
-                                                        </Box>
-                                                        <Box sx={{ position: 'absolute', top: '50%', right: '45%', textAlign: 'center'}}>
-                                                            <LockIcon fontSize="large"/>
-                                                            <Typography variant="h4" component='h4' >This is private video...!!</Typography>
-                                                        </Box>
-                                                    </>
+                                                                // fill: true,
+                                                                controlBar: {
+                                                                children: [
+                                                                    "playToggle",
+                                                                    "progressControl",
+                                                                    "volumePanel",
+                                                                    "qualitySelector",
+                                                                    "fullscreenToggle"
+                                                                ]
+                                                                },
+                                                                sources: showQualityUrl(videoDetails.videoQualityUrl)
+                                                            } }
+                                                            onReady={(player)=>handlePlayerReady(player, isChannelSubscribed, videoDetails)} />
+                                                        )
+                                                    :
+                                                        <>
+                                                            <Box sx={{filter: 'blur(5px)'}}>
+                                                                <VideoJS  options={{
+                                                                    autoplay: false,
+                                                                    controls: true,
+                                                                    responsive: true,
+                                                                    fluid: true,
+                                                                    poster: videoDetails.videoPreviewImage?`https://livestreamingmaria.s3.us-west-1.amazonaws.com/images/${videoDetails.videoPreviewImage}`: `https://dummyimage.com/740x415/000/fff`,
+                                                                    className: 'video-page-player',
+                                                                    sources: [{src: ``}]
+                                                                }} />
+                                                            </Box>
+                                                            <Box sx={{ position: 'absolute', top: '50%', right: '45%', textAlign: 'center'}}>
+                                                                <LockIcon fontSize="large"/>
+                                                                <Typography variant="h4" component='h4' >This is private video...!!</Typography>
+                                                            </Box>
+                                                        </>
+                                                )
                                         }
                                     </Typography>
                                     <Box sx={{padding: '20px', textAlign: 'start'}}>
@@ -691,7 +922,7 @@ export default function Videos(){
                                         sx={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            margin: '10px 0px'
+                                            margin: '20px 0px'
                                         }}
                                     >
                                         <Item sx={{ border: '0px', boxShadow: 'none', backgroundColor: 'transparent !important' }}>
@@ -763,6 +994,122 @@ export default function Videos(){
                                             </Typography>
                                         </Item>
                                     </Box>}
+                                    <Divider></Divider>
+                                    <Box sx={{ padding: "30px 20px" }}>
+                                            <Typography variant="h4" component={"h4"} mb="10px">
+                                                Comments 
+                                            </Typography>
+                                        <Box style={{padding: "10px 15px"}} >
+
+                                            <Box ref={commentSectionRef} className={classes.scrollableContent} >
+                                                {
+                                                    commentList.length > 0 ? 
+                                                        commentList.map((commentInfo, index)=>(
+                                                            userDetail._id == commentInfo.userDetail[0]._id ?
+                                                                // <>
+                                                                //     <Typography variant="body1" component="div" sx={{ paddingBottom: '10px', display: "flex", justifyContent: "end" }}>
+                                                                //         <Box style={{ lineHeight: "0.5", margin: "0px 15px" }}>
+                                                                //             <h3 style={{ color: 'rgb(180, 38, 38)', fontSize: '15px', marginTop: "1px", textAlign: "right" }}>{commentInfo.userDetail[0].username}</h3>
+                                                                //             <h3 style={{ fontWeight: 'normal', lineHeight: 1, textAlign: "justify", marginLeft: "3%"}}> {commentInfo.text}</h3>
+                                                                //         </Box>
+                                                                //         <img style={{verticalAlign:'middle', height:'3.0em', fontSize: '12px', borderRadius: "50%"}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${commentInfo.userDetail[0].profilePicture}`} alt="profile"/>
+                                                                //     </Typography>
+                                                                // </>
+                                                                <>
+                                                                    <Typography variant="body1" component="div" sx={{display: "flex", background: "#ffffff14", marginBottom: "10px", padding: "7px 0px 7px 9px" }}>
+                                                                        
+                                                                        <img style={{verticalAlign:'middle', height:'3.0em', fontSize: '12px', borderRadius: "50%", marginTop: "6px"}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${commentInfo.userDetail[0].profilePicture}`} alt="profile"/>
+                                                                        <Box style={{ lineHeight: "0.5", margin: "0px 15px" }}>
+                                                                            <Box sx={{display: "flex"}}>
+                                                                                {/* <Typography variant="h3" component="h3" style={{ color: '#fff', fontSize: '15px', marginTop: "1px", marginBottom: "6px" }}>{commentInfo.userDetail[0].username}</Typography> */}
+                                                                                <Typography variant="h3" component="h3" style={{ color: '#fff', fontSize: '15px', marginTop: "1px", marginBottom: "6px" }}>You</Typography>
+                                                                                <Tooltip
+                                                                                    title={
+                                                                                        <React.Fragment>
+                                                                                            <Box sx={{display: "flex"}}>
+                                                                                                <Box sx={{ marginRight: "15px", cursor: "pointer"}} onClick={()=>{handleCommentDelete(commentInfo, index)}}>
+                                                                                                    <DeleteOutlineIcon />
+                                                                                                </Box>
+                                                                                                <Box sx={{cursor: "pointer"}} onClick={()=>{handleCommentEdit(commentInfo, index)}}>
+                                                                                                    <EditOutlinedIcon />
+                                                                                                </Box>
+                                                                                            </Box>
+                                                                                        </React.Fragment>
+                                                                                    }
+                                                                                    onClose={()=>{toggleToolTipClick(null)}}
+                                                                                    open={openToolTip === index}
+                                                                                    placement="right-start"
+                                                                                    pointer
+                                                                                    PopperProps={{
+                                                                                        disablePortal: true
+                                                                                    }}
+                                                                                    disableFocusListener
+                                                                                    disableHoverListener
+                                                                                    disableTouchListener
+                                                                                >
+                                                                                        {/* <Button variant="contained" startIcon={ <MoreVertIcon sx={{height: "0.8em", cursor: "pointer"}}/> } sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button> */}
+                                                                                        <MoreVertIcon sx={{height: "0.8em", cursor: "pointer"}} onClick={()=>{toggleToolTipClick(index)}}/>
+                                                                                </Tooltip>
+                                                                            </Box>
+                                                                            <h3 style={{ fontWeight: 'normal', lineHeight: 1, marginTop: "1px", marginBottom: "6px"}}> {commentInfo.text}</h3>
+                                                                        </Box>
+                                                                    </Typography>
+                                                                </>
+                                                            :
+                                                                <>
+                                                                    <Typography variant="body1" component="div" sx={{ display: "flex", marginBottom: "10px", padding: "7px 0px 7px 9px"}}>
+                                                                        
+                                                                        <img style={{verticalAlign:'middle', height:'3.0em', fontSize: '12px', borderRadius: "50%", marginTop: "6px"}} src={`${process.env.NEXT_PUBLIC_S3_URL}/${commentInfo.userDetail[0].profilePicture}`} alt="profile"/>
+                                                                        <Box style={{ lineHeight: "0.5", margin: "0px 15px" }}>
+                                                                            <Box sx={{display: "flex"}}>
+                                                                                <Typography variant="h3" component="h3" style={{ color: '#fff', fontSize: '15px', marginTop: "1px", marginBottom: "6px" }}>{commentInfo.userDetail[0].username}</Typography>
+                                                                                {/* <MoreVertIcon sx={{height: "0.8em", cursor: "pointer"}} /> */}
+                                                                            </Box>
+                                                                            {/* <h3 style={{ color: 'rgb(180, 38, 38)', fontSize: '15px', marginTop: "1px", marginBottom: "6px" }}>{commentInfo.userDetail[0].username}</h3> */}
+                                                                            <h3 style={{ fontWeight: 'normal', lineHeight: 1, marginTop: "1px", marginBottom: "6px"}}> {commentInfo.text}</h3>
+                                                                            
+                                                                        </Box>
+                                                                    </Typography>
+                                                                </>
+                                                        ))
+                                                    :
+                                                        <Typography variant="h3" component={"h3"} sx={{textAlign: "center", padding: "50px"}}>
+                                                            No comment found
+                                                        </Typography>
+                                                }
+                                                
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="body1" component="div" sx={{ bottom: 0, width: '100%' }}>
+                                                    {/* <Typography>{chosenEmoji.emoji}</Typography> */}
+                                                    {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
+                                                    { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
+                                                    <TextField value={comment} onChange={(e) => setComment(e.target.value)} multiline placeholder="Write a Comment Here" sx={{width: "100%"}} rows={2} InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <InsertEmoticonIcon onClick={handleEmojiOpen}/>
+                                                            </InputAdornment>
+                                                        )
+                                                    }}/>
+
+                                                    {   isEditingComment ? 
+                                                            <Box>
+                                                                <Button style={commentUpdateButton} onClick={handleCommentUpdate}>Update</Button>
+                                                                <Button style={cmtUpdateCancelButton} onClick={handleCommentEditCancel}>Cancel</Button>
+                                                            </Box>
+                                                        :
+                                                            <Button style={commentButton} onClick={handleWriteComment}>Comment</Button>
+                                                    }
+                                                    {/* <Box>
+                                                    <Typography variant="body1" component="div" onClick={handleEmojiOpen}>
+                                                        <InsertEmoticonIcon />
+                                                    </Typography>
+                                                    </Box> */}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+
                                     {/* { !isClickOnChannel?  */}
                                     {/* <Box>
                                         <Container className="" maxWidth="xl">
@@ -810,6 +1157,29 @@ export default function Videos(){
                 }
             </Box>
             {/* } */}
+            
+            
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Delete Comment"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure, you want to delete comment
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete} autoFocus disabled={disableDeleteBtn}>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
                 
         </>
     )

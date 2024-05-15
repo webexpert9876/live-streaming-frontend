@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import PropTypes from 'prop-types';
 import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Grid, Container } from '@mui/material';
 import {
     Tooltip,
@@ -44,10 +45,10 @@ import { subDays } from 'date-fns';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
-import client from "../../../graphql";
+import client from "../../graphql";
 import { gql } from "@apollo/client";
 import axios from 'axios';
-import VideoEditCard from "../../../src/components/VideoEdit/VideoEditCard";
+import VideoEditCard from "../../src/components/VideoEdit/VideoEditCard";
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
@@ -136,6 +137,8 @@ const Video = () => {
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
   
+  const [isPageLoading, setIsPageLoading]= useState(false);
+  
   const handleClickOpen = (dialogType, video) => {
     switch(dialogType){
         case 'videoEdit':
@@ -183,11 +186,12 @@ const Video = () => {
 
             client.query({
                 variables: {
-                usersId: userData[0]._id,
-                channelId: userData[0].channelId,
+                    usersId: userData[0]._id,
+                    channelId: userData[0].channelId,
+                    showPrivateVideo: true
                 },
                 query: gql`
-                    query Query($usersId: ID, $channelId: String) {
+                    query Query($usersId: ID, $channelId: String, $showPrivateVideo: Boolean) {
                         users(id: $usersId) {
                             _id
                             firstName
@@ -221,7 +225,7 @@ const Video = () => {
                                 _id
                             }
                         }
-                        videos(channelId: $channelId) {
+                        videos(channelId: $channelId, showPrivateVideo: $showPrivateVideo) {
                             _id
                             videoServiceType
                             views
@@ -368,14 +372,16 @@ const Video = () => {
   
   useEffect(()=>{
     if(isDeletingVideo){
-
+        setIsPageLoading(true)
         axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/delete/video/${selectedRowVideoDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
             setApiMessageType('success')
             setApiResponseMessage('Video deleted successfully');
             removeVideoFromList(selectedRowVideoDetails._id)
             setIsDeletingVideo(false);
             setLoading(false);
-            handleMessageBoxOpen()
+            handleMessageBoxOpen();
+            setIsPageLoading(false);
+            setDeleteInputValue('');
         }).catch((error)=>{
             console.log('error', error);
             setApiMessageType('error')
@@ -385,6 +391,8 @@ const Video = () => {
             setApiResponseMessage(errorMessage);
             setIsDeletingVideo(false)
             setLoading(false);
+            setIsPageLoading(false);
+            setDeleteInputValue('');
         });
 
     }
@@ -654,7 +662,16 @@ const Video = () => {
                                                     title="Videos"
                                                 />
                                                 <Divider />
-                                                <TableContainer>
+                                                {
+                                                    isPageLoading?
+                                                        <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                                                            <CircularProgress />
+                                                            <Typography>
+                                                                Loading...
+                                                            </Typography>
+                                                        </Box>
+                                                :
+                                                    <TableContainer>
                                                     <Table>
                                                         <TableHead>
                                                             <TableRow>
@@ -774,7 +791,8 @@ const Video = () => {
                                                         }
                                                         </TableBody>
                                                     </Table>
-                                                </TableContainer>
+                                                    </TableContainer>
+                                                }
                                                 <Box p={2}>
                                                     <TablePagination
                                                         component="div"

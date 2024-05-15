@@ -554,7 +554,7 @@ const Video = () => {
                                 {/* <Grid item xs={12}></Grid> */}
                                 <Card style={{width: "97%"}}>
                                     <Box sx={{display: 'flex'}}>
-                                        <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={()=>{router.push('/components/videos')}}>
+                                        <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={()=>{router.push('/videos')}}>
                                             <IconButton color="primary" sx={{ p: 2 }}>
                                                 <ArrowBackTwoToneIcon />
                                             </IconButton>
@@ -811,7 +811,7 @@ const Video = () => {
                                                 </Grid>
                                             </Typography>
                                             <Typography sx={{textAlign: 'end'}}>
-                                                <Button onClick={()=>{router.push('/components/videos')}} disabled={loading}>Cancel</Button>
+                                                <Button onClick={()=>{router.push('/videos')}} disabled={loading}>Cancel</Button>
                                                 <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Video...' : 'Add Video'}</Button>
                                             </Typography>
                                         </CardContent>

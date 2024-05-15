@@ -451,7 +451,7 @@ export default function LiveStreamChat(props) {
                             {/* <span style={{color:'gray', fontSize: '12px'}}>14:36</span> */}
                             {/* <img style={{verticalAlign:'middle', display:'inline',height:'1.5em', fontSize: '12px'}} src="https://external-preview.redd.it/NyXHl-pCWaAdYwZ3B10rzcjSHaPYX_ZnJy93L6WJ-M0.jpg?auto=webp&s=f05aa5512f72f3fc58e7cf18a7d6c8bbbfa10c94" /> */}
                             {/* <b style={{color:'rgb(180, 38, 38)', fontSize: '15px'}}>{sender}:{roomId + '  => '} </b> */}
-                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{channelInfo.channelName} vvvvv</b>
+                            <b style={{ color: 'rgb(180, 38, 38)', fontSize: '15px' }}>{channelInfo.channelName} </b>
                             <span style={{ textWrap: 'wrap', whiteSpace: 'normal'}}>: {data.message}</span>
                           </Typography>
                           :

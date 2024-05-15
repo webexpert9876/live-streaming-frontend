@@ -249,7 +249,7 @@ function HeaderUserbox() {
               </ListItem>
             </NextLink>
 
-            <NextLink href="/components/videos" passHref>
+            <NextLink href="/videos" passHref>
               <ListItem onClick={()=>{setOpen(false)}} button>
                 <VideoSettingsIcon fontSize="small" />
                 <ListItemText primary="Videos" />
