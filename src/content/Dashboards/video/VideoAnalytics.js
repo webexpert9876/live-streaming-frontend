@@ -239,6 +239,7 @@ function VideoAnalytics(props) {
               key={_period.value}
               onClick={() => {
                 setPeriod(_period.text);
+                props.changeVideoFilterYear(_period.text);
                 setOpenMenuPeriod(false);
               }}
             >

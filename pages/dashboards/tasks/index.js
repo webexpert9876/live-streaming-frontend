@@ -133,6 +133,7 @@ function DashboardTasks() {
   const [streamVideoCount, setStreamVideoCount] = useState(0);
 
   const [isFetchVideoData, setIsFetchVideoData] = useState(false);
+  const [selectedVideosYear, setSelectedVideosYear] = useState("");
   
   const router = useRouter();
 
@@ -200,7 +201,7 @@ function DashboardTasks() {
         setUserData([{...authState}])
         setIsUserAvailable(true);
     }
-},[authState])
+  },[authState])
 
   useEffect(()=>{
 
@@ -210,14 +211,14 @@ function DashboardTasks() {
 
       client.query({
         variables: {
-          getChannelAnalysisByChannelIdId: channelDetail[0]._id,
+          getChannelAnalysisByChannelId: channelDetail[0]._id,
           // videoAnalysisId: channelDetail[0]._id
           videoAnalysisId: "64f5b09f6830acb8e65aa00f",
-          year: `${currentYear - 1}`
+          year: `${currentYear}`
         },
         query: gql`
-          query Query($getChannelAnalysisByChannelIdId: ID, $videoAnalysisId: ID, $year: String) {
-            getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelIdId) {
+          query Query($getChannelAnalysisByChannelId: ID, $videoAnalysisId: ID, $year: String) {
+            getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelId) {
               _id
               numberofvisit
             }
@@ -229,7 +230,7 @@ function DashboardTasks() {
           }
         `,
       }).then((result)=>{
-
+        console.log("result.data", result.data)
         let channelAnanlysis = result.data.getChannelAnalysisByChannelId
         
         let videoAnalytics = result.data.videoAnalysis
@@ -256,76 +257,66 @@ function DashboardTasks() {
         
         let videoUploadSum = videoUploadArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         let videoStreamSum = videoStreamArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
+        console.log("videoUploadSum", videoUploadSum)
+        console.log("videoStreamSum", videoStreamSum)
         setUploadVideoCount(videoUploadSum)
         setStreamVideoCount(videoStreamSum)
       })
     }
   }, [channelDetail])
   
-  // useEffect(()=>{
-
-  //   if(channelDetail.length > 0){
-  //     let currentDate = new Date();
-  //     let currentYear = currentDate.getFullYear();
-
-  //     client.query({
-  //       variables: {
-  //         getChannelAnalysisByChannelIdId: channelDetail[0]._id,
-  //         // videoAnalysisId: channelDetail[0]._id
-  //         videoAnalysisId: "64f5b09f6830acb8e65aa00f",
-  //         year: `${currentYear}`
-  //       },
-  //       query: gql`
-  //         query Query($getChannelAnalysisByChannelIdId: ID, $videoAnalysisId: ID, $year: String) {
-  //           getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelIdId) {
-  //             _id
-  //             numberofvisit
-  //           }
-  //           videoAnalysis(id: $videoAnalysisId, year: $year) {
-  //             _id
-  //             uploadedVideo
-  //             streamedVideo
-  //           }
-  //         }
-  //       `,
-  //     }).then((result)=>{
-
-  //       let channelAnanlysis = result.data.getChannelAnalysisByChannelId
+  useEffect(()=>{
+    console.log('isFetchVideoData', isFetchVideoData);
+    if(isFetchVideoData){
+      console.log('isFetchVideoData if', isFetchVideoData);
+      console.log('selectedVideosYear', selectedVideosYear)
+      client.query({
+        variables: {
+          // videoAnalysisId: channelDetail[0]._id
+          videoChannelId: "64f5b09f6830acb8e65aa00f",
+          year: `${selectedVideosYear}`
+        },
+        query: gql`
+          query Query($videoChannelId: ID, $year: String) {
+            videoAnalysis(id: $videoChannelId, year: $year) {
+              _id
+              uploadedVideo
+              streamedVideo
+            }
+          }
+        `,
+      }).then((result)=>{
         
-  //       let videoAnalytics = result.data.videoAnalysis
+        console.log('new result.data.videoAnalysis', result.data.videoAnalysis)
+        let videoAnalytics = result.data.videoAnalysis
+      
+        let videoUploadArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let videoStreamArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        videoAnalytics.forEach((item)=>{
+          let indexToReplace = parseInt(item._id);
+          videoUploadArray[indexToReplace - 1] = item.uploadedVideo;
+          videoStreamArray[indexToReplace - 1] = item.streamedVideo;
+        });
+
+        setVideoUploadAnanlysisData(videoUploadArray)
+        setVideoStreamAnanlysisData(videoStreamArray)
         
-  //       let channelArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        
-  //       channelAnanlysis.forEach((item)=>{
-  //         let indexToReplace = parseInt(item._id);
-  //         channelArray[indexToReplace - 1] = item.numberofvisit;
-  //       });
+        let videoUploadSum = videoUploadArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        let videoStreamSum = videoStreamArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+       
+        setUploadVideoCount(videoUploadSum)
+        setStreamVideoCount(videoStreamSum)
+        setIsFetchVideoData(false);
+      })
+    }
+  }, [isFetchVideoData])
 
-  //       let videoUploadArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  //       let videoStreamArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-  //       videoAnalytics.forEach((item)=>{
-  //         let indexToReplace = parseInt(item._id);
-  //         videoUploadArray[indexToReplace - 1] = item.uploadedVideo;
-  //         videoStreamArray[indexToReplace - 1] = item.streamedVideo;
-  //       });
-
-  //       setChannelAnanlysisData(channelArray);
-  //       setVideoUploadAnanlysisData(videoUploadArray)
-  //       setVideoStreamAnanlysisData(videoStreamArray)
-        
-  //       let videoUploadSum = videoUploadArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  //       let videoStreamSum = videoStreamArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
-  //       setUploadVideoCount(videoUploadSum)
-  //       setStreamVideoCount(videoStreamSum)
-  //     })
-  //   }
-  // }, [channelDetail])
-
-
-
+  const changeVideoFilterYear = (year)=> {
+    console.log('year--------------------------------', year);
+    setSelectedVideosYear(year);
+    setIsFetchVideoData(true);
+  }
   const handleTabsChange = (_event, value) => {
     setCurrentTab(value);
   };
@@ -450,7 +441,7 @@ function DashboardTasks() {
                   >
                     <Grid container spacing={4}>
                       <Grid item xs={12} sm={6} md={8}>
-                        { videoUploadAnanlysisData.length > 0 && videoStreamAnanlysisData.length > 0 && <VideoAnalytics videoUploadData={videoUploadAnanlysisData} videoStreamData={videoStreamAnanlysisData}/>}
+                        { videoUploadAnanlysisData.length > 0 && videoStreamAnanlysisData.length > 0 && <VideoAnalytics videoUploadData={videoUploadAnanlysisData} videoStreamData={videoStreamAnanlysisData} changeVideoFilterYear={changeVideoFilterYear}/>}
                       </Grid>
                       <Grid item xs={12} sm={6} md={4}>
                         { uploadVideoCount >= 0 && streamVideoCount >= 0 && <VideoAnalysisOverview uploadVideoCount={uploadVideoCount} streamVideoCount={streamVideoCount} /> }
