@@ -200,7 +200,7 @@ export async function getStaticProps() {
   try {
     const { data } = await client.query({
       query: gql`
-        query Query {
+        query Query ($size: Int) {
           channels {
             _id
             channelPicture
@@ -214,7 +214,7 @@ export async function getStaticProps() {
             title
             urlSlug
           }
-          liveStreamings {
+          liveStreamings(size: $size) {
             _id
             title
             tattooCategory
@@ -259,6 +259,9 @@ export async function getStaticProps() {
           }
         }
       `,
+      variables: {
+        "size": 10
+      }
     });
 
     return {

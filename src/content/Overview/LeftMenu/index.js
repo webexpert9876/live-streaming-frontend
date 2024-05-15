@@ -168,8 +168,8 @@ export default function LeftMenu(props) {
     }, 2000); // Replace 2000ms with your actual loading time (if you have data fetching)
     client.query({
       query: gql`
-          query Query {
-            liveStreamings {
+          query Query ($size: Int) {
+            liveStreamings(size: $size) {
               _id
               title
               tattooCategory
@@ -194,6 +194,9 @@ export default function LeftMenu(props) {
             }
           }
       `,
+      variables: {
+        "size": 4
+      }
     })
       .then((result) => {
         setLiveStreamings(result.data.liveStreamings)
