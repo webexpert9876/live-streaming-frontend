@@ -89,7 +89,7 @@ const LiveStreamings = ({ liveStreamings }) => {
             <Container style={{ width: "100%", maxWidth: "100%", marginTop: "70px" }}>
                 <h2><Link
                 // href="#"
-                onClick={()=> router.push(`/live-channels`)}
+                onClick={()=> router.push(`/live/channels`)}
                 style={{cursor: "pointer"}}                
                 >Live channels</Link> we think you’ll like</h2>        
                 {isLoading ? (
