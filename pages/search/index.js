@@ -14,12 +14,14 @@ function SearchString() {
     const [isChannel, setIsChannel]= useState(false);
     const [channelDetail, setChannelDetail]= useState({});
     const [videosList, setVideosList]= useState([]);
+    const [isSearchStringEmpty, setIsSearchStringEmpty]= useState(true);
 
     useEffect(()=>{
         if(!router.query.searchString) {
+            setIsPageLoading(false)
             return;
         }
-
+        setIsSearchStringEmpty(false);
         setSearchQuery(router.query.searchString);
         setIsSearching(true);
     }, [router.query.searchString])
@@ -147,7 +149,7 @@ function SearchString() {
                 <Container sx={{display: 'flex', marginTop: '110px'}} maxWidth='md'>
                     {/* <LeftMenu/> */}
                     <Box width='100%'>
-                        {channelDetail?
+                        {channelDetail && !isSearchStringEmpty?
                         <>
                             <Typography component={'h3'} variant={'h3'}>Search result for - {searchQuery} </Typography>
                                 <Card sx={{my:2}}>

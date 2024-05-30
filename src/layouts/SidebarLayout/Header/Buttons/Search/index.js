@@ -90,6 +90,12 @@ function HeaderSearch() {
     setOpen(false);
   };
 
+  const handleSearchClick = (e) => {
+    if(e.keyCode == 13){
+      router.push(`/search?searchString=${searchValue}`)
+    }
+ }
+
   return (
     <>
       {/* <Tooltip arrow title="Search"> */}
@@ -99,6 +105,7 @@ function HeaderSearch() {
             value={searchValue}
             autoFocus={true}
             onChange={handleSearchChange}
+            onKeyDown={handleSearchClick}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
