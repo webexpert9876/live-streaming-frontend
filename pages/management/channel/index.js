@@ -3,7 +3,7 @@ import Head from 'next/head';
 import SidebarLayout from 'src/layouts/SidebarLayout';
 import Footer from 'src/components/Footer';
 
-import { Grid, Container, Box } from '@mui/material';
+import { Grid, Container, Box, Typography } from '@mui/material';
 
 import ProfileCover from 'src/content/Management/Users/details/ProfileCover';
 import RecentActivity from 'src/content/Management/Users/details/RecentActivity';
@@ -20,6 +20,7 @@ import { gql } from "@apollo/client";
 import Button from '@mui/material/Button';
 import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
 import PermissionDeniedDialog from 'src/components/pageAccessDialog/permissionDeniedDialog'
+import CircularProgress from '@mui/material/CircularProgress';
 
 function ManagementChannelProfile() {
 
@@ -32,6 +33,7 @@ function ManagementChannelProfile() {
     const [channelFollower, setChannelFollower] = useState([]);
     const [channelSubscribers, setChannelSubscribers] = useState([]);
     const [channelTotalFollowers, setChannelTotalFollowers]= useState(0);
+    const [isPageLoading, setIsPageLoading]= useState(true);
     const authState = useSelector(selectAuthUser)
     const router = useRouter();
 
@@ -55,7 +57,6 @@ function ManagementChannelProfile() {
             });
     
             if(roleInfo.data.roles[0].role == 'admin' || roleInfo.data.roles[0].role == 'artist'){
-
                 client.query({
                     variables: {
                         usersId: userData[0]._id,
@@ -126,6 +127,7 @@ function ManagementChannelProfile() {
                     setChannelFollower([...result.data.followers]);
                     setChannelSubscribers([...result.data.subscriptionDetails]);
                     setAllowUser(true);
+                    setIsPageLoading(false);
                 });
             } else {
                 setAllowUser(false);
@@ -152,48 +154,60 @@ function ManagementChannelProfile() {
   return (
     <>
         {userData.length > 0?
-            allowUser ?
-                <SidebarLayout userData= {userData}>
-                    <Head>
-                        <title>Channel Details - Management</title>
-                    </Head>
-                    <Container sx={{ mt: 3 }} maxWidth="false">
-                        <Grid
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="stretch"
-                            spacing={3}
-                        >
-                        <Grid item xs={12} md={8}>
-                            <ProfileCover channelInfo={channelInfo} channelTotalFollowers={channelTotalFollowers}/>
-                        </Grid>
-                        {/* {channelFollower.length > 0? <Grid item xs={12} md={8}>
-                            <Feed channelFollower={channelFollower}/>
-                        </Grid>: null} */}
-                        <Grid item xs={12} md={8}>
-                            <Feed channelFollower={channelFollower}/>
-                        </Grid>
-                        {/* {channelSubscribers.length > 0 ? <Grid item xs={12} md={8} mt={5}>
-                            <SubscriberList channelSubscribers={channelSubscribers}/>
-                        </Grid>:null} */}
-                        <Grid item xs={12} md={8} mt={5}>
-                            <SubscriberList channelSubscribers={channelSubscribers}/>
-                        </Grid>
-                        {/* <Grid item xs={12} md={4}>
-                            <PopularTags />
-                        </Grid>
-                        <Grid item xs={12} md={7}>
-                            <MyCards />
-                        </Grid>
-                        <Grid item xs={12} md={5}>
-                            <Addresses />
-                        </Grid> */}
-                        </Grid>
-                    </Container>
-                    <Footer />
-                </SidebarLayout>
-            :
-                <PermissionDeniedDialog/>
+            (
+                isPageLoading?
+                    <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                        <CircularProgress />
+                        <Typography>
+                            Loading...
+                        </Typography>
+                    </Box>
+                : 
+                    (
+                        allowUser ?
+                            <SidebarLayout userData= {userData}>
+                                <Head>
+                                    <title>Channel Details - Management</title>
+                                </Head>
+                                <Container sx={{ mt: 3 }} maxWidth="false">
+                                    <Grid
+                                        direction="row"
+                                        justifyContent="center"
+                                        alignItems="stretch"
+                                        spacing={3}
+                                    >
+                                    <Grid item xs={12} md={8}>
+                                        <ProfileCover channelInfo={channelInfo} channelTotalFollowers={channelTotalFollowers}/>
+                                    </Grid>
+                                    {/* {channelFollower.length > 0? <Grid item xs={12} md={8}>
+                                        <Feed channelFollower={channelFollower}/>
+                                    </Grid>: null} */}
+                                    <Grid item xs={12} md={8}>
+                                        <Feed channelFollower={channelFollower}/>
+                                    </Grid>
+                                    {/* {channelSubscribers.length > 0 ? <Grid item xs={12} md={8} mt={5}>
+                                        <SubscriberList channelSubscribers={channelSubscribers}/>
+                                    </Grid>:null} */}
+                                    <Grid item xs={12} md={8} mt={5}>
+                                        <SubscriberList channelSubscribers={channelSubscribers}/>
+                                    </Grid>
+                                    {/* <Grid item xs={12} md={4}>
+                                        <PopularTags />
+                                    </Grid>
+                                    <Grid item xs={12} md={7}>
+                                        <MyCards />
+                                    </Grid>
+                                    <Grid item xs={12} md={5}>
+                                        <Addresses />
+                                    </Grid> */}
+                                    </Grid>
+                                </Container>
+                                <Footer />
+                            </SidebarLayout>
+                        :
+                            <PermissionDeniedDialog/>
+                    )
+            )
         :
             <LoginDialog/>
         }

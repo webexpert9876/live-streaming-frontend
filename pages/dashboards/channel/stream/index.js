@@ -69,6 +69,7 @@ function ManageLiveStream(params) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
     const [showPlayer, setShowPlayer] = useState(false)
+    const [isPageLoading, setIsPageLoading]= useState(true);
 
     const handleOpen = () => {
         setOpen(true);
@@ -86,7 +87,7 @@ function ManageLiveStream(params) {
 
     useEffect(async ()=>{
         if (userDetails && userIsLogedIn) {
-
+            setIsLoggedIn(true);
             const roleInfo = await client.query({
                 query: gql`
                 query Query($rolesId: ID) {
@@ -107,7 +108,7 @@ function ManageLiveStream(params) {
                     
                 setUserDetail(userDetails)
                 setUserAuthState(userIsLogedIn)
-                setIsLoggedIn(true);
+                setIsPageLoading(false);
                 setIsArtist(true)
                 const liveStreamInfo = await client.query({
                     query: gql`
@@ -325,100 +326,112 @@ function ManageLiveStream(params) {
     return (
         <>
             {isLoggedIn ?
-                isArtist?
-                    <Box mt='100px' sx={{display: 'flex'}}>
-                        <Box sx={{width: '65%'}}>
-                            {liveStreamInfo.length > 0 ?
-                                <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px', marginLeft: '10px', ...scrollCss }}>
-                                    <Box px={2}>
-                                        {/* <VideoJS options={{ autoplay: true, controls: true, responsive: true, fluid: true, className: 'online-video',
-                                            sources: [{
-                                                src: `${liveStreamInfo[0].streamUrl}`,
-                                                // src: `https://cdn.flowplayer.com/a30bd6bc-f98b-47bc-abf5-97633d4faea0/hls/de3f6ca7-2db3-4689-8160-0f574a5996ad/playlist.m3u8`,
-                                                type: 'application/x-mpegURL'
-                                            }]
-                                        }} onReady={handlePlayerReady} /> */}
-                                        <div ref={videoRef} />
-                                    </Box>
-                                    {/* <Box sx={{ m:'18px' }}>
-                                        <Card>
-                                            <CardContent>
-                                                <Box sx={{display: 'flex', alignItems: 'end'}}>
-                                                    <PermIdentityIcon/>
-                                                    <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap', ml: '5px' }}>
-                                                    {viewer} Viewers
-                                                    </Typography>
-                                                </Box>
-                                            </CardContent>
-                                        </Card>
-                                    </Box>
-                                    <Box sx={{ m:'18px' }}> */}
-                                        {/* {artistStreamDetail.length > 0 && tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>} */}
-                                        {/* {tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>}
-                                    </Box> */}
-                                </Typography> 
-                                :
-                                <Box>
-                                    <Typography variant="body1" component={'div'} sx={{ backgroundImage: "url(https://dummyimage.com/1335x550/000/fff)", width: '100%', height: '550px', backgroundRepeat: 'no-repeat' }}>
-                                        <Typography variant="p" component={'p'} style={offline}>Offline</Typography>
-                                    </Typography>
-                                </Box>
-                            }
-                            <Box sx={{ m:'18px' }}>
-                                <Card>
-                                    <CardContent>
-                                        <Box sx={{display: 'flex', alignItems: 'end'}}>
-                                            <PermIdentityIcon/>
-                                            <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap', ml: '5px' }}>
-                                            {viewer} Viewers
-                                            </Typography>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Box>
-                            <Box sx={{ m:'18px' }}>
-                                {artistStreamDetail.length > 0 && tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>}
-                                {/* {tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>} */}
-                            </Box>
+                (
+                    isPageLoading?
+                        <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                            <CircularProgress />
+                            <Typography>
+                                Loading...
+                            </Typography>
                         </Box>
-                        {liveStreamInfo && userDetail && <LiveStreamChatAdmin liveStreamInfo={liveStreamInfo} viewerUser={userDetail} oldReceivedMessages={oldChatMessages} funcHandleViewers={handleLiveStreamViewers}/>}
-                    </Box>
-                :
-                    <div>
-                        {/* <Button variant="contained" color="primary" onClick={handleOpen}>
-                        Login
-                        </Button> */}
-                        <Dialog
-                        open={open}
-                        TransitionComponent={Transition}
-                        keepMounted
-                        onClose={handleCloseAccess}
-                        BackdropComponent={Backdrop}
-                        BackdropProps={{
-                            classes: { root: classes.root },
-                        }}
-                        >
-                            <DialogContent className={classes.dialogContent}>
-                                <DialogTitle>
-                                    <Box>
-                                        <Typography sx={{textAlign: 'center'}}>
-                                            <LockIcon fontSize="large"/>
-                                        </Typography>
-                                        <Typography variant="h4" component="h4" >You do not have permissions to access this page</Typography>
+                    : 
+                        (
+                            isArtist?
+                                <Box mt='100px' sx={{display: 'flex'}}>
+                                    <Box sx={{width: '65%'}}>
+                                        {liveStreamInfo.length > 0 ?
+                                            <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px', marginLeft: '10px', ...scrollCss }}>
+                                                <Box px={2}>
+                                                    {/* <VideoJS options={{ autoplay: true, controls: true, responsive: true, fluid: true, className: 'online-video',
+                                                        sources: [{
+                                                            src: `${liveStreamInfo[0].streamUrl}`,
+                                                            // src: `https://cdn.flowplayer.com/a30bd6bc-f98b-47bc-abf5-97633d4faea0/hls/de3f6ca7-2db3-4689-8160-0f574a5996ad/playlist.m3u8`,
+                                                            type: 'application/x-mpegURL'
+                                                        }]
+                                                    }} onReady={handlePlayerReady} /> */}
+                                                    <div ref={videoRef} />
+                                                </Box>
+                                                {/* <Box sx={{ m:'18px' }}>
+                                                    <Card>
+                                                        <CardContent>
+                                                            <Box sx={{display: 'flex', alignItems: 'end'}}>
+                                                                <PermIdentityIcon/>
+                                                                <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap', ml: '5px' }}>
+                                                                {viewer} Viewers
+                                                                </Typography>
+                                                            </Box>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Box>
+                                                <Box sx={{ m:'18px' }}> */}
+                                                    {/* {artistStreamDetail.length > 0 && tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>} */}
+                                                    {/* {tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>}
+                                                </Box> */}
+                                            </Typography> 
+                                            :
+                                            <Box>
+                                                <Typography variant="body1" component={'div'} sx={{ backgroundImage: "url(https://dummyimage.com/1335x550/000/fff)", width: '100%', height: '550px', backgroundRepeat: 'no-repeat' }}>
+                                                    <Typography variant="p" component={'p'} style={offline}>Offline</Typography>
+                                                </Typography>
+                                            </Box>
+                                        }
+                                        <Box sx={{ m:'18px' }}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Box sx={{display: 'flex', alignItems: 'end'}}>
+                                                        <PermIdentityIcon/>
+                                                        <Typography variant='h4' component={'h4'} sx={{ textWrap: 'wrap', ml: '5px' }}>
+                                                        {viewer} Viewers
+                                                        </Typography>
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        </Box>
+                                        <Box sx={{ m:'18px' }}>
+                                            {artistStreamDetail.length > 0 && tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>}
+                                            {/* {tagList.length > 0 && userData.length > 0 && tattooCategoryList.length > 0 && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData} isStreamManagementPage={false}/>} */}
+                                        </Box>
                                     </Box>
-                                </DialogTitle>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.loginButton}
-                                    onClick={handleCloseAccess}
-                                >
-                                    Home
-                                </Button>
-                                <CircularProgress style={{ display: 'none' }} />
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+                                    {liveStreamInfo && userDetail && <LiveStreamChatAdmin liveStreamInfo={liveStreamInfo} viewerUser={userDetail} oldReceivedMessages={oldChatMessages} funcHandleViewers={handleLiveStreamViewers}/>}
+                                </Box>
+                            :
+                                <div>
+                                    {/* <Button variant="contained" color="primary" onClick={handleOpen}>
+                                    Login
+                                    </Button> */}
+                                    <Dialog
+                                    open={open}
+                                    TransitionComponent={Transition}
+                                    keepMounted
+                                    onClose={handleCloseAccess}
+                                    BackdropComponent={Backdrop}
+                                    BackdropProps={{
+                                        classes: { root: classes.root },
+                                    }}
+                                    >
+                                        <DialogContent className={classes.dialogContent}>
+                                            <DialogTitle>
+                                                <Box>
+                                                    <Typography sx={{textAlign: 'center'}}>
+                                                        <LockIcon fontSize="large"/>
+                                                    </Typography>
+                                                    <Typography variant="h4" component="h4" >You do not have permissions to access this page</Typography>
+                                                </Box>
+                                            </DialogTitle>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                className={classes.loginButton}
+                                                onClick={handleCloseAccess}
+                                            >
+                                                Home
+                                            </Button>
+                                            <CircularProgress style={{ display: 'none' }} />
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
+                        )
+                )
             :
                 <div>
                     {/* <Button variant="contained" color="primary" onClick={handleOpen}>

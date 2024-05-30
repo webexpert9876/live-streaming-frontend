@@ -6,7 +6,9 @@ import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import { Container,
   Tabs,
   Tab,
-  Grid
+  Grid,
+  Box,
+  Typography
 } from '@mui/material';
 import Footer from 'src/components/Footer';
 import { styled } from '@mui/material/styles';
@@ -15,6 +17,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser } from 'store/slices/authSlice';
 import client from "../../../../graphql";
 import { gql } from "@apollo/client";
+import CircularProgress from '@mui/material/CircularProgress';
 
 import EditChannelTab from 'src/content/Management/Users/settings/EditChannelTab';
 import EditStreamTab from 'src/content/Management/Users/settings/EditStreamTab';
@@ -40,6 +43,7 @@ function ManagementChannelSettings() {
   const [isUserAvailable, setIsUserAvailable] = useState(false);
   const [isFetchedApi, setIsFetchedApi] = useState(true);
   const [allowUser, setAllowUser] = useState(false);
+  const [isPageLoading, setIsPageLoading]= useState(true);
 
   const [artistStreamDetail, setArtistStreamDetail] = useState([]);
   const [tagList, setTagList] = useState([]);
@@ -133,11 +137,12 @@ function ManagementChannelSettings() {
             }
           `,
         }).then((result) => {
-            setTagList(result.data.tagForStream)
-            setUserData(result.data.users);
-            setTattooCategoryList(result.data.tattooCategories);
-            setArtistStreamDetail(result.data.streams)
-            setAllowUser(true);
+          setTagList(result.data.tagForStream)
+          setUserData(result.data.users);
+          setTattooCategoryList(result.data.tattooCategories);
+          setArtistStreamDetail(result.data.streams)
+          setAllowUser(true);
+          setIsPageLoading(false)
         });
       } else {
         setAllowUser(false);
@@ -178,75 +183,86 @@ function ManagementChannelSettings() {
 
   return (
     <>
+    
     {userData.length > 0?
-      allowUser ?
-        <SidebarLayout userData={userData}>
-          <Head>
-            <title>Channel Settings - Applications</title>
-          </Head>
-          <PageTitleWrapper>
-            <PageHeader />
-          </PageTitleWrapper>
-          <Container maxWidth="false" className='tttttttttttttttttddd'>
-            <Grid
-              container
-              direction="row"
-              justifyContent="center"
-              alignItems="stretch"
-              spacing={3}
-            >
-              <Grid item xs={12}>
-                <TabsWrapper
-                  onChange={handleTabsChange}
-                  value={currentTab}
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  textColor="primary"
-                  indicatorColor="primary"
-                >
-                  {tabs.map((tab) => (
-                    <Tab key={tab.value} label={tab.label} value={tab.value} />
-                  ))}
-                </TabsWrapper>
-              </Grid>
-              <Grid item xs={12}>
-                {userData.length > 0 && userData[0].channelDetails.length > 0?
-                  <>
-                    {currentTab === 'channel' && <EditChannelTab channelData={userData[0].channelDetails} userData={userData}/>}
-                  </>
-                : null }
-
-                {tattooCategoryList.length > 0 && userData.length > 0 ?
-                  <>
-                    {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
-                  </>
-                : null }
-
-                {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList.length > 0 && userData.length > 0? 
-                  <>
-                    {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
-                  </>
-                  :
-                    <>
-                      {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
-                    </>
-                }
-                {/* {currentTab === 'notifications' && <NotificationsTab />} */}
-
-                {userData.length > 0?
-                  <>
-                    {currentTab === 'security' && <SecurityTab userData={userData}/>}
-                  </>
-                  : null
-                }
-              </Grid>
-            </Grid>
-          </Container>
-          <Footer/>
-        </SidebarLayout>
-      :
+      isPageLoading?
+        <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+            <CircularProgress />
+            <Typography>
+                Loading...
+            </Typography>
+        </Box>
+      : 
         (
-          <PermissionDeniedDialog/>
+          allowUser ?
+            <SidebarLayout userData={userData}>
+              <Head>
+                <title>Channel Settings - Applications</title>
+              </Head>
+              <PageTitleWrapper>
+                <PageHeader />
+              </PageTitleWrapper>
+              <Container maxWidth="false" className='tttttttttttttttttddd'>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="stretch"
+                  spacing={3}
+                >
+                  <Grid item xs={12}>
+                    <TabsWrapper
+                      onChange={handleTabsChange}
+                      value={currentTab}
+                      variant="scrollable"
+                      scrollButtons="auto"
+                      textColor="primary"
+                      indicatorColor="primary"
+                    >
+                      {tabs.map((tab) => (
+                        <Tab key={tab.value} label={tab.label} value={tab.value} />
+                      ))}
+                    </TabsWrapper>
+                  </Grid>
+                  <Grid item xs={12}>
+                    {userData.length > 0 && userData[0].channelDetails.length > 0?
+                      <>
+                        {currentTab === 'channel' && <EditChannelTab channelData={userData[0].channelDetails} userData={userData}/>}
+                      </>
+                    : null }
+
+                    {tattooCategoryList.length > 0 && userData.length > 0 ?
+                      <>
+                        {currentTab === 'edit_profile' && <EditProfileTab tattooCategoryList={tattooCategoryList} userData={userData}/>}
+                      </>
+                    : null }
+
+                    {(artistStreamDetail.length > 0 && tattooCategoryList.length > 0) && tagList.length > 0 && userData.length > 0? 
+                      <>
+                        {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={true} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
+                      </>
+                      :
+                        <>
+                          {currentTab === 'edit_stream' && <EditStreamTab streamData={artistStreamDetail} isStreamFound={false} tattooCategoriesData={tattooCategoryList} tagData={tagList} userData={userData}/>}
+                        </>
+                    }
+                    {/* {currentTab === 'notifications' && <NotificationsTab />} */}
+
+                    {userData.length > 0?
+                      <>
+                        {currentTab === 'security' && <SecurityTab userData={userData}/>}
+                      </>
+                      : null
+                    }
+                  </Grid>
+                </Grid>
+              </Container>
+              <Footer/>
+            </SidebarLayout>
+          :
+            (
+              <PermissionDeniedDialog/>
+            )
         )
     :
       <LoginDialog/>

@@ -5,6 +5,7 @@ import Footer from 'src/components/Footer';
 import PageHeader from '../../../../../src/components/channel/list/PageHeader';
 import ChannelEdit from '../../../../../src/components/admin/channel/ChannelEdit';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
     Tooltip,
     Grid,
@@ -76,6 +77,7 @@ const ChannelListPage = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
+  const [isPageLoading, setIsPageLoading]= useState(true);
 
     const statusOptions = [
         {
@@ -122,6 +124,7 @@ const filterStatusOption = {
 
         if(roleInfo.data.roles[0].role == 'admin'){
             setIsAdminUser(true);
+            setIsPageLoading(false);
             client.query({
               variables: {
                 usersId: userData[0]._id,
@@ -327,182 +330,195 @@ const applyPagination = (allChannels, page, limit) => {
   return (
     <>
         {userData.length > 0?
-            isAdminUser?
-                <SidebarLayout userData={userData}>
-                    <Head>
-                        <title>All Channels</title>
-                    </Head>
-                    {
-                        isChannelEditing?
-                            (userData && selectedRowDetails) ? 
-                                <ChannelEdit 
-                                    userData={userData}
-                                    channelDetail={selectedRowDetails}
-                                    cancelBtnFunction={handleCancelBtnFunction}
-                                    channelUpdateFunction={handleListChannelUpdate}
-                                /> 
-                                : null
-                        :
-                            <>
-                                <PageTitleWrapper>
-                                    <PageHeader />
-                                </PageTitleWrapper>
-                                <Container maxWidth="lg">
-                                    <Grid
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="stretch"
-                                        spacing={3}
-                                    >
-                                        <Grid item xs={12}></Grid>
-                                        <Card>
-                                            <CardHeader
-                                                action={
-                                                <Box width={150}>
-                                                    <FormControl fullWidth variant="outlined">
-                                                    <InputLabel>Channel Status</InputLabel>
-                                                    <Select
-                                                        // value={filters.status == null ? 'all': (filters.status == 'approved' ? 'approved' : filters.status == 'declined' ? 'declined' : 'pending')}
-                                                        value={filterStatusOption[filters.status] || all}
-                                                        onChange={handleStatusChange}
-                                                        label="Status"
-                                                        autoWidth
-                                                    >
-                                                        {statusOptions.map((statusOption) => (
-                                                        <MenuItem key={statusOption.id} value={statusOption.id}>
-                                                            {statusOption.name}
-                                                        </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    </FormControl>
-                                                </Box>
-                                                }
-                                                title="Channels"
-                                            />
-                                            <Divider />
-                                            <TableContainer>
-                                                <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                    <TableCell>Channel Name</TableCell>
-                                                    <TableCell>Description</TableCell>
-                                                    <TableCell>Approved Status</TableCell>
-                                                    <TableCell >Blocked status</TableCell>
-                                                    {/* <TableCell align="right">Status</TableCell> */}
-                                                    <TableCell align="right">Actions</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {showAllChannelDetails.map((channel) => {
-                                                    return (
-                                                        <TableRow hover key={channel._id}>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                            {channel.channelName}
-                                                            </Typography>
-                                                            {/* <Typography variant="body2" color="text.secondary" noWrap>
-                                                            {format(cryptoOrder.orderDate, 'MMMM dd yyyy')}
-                                                            </Typography> */}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                            {channel.description}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Typography
-                                                            variant="body1"
-                                                            fontWeight="bold"
-                                                            color="text.primary"
-                                                            gutterBottom
-                                                            noWrap
-                                                            >
-                                                                {getStatusLabel(channel.isApproved)}
-                                                            </Typography>
-                                                            {/* <Typography variant="body2" color="text.secondary" noWrap>
-                                                            {cryptoOrder.sourceDesc}
-                                                            </Typography> */}
-                                                        </TableCell>
-                                                        <TableCell >
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight="bold"
-                                                                color="text.primary"
-                                                                gutterBottom
-                                                                noWrap
-                                                            >
-                                                                {getBlockedStatusLabel(`${channel.blocked}` == 'true'? 'true': 'false')}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Tooltip title="Edit Channel" arrow>
-                                                                <IconButton
-                                                                    sx={{
-                                                                    '&:hover': {
-                                                                        background: theme.colors.primary.lighter
-                                                                    },
-                                                                    color: theme.palette.primary.main
-                                                                    }}
-                                                                    color="inherit"
-                                                                    size="small"
-                                                                    onClick={()=>handleEditChannel(channel)}
+            (
+                isPageLoading?
+                    <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                        <CircularProgress />
+                        <Typography>
+                            Loading...
+                        </Typography>
+                    </Box>
+                : 
+                    (
+                        isAdminUser?
+                            <SidebarLayout userData={userData}>
+                                <Head>
+                                    <title>All Channels</title>
+                                </Head>
+                                {
+                                    isChannelEditing?
+                                        (userData && selectedRowDetails) ? 
+                                            <ChannelEdit 
+                                                userData={userData}
+                                                channelDetail={selectedRowDetails}
+                                                cancelBtnFunction={handleCancelBtnFunction}
+                                                channelUpdateFunction={handleListChannelUpdate}
+                                            /> 
+                                            : null
+                                    :
+                                        <>
+                                            <PageTitleWrapper>
+                                                <PageHeader />
+                                            </PageTitleWrapper>
+                                            <Container maxWidth="lg">
+                                                <Grid
+                                                    direction="row"
+                                                    justifyContent="center"
+                                                    alignItems="stretch"
+                                                    spacing={3}
+                                                >
+                                                    <Grid item xs={12}></Grid>
+                                                    <Card>
+                                                        <CardHeader
+                                                            action={
+                                                            <Box width={150}>
+                                                                <FormControl fullWidth variant="outlined">
+                                                                <InputLabel>Channel Status</InputLabel>
+                                                                <Select
+                                                                    // value={filters.status == null ? 'all': (filters.status == 'approved' ? 'approved' : filters.status == 'declined' ? 'declined' : 'pending')}
+                                                                    value={filterStatusOption[filters.status] || all}
+                                                                    onChange={handleStatusChange}
+                                                                    label="Status"
+                                                                    autoWidth
                                                                 >
-                                                                    <EditTwoToneIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Delete Channel" arrow>
-                                                            <IconButton
-                                                                sx={{
-                                                                '&:hover': { background: theme.colors.error.lighter },
-                                                                color: theme.palette.error.main
-                                                                }}
-                                                                color="inherit"
-                                                                size="small"
-                                                            >
-                                                                <DeleteTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                            </Tooltip>
-                                                        </TableCell>
-                                                        </TableRow>
-                                                    );
-                                                    })}
-                                                </TableBody>
-                                                </Table>
-                                            </TableContainer>
-                                            <Box p={2}>
-                                                <TablePagination
-                                                component="div"
-                                                count={filterCount}
-                                                onPageChange={handlePageChange}
-                                                onRowsPerPageChange={handleLimitChange}
-                                                page={page}
-                                                rowsPerPage={limit}
-                                                rowsPerPageOptions={[5, 10, 25, 30]}
-                                                />
-                                            </Box>
-                                            </Card>
-                                    </Grid>
-                                </Container >
-                            </>
-                    }
-                    <Footer />
-                </SidebarLayout>
-            :
-                (
-                    <PermissionDeniedDialog/>
-                )
+                                                                    {statusOptions.map((statusOption) => (
+                                                                    <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                                        {statusOption.name}
+                                                                    </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                                </FormControl>
+                                                            </Box>
+                                                            }
+                                                            title="Channels"
+                                                        />
+                                                        <Divider />
+                                                        <TableContainer>
+                                                            <Table>
+                                                            <TableHead>
+                                                                <TableRow>
+                                                                <TableCell>Channel Name</TableCell>
+                                                                <TableCell>Description</TableCell>
+                                                                <TableCell>Approved Status</TableCell>
+                                                                <TableCell >Blocked status</TableCell>
+                                                                {/* <TableCell align="right">Status</TableCell> */}
+                                                                <TableCell align="right">Actions</TableCell>
+                                                                </TableRow>
+                                                            </TableHead>
+                                                            <TableBody>
+                                                                {showAllChannelDetails.map((channel) => {
+                                                                return (
+                                                                    <TableRow hover key={channel._id}>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                        color="text.primary"
+                                                                        gutterBottom
+                                                                        noWrap
+                                                                        >
+                                                                        {channel.channelName}
+                                                                        </Typography>
+                                                                        {/* <Typography variant="body2" color="text.secondary" noWrap>
+                                                                        {format(cryptoOrder.orderDate, 'MMMM dd yyyy')}
+                                                                        </Typography> */}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                        color="text.primary"
+                                                                        gutterBottom
+                                                                        noWrap
+                                                                        >
+                                                                        {channel.description}
+                                                                        </Typography>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Typography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                        color="text.primary"
+                                                                        gutterBottom
+                                                                        noWrap
+                                                                        >
+                                                                            {getStatusLabel(channel.isApproved)}
+                                                                        </Typography>
+                                                                        {/* <Typography variant="body2" color="text.secondary" noWrap>
+                                                                        {cryptoOrder.sourceDesc}
+                                                                        </Typography> */}
+                                                                    </TableCell>
+                                                                    <TableCell >
+                                                                        <Typography
+                                                                            variant="body1"
+                                                                            fontWeight="bold"
+                                                                            color="text.primary"
+                                                                            gutterBottom
+                                                                            noWrap
+                                                                        >
+                                                                            {getBlockedStatusLabel(`${channel.blocked}` == 'true'? 'true': 'false')}
+                                                                        </Typography>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        <Tooltip title="Edit Channel" arrow>
+                                                                            <IconButton
+                                                                                sx={{
+                                                                                '&:hover': {
+                                                                                    background: theme.colors.primary.lighter
+                                                                                },
+                                                                                color: theme.palette.primary.main
+                                                                                }}
+                                                                                color="inherit"
+                                                                                size="small"
+                                                                                onClick={()=>handleEditChannel(channel)}
+                                                                            >
+                                                                                <EditTwoToneIcon fontSize="small" />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                        <Tooltip title="Delete Channel" arrow>
+                                                                        <IconButton
+                                                                            sx={{
+                                                                            '&:hover': { background: theme.colors.error.lighter },
+                                                                            color: theme.palette.error.main
+                                                                            }}
+                                                                            color="inherit"
+                                                                            size="small"
+                                                                        >
+                                                                            <DeleteTwoToneIcon fontSize="small" />
+                                                                        </IconButton>
+                                                                        </Tooltip>
+                                                                    </TableCell>
+                                                                    </TableRow>
+                                                                );
+                                                                })}
+                                                            </TableBody>
+                                                            </Table>
+                                                        </TableContainer>
+                                                        <Box p={2}>
+                                                            <TablePagination
+                                                            component="div"
+                                                            count={filterCount}
+                                                            onPageChange={handlePageChange}
+                                                            onRowsPerPageChange={handleLimitChange}
+                                                            page={page}
+                                                            rowsPerPage={limit}
+                                                            rowsPerPageOptions={[5, 10, 25, 30]}
+                                                            />
+                                                        </Box>
+                                                        </Card>
+                                                </Grid>
+                                            </Container >
+                                        </>
+                                }
+                                <Footer />
+                            </SidebarLayout>
+                        :
+                            (
+                                <PermissionDeniedDialog/>
+                            )
+                    )
+
+            )
         : 
             <LoginDialog/>
         }

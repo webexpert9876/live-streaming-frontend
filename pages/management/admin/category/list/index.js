@@ -33,7 +33,7 @@ import {
     TextField,
     Alert
 } from '@mui/material';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import Label from 'src/components/Label';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
@@ -73,6 +73,7 @@ function TattooCategory() {
   const [isTattooCategoryEditing, setIsTattooCategoryEditing] = useState(true);
   const [isAddingTattooCategory, setIsAddingTattooCategory] = useState(false);
   const [selectedRowDetails, setSelectedRowDetails] = useState({});
+  const [isPageLoading, setIsPageLoading]= useState(true);
   
   const [tattooCategoryList, setTattooCategoryList] = useState([]);
   const [tagList, setTagList] = useState([]);
@@ -107,6 +108,7 @@ function TattooCategory() {
           
         if(roleInfo.data.roles[0].role == 'admin'){
             setIsAdminUser(true);
+            setIsPageLoading(false);
             client.query({
                 variables: {
                 usersId: userData[0]._id
@@ -314,205 +316,216 @@ function TattooCategory() {
         <>
             {/* <SidebarLayout userData={[{role: '647f15e20d8b7330ed890da4'}]}> */}
             {userData.length > 0?
-                isAdminUser?
-                    (<SidebarLayout userData={userData}>
-                        <Head>
-                            <title>All Tattoo Category</title>
-                        </Head>
-                        {
-                            isTattooCategoryEditing?
-                                <>
-                                    <PageTitleWrapper>
-                                        <PageHeader categoryAddFunction={handleAddingCategory}/>
-                                    </PageTitleWrapper>
-                                    <Container maxWidth="lg">
-                                        <Grid
-                                            container
-                                            direction="row"
-                                            justifyContent="center"
-                                            alignItems="stretch"
-                                            spacing={3}
-                                        >
-                                            <Grid item xs={12}></Grid>
-                                            <Card style={{width: "97%"}}>
-                                                <CardHeader title="Tattoo Categories" />
-                                                <Divider />
-                                                <TableContainer>
-                                                    <Table>
-                                                        <TableHead>
-                                                            <TableRow>
-                                                                <TableCell>Title</TableCell>
-                                                                <TableCell>Description</TableCell>
-                                                                <TableCell>Picture</TableCell>
-                                                                <TableCell align='center'>Tags</TableCell>
-                                                                <TableCell align="right">Actions</TableCell>
-                                                            </TableRow>
-                                                        </TableHead>
-                                                        <TableBody>
-                                                            {showAllCategoriesDetails.map((category) => {
-                                                                return (
-                                                                    <TableRow hover key={category._id}>
-                                                                        <TableCell>
-                                                                            <Typography
-                                                                                variant="body1"
-                                                                                fontWeight="bold"
-                                                                                color="text.primary"
-                                                                                gutterBottom
-                                                                            >
-                                                                                {category.title}
-                                                                            </Typography>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            <Typography
-                                                                                variant="body1"
-                                                                                fontWeight="bold"
-                                                                                color="text.primary"
-                                                                                gutterBottom
-                                                                            >
-                                                                                {category.description.slice(0, 80)}...
-                                                                            </Typography>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            <img width={50} height={50} src={`${process.env.NEXT_PUBLIC_S3_URL}/${category.profilePicture}`}></img>
-                                                                        </TableCell>
-                                                                        <TableCell align='center'>
-                                                                            <Typography
-                                                                                variant="body1"
-                                                                                fontWeight="bold"
-                                                                                color="text.primary"
-                                                                                gutterBottom
-                                                                                noWrap
-                                                                            >
-                                                                                {category.tags.slice(0,2).map((tag, index)=>{
-                                                                                    return(<Button key={index} variant="contained" onClick={()=> router.push(`/tag/${tag}`)} sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
-                                                                                    {/* <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link> */}{tag}
-                                                                                </Button>)
-                                                                                })}
-                                                                            </Typography>
-                                                                
-                                                                        </TableCell>
-                                                                        <TableCell align="right">
-                                                                            <Tooltip title="Edit Tattoo Category" arrow>
-                                                                                <IconButton
-                                                                                    sx={{
-                                                                                        '&:hover': {
-                                                                                            background: theme.colors.primary.lighter
-                                                                                        },
-                                                                                        color: theme.palette.primary.main
-                                                                                    }}
-                                                                                    color="inherit"
-                                                                                    size="small"
-                                                                                    onClick={()=>{handleClickOpen('tattooCategoryEdit', category)}}
-                                                                                >
-                                                                                    <EditTwoToneIcon fontSize="small" />
-                                                                                </IconButton>
-                                                                            </Tooltip>
-                                                                            <Tooltip title="Delete Tattoo Category" arrow>
-                                                                                <IconButton
-                                                                                    sx={{
-                                                                                        '&:hover': { background: theme.colors.error.lighter },
-                                                                                        color: theme.palette.error.main
-                                                                                    }}
-                                                                                    color="inherit"
-                                                                                    size="small"
-                                                                                    onClick={()=>{handleClickOpen('tattooCategoryDelete', category)}}
-                                                                                >
-                                                                                    <DeleteTwoToneIcon fontSize="small" />
-                                                                                </IconButton>
-                                                                            </Tooltip>
-                                                                        </TableCell>
+                (
+                    isPageLoading?
+                        <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
+                            <CircularProgress />
+                            <Typography>
+                                Loading...
+                            </Typography>
+                        </Box>
+                    : 
+                        isAdminUser?
+                            (<SidebarLayout userData={userData}>
+                                <Head>
+                                    <title>All Tattoo Category</title>
+                                </Head>
+                                {
+                                    isTattooCategoryEditing?
+                                        <>
+                                            <PageTitleWrapper>
+                                                <PageHeader categoryAddFunction={handleAddingCategory}/>
+                                            </PageTitleWrapper>
+                                            <Container maxWidth="lg">
+                                                <Grid
+                                                    container
+                                                    direction="row"
+                                                    justifyContent="center"
+                                                    alignItems="stretch"
+                                                    spacing={3}
+                                                >
+                                                    <Grid item xs={12}></Grid>
+                                                    <Card style={{width: "97%"}}>
+                                                        <CardHeader title="Tattoo Categories" />
+                                                        <Divider />
+                                                        <TableContainer>
+                                                            <Table>
+                                                                <TableHead>
+                                                                    <TableRow>
+                                                                        <TableCell>Title</TableCell>
+                                                                        <TableCell>Description</TableCell>
+                                                                        <TableCell>Picture</TableCell>
+                                                                        <TableCell align='center'>Tags</TableCell>
+                                                                        <TableCell align="right">Actions</TableCell>
                                                                     </TableRow>
-                                                                );
-                                                            })}
-                                                        </TableBody>
-                                                    </Table>
-                                                </TableContainer>
-                                                <Box p={2}>
-                                                    <TablePagination
-                                                        component="div"
-                                                        count={tattooCategoryList.length}
-                                                        onPageChange={handlePageChange}
-                                                        onRowsPerPageChange={handleLimitChange}
-                                                        page={page}
-                                                        rowsPerPage={limit}
-                                                        rowsPerPageOptions={[5, 10, 25, 30]}
-                                                    />
-                                                </Box>
-                                            </Card>
-                                        </Grid>
-                                        
-                    {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
-                                        <Dialog open={openDeleteDialog} onClose={()=>handleClose('tattooCategoryDelete')}>
-                                            <DialogTitle>Delete Tattoo Category Details</DialogTitle>
-                                            <DialogContent>
-                                                <DialogContentText>
-                                                    Are you sure? You want delete this Category. If you want to delete this Category type delete in input box.
-                                                </DialogContentText>
-                                                <TextField
-                                                    autoFocus
-                                                    margin="dense"
-                                                    id="delete-text"
-                                                    label="Delete"
-                                                    type="text"
-                                                    fullWidth
-                                                    variant="standard"
-                                                    value={deleteInputValue}
-                                                    onChange={(e)=>{setDeleteInputValue(e.target.value)}}
-                                                />
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={()=>handleClose('tattooCategoryDelete')}>Cancel</Button>
-                                                <Button onClick={handleDeleteCategory}>Delete</Button>
-                                            </DialogActions>
-                                        </Dialog>
-                                    </Container >
-                                </>
-                            :
-                                isAddingTattooCategory?
-                                    userData && tagList &&
-                                    <AddCategory 
-                                        userData={userData}
-                                        tagData={tagList}
-                                        cancelBtnFunction={handleCancelBtnFunction}
-                                        tagUpdateFunction={handleTagListUpdate}
-                                        newCategoryAddFunction={handleAddNewCategory}
-                                    />
-                                :
-                                    // (userData && selectedRowDetails && tattooCategoryList && tagList) ? 
-                                    (userData && selectedRowDetails && tagList) ? 
-                                        <CategoryEdit 
-                                            userData={userData} 
-                                            tattooCategoryDetail={selectedRowDetails}
-                                            // tattooCategoryList={tattooCategoryList}
-                                            tagData={tagList}
-                                            cancelBtnFunction={handleCancelBtnFunction}
-                                            categoryUpdateFunction={handleListCategoryUpdate}
-                                            tagUpdateFunction={handleTagListUpdate}
-                                        /> 
-                                        : null
-                        }
-
-                    {/* --------------------------------------------------------Error or success message------------------------------------------ */}
-                        <Stack spacing={2} sx={{ width: '100%' }}>
-                            <Snackbar anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }} open={open}
-                            autoHideDuration={6000}
-                            onClose={handleMessageBoxClose} >
-                            <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
-                                {apiResponseMessage}
-                            </Alert>
-                            </Snackbar>
-                        </Stack>
-
-
-                        <Footer />
-                    </SidebarLayout>)
-                :
-                    (
-                        <PermissionDeniedDialog/>
-                    )
+                                                                </TableHead>
+                                                                <TableBody>
+                                                                    {showAllCategoriesDetails.map((category) => {
+                                                                        return (
+                                                                            <TableRow hover key={category._id}>
+                                                                                <TableCell>
+                                                                                    <Typography
+                                                                                        variant="body1"
+                                                                                        fontWeight="bold"
+                                                                                        color="text.primary"
+                                                                                        gutterBottom
+                                                                                    >
+                                                                                        {category.title}
+                                                                                    </Typography>
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <Typography
+                                                                                        variant="body1"
+                                                                                        fontWeight="bold"
+                                                                                        color="text.primary"
+                                                                                        gutterBottom
+                                                                                    >
+                                                                                        {category.description.slice(0, 80)}...
+                                                                                    </Typography>
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <img width={50} height={50} src={`${process.env.NEXT_PUBLIC_S3_URL}/${category.profilePicture}`}></img>
+                                                                                </TableCell>
+                                                                                <TableCell align='center'>
+                                                                                    <Typography
+                                                                                        variant="body1"
+                                                                                        fontWeight="bold"
+                                                                                        color="text.primary"
+                                                                                        gutterBottom
+                                                                                        noWrap
+                                                                                    >
+                                                                                        {category.tags.slice(0,2).map((tag, index)=>{
+                                                                                            return(<Button key={index} variant="contained" onClick={()=> router.push(`/tag/${tag}`)} sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', padding: '5px', margin: '0px 2px' }}>
+                                                                                            {/* <Link href={`/tags/`} sx={{ color: '#fff' }}>{tag}</Link> */}{tag}
+                                                                                        </Button>)
+                                                                                        })}
+                                                                                    </Typography>
+                                                                        
+                                                                                </TableCell>
+                                                                                <TableCell align="right">
+                                                                                    <Tooltip title="Edit Tattoo Category" arrow>
+                                                                                        <IconButton
+                                                                                            sx={{
+                                                                                                '&:hover': {
+                                                                                                    background: theme.colors.primary.lighter
+                                                                                                },
+                                                                                                color: theme.palette.primary.main
+                                                                                            }}
+                                                                                            color="inherit"
+                                                                                            size="small"
+                                                                                            onClick={()=>{handleClickOpen('tattooCategoryEdit', category)}}
+                                                                                        >
+                                                                                            <EditTwoToneIcon fontSize="small" />
+                                                                                        </IconButton>
+                                                                                    </Tooltip>
+                                                                                    <Tooltip title="Delete Tattoo Category" arrow>
+                                                                                        <IconButton
+                                                                                            sx={{
+                                                                                                '&:hover': { background: theme.colors.error.lighter },
+                                                                                                color: theme.palette.error.main
+                                                                                            }}
+                                                                                            color="inherit"
+                                                                                            size="small"
+                                                                                            onClick={()=>{handleClickOpen('tattooCategoryDelete', category)}}
+                                                                                        >
+                                                                                            <DeleteTwoToneIcon fontSize="small" />
+                                                                                        </IconButton>
+                                                                                    </Tooltip>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                        );
+                                                                    })}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </TableContainer>
+                                                        <Box p={2}>
+                                                            <TablePagination
+                                                                component="div"
+                                                                count={tattooCategoryList.length}
+                                                                onPageChange={handlePageChange}
+                                                                onRowsPerPageChange={handleLimitChange}
+                                                                page={page}
+                                                                rowsPerPage={limit}
+                                                                rowsPerPageOptions={[5, 10, 25, 30]}
+                                                            />
+                                                        </Box>
+                                                    </Card>
+                                                </Grid>
+                                                
+                            {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
+                                                <Dialog open={openDeleteDialog} onClose={()=>handleClose('tattooCategoryDelete')}>
+                                                    <DialogTitle>Delete Tattoo Category Details</DialogTitle>
+                                                    <DialogContent>
+                                                        <DialogContentText>
+                                                            Are you sure? You want delete this Category. If you want to delete this Category type delete in input box.
+                                                        </DialogContentText>
+                                                        <TextField
+                                                            autoFocus
+                                                            margin="dense"
+                                                            id="delete-text"
+                                                            label="Delete"
+                                                            type="text"
+                                                            fullWidth
+                                                            variant="standard"
+                                                            value={deleteInputValue}
+                                                            onChange={(e)=>{setDeleteInputValue(e.target.value)}}
+                                                        />
+                                                    </DialogContent>
+                                                    <DialogActions>
+                                                        <Button onClick={()=>handleClose('tattooCategoryDelete')}>Cancel</Button>
+                                                        <Button onClick={handleDeleteCategory}>Delete</Button>
+                                                    </DialogActions>
+                                                </Dialog>
+                                            </Container >
+                                        </>
+                                    :
+                                        isAddingTattooCategory?
+                                            userData && tagList &&
+                                            <AddCategory 
+                                                userData={userData}
+                                                tagData={tagList}
+                                                cancelBtnFunction={handleCancelBtnFunction}
+                                                tagUpdateFunction={handleTagListUpdate}
+                                                newCategoryAddFunction={handleAddNewCategory}
+                                            />
+                                        :
+                                            // (userData && selectedRowDetails && tattooCategoryList && tagList) ? 
+                                            (userData && selectedRowDetails && tagList) ? 
+                                                <CategoryEdit 
+                                                    userData={userData} 
+                                                    tattooCategoryDetail={selectedRowDetails}
+                                                    // tattooCategoryList={tattooCategoryList}
+                                                    tagData={tagList}
+                                                    cancelBtnFunction={handleCancelBtnFunction}
+                                                    categoryUpdateFunction={handleListCategoryUpdate}
+                                                    tagUpdateFunction={handleTagListUpdate}
+                                                /> 
+                                                : null
+                                }
+        
+                            {/* --------------------------------------------------------Error or success message------------------------------------------ */}
+                                <Stack spacing={2} sx={{ width: '100%' }}>
+                                    <Snackbar anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'right',
+                                    }} open={open}
+                                    autoHideDuration={6000}
+                                    onClose={handleMessageBoxClose} >
+                                    <Alert onClose={handleMessageBoxClose} variant="filled" severity={`${apiMessageType=='success'? 'success': 'error'}`} sx={{ width: '100%' }}>
+                                        {apiResponseMessage}
+                                    </Alert>
+                                    </Snackbar>
+                                </Stack>
+        
+        
+                                <Footer />
+                            </SidebarLayout>)
+                        :
+                            (
+                                <PermissionDeniedDialog/>
+                            )
+                )
+        
             : 
                 <LoginDialog/>
             }
