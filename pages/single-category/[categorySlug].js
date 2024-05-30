@@ -24,6 +24,7 @@ import { StickyNote2, Transform } from '@mui/icons-material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { KeyboardArrowUp } from '@mui/icons-material';
 import LiveVideos from '../../src/content/Overview/CategoryInnerTabs/LiveVideos';
 import VideosList from '../../src/content/Overview/CategoryInnerTabs/VideosList';
 import { TypeInfo } from 'graphql';
@@ -98,7 +99,7 @@ export default function Category() {
     if(!router.query.categorySlug) {
         return;
     }
-    
+
     setCategorySlug(router.query.categorySlug);
     setIsFetchingCategory(true)
 
@@ -199,7 +200,6 @@ useEffect(async ()=>{
         }).then((result) => {
           setIsCatFollowing(result.data.isTattooCategoryFollowing[0])
           setUserDetail(userDetails);
-          setIsPageLoading(false)
           return result.data
         });
       }
@@ -208,7 +208,7 @@ useEffect(async ()=>{
       setCountFollower(categoryInfo.countTattooCategoryFollower[0]);
       setLiveVideosInfo(categoryInfo.liveStreamings);
       setVideosListInfo(categoryInfo.videos);
-
+      setIsPageLoading(false);
       setIsFetchingCategory(false)
     }
 }, [isFetchingCategory])
@@ -219,7 +219,7 @@ useEffect(async ()=>{
   };
 
   const handleReadMore = () => {
-    setShowFullContent(true);
+    setShowFullContent(!showFullContent);
   };
 
   // let content;
@@ -233,7 +233,7 @@ useEffect(async ()=>{
   // }
 
   function truncatedContent(description){
-    let content = description.split(' ').slice(0, 30).join(' ');
+    let content = description.split(' ').slice(0, 35).join(' ');
     return content;
   }
 
@@ -332,11 +332,18 @@ useEffect(async ()=>{
 
                       <Typography style={{ width: "620px" }}>
                         {showFullContent ? tattooCategories.description : truncatedContent(tattooCategories.description)}
-                        {!showFullContent && (
-                          <div onClick={handleReadMore}>
-                            <KeyboardArrowDownIcon style={{ position: "relative", top: "7px" }} /> More
-                          </div>
-                        )}
+                        {tattooCategories.description.length > 200 && (
+                          !showFullContent ? (
+                              <div onClick={handleReadMore}>
+                                <KeyboardArrowDownIcon style={{ position: "relative", top: "7px" }} /> View More
+                              </div>
+                              )
+                            :
+                              <div onClick={handleReadMore}>
+                                <KeyboardArrowUp style={{ position: "relative", top: "7px" }} /> View Less
+                              </div>
+                          )
+                        }
                       </Typography>
 
 
@@ -346,12 +353,13 @@ useEffect(async ()=>{
                           (isCatFollowing.isFollowing?
                             <Button Button variant="contained" startIcon={<FavoriteIcon />} onClick={()=>handleFollow(false)}>Following</Button> 
                             : 
-                            ( Object.keys(userDetail).length === 0? 
-                              <Tooltip title={<React.Fragment>Please <Link onClick={()=> router.push(`/auth/login`)}>login</Link> to follow this tattoo category</React.Fragment>} placement="right-start">
-                                <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Follow</Button>
-                              </Tooltip>
-                            : 
-                              <Button Button variant="contained" startIcon={<FavoriteBorderIcon />} onClick={()=>handleFollow(true)}>Follow</Button>
+                            ( 
+                              Object.keys(userDetail).length === 0? 
+                                <Tooltip title={<React.Fragment>Please <a style={{color: "#8C7CF0", cursor: "pointer"}} onClick={()=> router.push(`/auth/login`)}>login</a> to follow this tattoo category</React.Fragment>} placement="right-start">
+                                  <Button Button variant="contained" startIcon={<FavoriteBorderIcon />}>Follow</Button>
+                                </Tooltip>
+                              : 
+                                <Button Button variant="contained" startIcon={<FavoriteBorderIcon />} onClick={()=>handleFollow(true)}>Follow</Button>
                             )
                           )
                         : null}
