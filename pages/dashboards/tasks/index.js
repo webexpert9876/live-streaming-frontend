@@ -332,7 +332,7 @@ function DashboardTasks() {
             <PageHeader />
           </PageTitleWrapper>
           <Container maxWidth="lg">
-            <TabsContainerWrapper>
+            {/* <TabsContainerWrapper>
               <Tabs
                 onChange={handleTabsChange}
                 value={currentTab}
@@ -356,13 +356,7 @@ function DashboardTasks() {
               >
                 {currentTab === 'analytics' && (
                   <>
-                    {/* <Grid item xs={12}>
-                      <Box p={4}>
-                        <TeamOverview />
-                      </Box>
-                    </Grid> */}
                     <Grid item xs={12}>
-                      {/* <Divider /> */}
                       <Box
                         p={4}
                         sx={{
@@ -380,48 +374,11 @@ function DashboardTasks() {
                       </Box>
                       <Divider />
                     </Grid>
-                    {/* <Grid item xs={12}>
-                      <Box p={4}>
-                        <Projects />
-                      </Box>
-                      <Divider />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box
-                        sx={{
-                          background: `${theme.colors.alpha.black[5]}`
-                        }}
-                      >
-                        <Grid container spacing={0}>
-                          <Grid item xs={12} md={6}>
-                            <Box
-                              p={4}
-                              sx={{
-                                background: `${theme.colors.alpha.white[70]}`
-                              }}
-                            >
-                              <Checklist />
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <Box p={4}>
-                              <Profile />
-                            </Box>
-                          </Grid>
-                        </Grid>
-                      </Box>
-                    </Grid> */}
+                    
                   </>
                 )}
-                {/* {currentTab === 'taskSearch' && (
-                  <Grid item xs={12}>
-                    <Box p={4}>
-                      <TaskSearch />
-                    </Box>
-                  </Grid>
-                )} */}
               </Grid>
-            </Card>
+            </Card> */}
 
             <Card variant="outlined" style={{marginTop: "10px"}}>
               <Grid
