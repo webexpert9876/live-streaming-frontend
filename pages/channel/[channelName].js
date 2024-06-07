@@ -163,7 +163,7 @@ export default function ChannelName() {
                     setIsStatusPendingChannel(false);
                     let streamInfo = await client.query({
                         query: gql`
-                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!) {
+                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!, $channelId3: ID) {
                             streams(artistId: $artistId) {
                                 title
                                 streamCategory
@@ -216,6 +216,14 @@ export default function ChannelName() {
                             countChannelTotalFollowers(channelId: $channelId2) {
                                 countFollower
                             }
+                            subscriptionPlans(channelId: $channelId3) {
+                                _id
+                                planDuration
+                                planDurationUnit
+                                price
+                                createdAt
+                                channelId
+                            }
                         }
                         `,
                         variables: {
@@ -224,7 +232,8 @@ export default function ChannelName() {
                             "recentLiveStreamVideosChannelId2": channelInfo.channels[0]._id,
                             "recentUploadedVideosChannelId2": channelInfo.channels[0]._id,
                             "channelId": channelInfo.channels[0]._id,
-                            "channelId2": channelInfo.channels[0]._id
+                            "channelId2": channelInfo.channels[0]._id,
+                            "channelId3": channelInfo.channels[0]._id
                         }
                     }).then((result) => {
                         return result.data
@@ -240,6 +249,8 @@ export default function ChannelName() {
                     setCurrentBroadcast(...streamInfo.liveStreamings);
                     setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
                     setStreams(streamInfo.streams);
+                    setBoxesData(streamInfo.subscriptionPlans);
+
                     if(streamInfo.liveStreamings.length > 0){
                         setViewers(streamInfo.liveStreamings[0].viewers);
                     }
@@ -273,7 +284,7 @@ export default function ChannelName() {
                         })
                             .then((result) => {
                                 setOldReceivedMessages(result.data.chatMessages)
-                                console.log(' old result.data.chatMessages', result.data.chatMessages)
+                                console.log('----------------------------------------------------------------------------------------old result.data.chatMessages', result.data.chatMessages)
                             });
                     }
         
@@ -1114,16 +1125,16 @@ export default function ChannelName() {
                 <DialogTitle id="alert-dialog-title">
                     {"Subscribe channel"}
                 </DialogTitle>
-                <DialogContent>
-                    <Typography variant="div" component={'div'} className={classes.container}>
+                <DialogContent sx={{paddingTop: "20px !important"}}>
+                    <Typography variant="div" component={'div'} className={classes.container} >
                         {boxesData.map((box, index) => (
                             <Box
                                 key={box.id}
                                 className={`${classes.box} ${selectedBox === index ? classes.selectedBox : ''}`}
                                 onClick={() => handleBoxClick(box, index)}
                             >
-                                <Typography variant="h4" component="h4">{`${box.timeDuration} ${box.planDuration}`}</Typography>
-                                <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDuration}`}</Typography>
+                                <Typography variant="h4" component="h4">{`${box.planDuration} ${box.planDurationUnit}`}</Typography>
+                                <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDurationUnit}`}</Typography>
                             </Box>
                         ))}
                     </Typography>

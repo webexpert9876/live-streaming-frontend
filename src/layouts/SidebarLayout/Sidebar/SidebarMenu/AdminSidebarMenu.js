@@ -26,6 +26,8 @@ import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StreamIcon from '@mui/icons-material/Stream';
 import GroupIcon from '@mui/icons-material/Group';
+import SettingsInputAntennaIcon from '@mui/icons-material/SettingsInputAntenna';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -339,6 +341,23 @@ function UserSidebarMenu({userData}){
                                     </Button>
                                 </NextLink>
                             </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/streaming/tools" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/streaming/tools'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<SettingsInputAntennaIcon />}
+                                    >
+                                        Streaming Tools
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
                         </List>
                     </SubMenuWrapper>
                 </List>
@@ -413,6 +432,23 @@ function UserSidebarMenu({userData}){
                                         startIcon={<SettingsIcon />}
                                     >
                                         Account Settings
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/management/channel/subscription/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/channel/subscription/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<PriceChangeIcon />}
+                                    >
+                                        Subscription plans
                                     </Button>
                                 </NextLink>
                             </ListItem>
