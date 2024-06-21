@@ -31,7 +31,11 @@ import {
     DialogContentText,
     DialogTitle,
     TextField,
-    Alert
+    Alert,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+    FormLabel
 } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Label from 'src/components/Label';
@@ -69,6 +73,7 @@ function ChannelSubscriptionPrice() {
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openSubscriptionActivationDialog, setOpenSubscriptionActivationDialog] = useState(false);
 
   const [isSubscriptionPlanEditing, setIsSubscriptionPlanEditing] = useState(true);
   const [isAddingSubscriptionPlan, setIsAddingSubscriptionPlan] = useState(false);
@@ -76,15 +81,22 @@ function ChannelSubscriptionPrice() {
   const [isPageLoading, setIsPageLoading]= useState(true);
   
   const [subscriptionPlans, setSubscriptionPlans] = useState([]);
+  const [channelActivePlansDetail, setChannelActivePlansDetail] = useState([]);
 
   const [isDeletingSubscriptionPlan, setIsDeletingSubscriptionPlan] = useState(false);
   const [deleteInputValue, setDeleteInputValue] = useState('');
+  
+  
+  const [isUpdatingActivePlan, setIsUpdatingActivePlan] = useState(false);
+  const [activePlanInput, setActivePlanInput] = useState();
 
   // -------------------------Error state------------------------
   const [apiResponseMessage, setApiResponseMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [apiMessageType, setApiMessageType] = useState('');
+  
+  const [isPlanNeed, setIsPlanNeed] = useState(false);
 
   useEffect(()=>{
     // if(userInfo.length == 0){
@@ -112,10 +124,11 @@ function ChannelSubscriptionPrice() {
                 variables: {
                 usersId: userData[0]._id,
                 // channelId: "650d7b91542338448f5daceb"
-                channelId: userData[0].channelId
+                channelId: userData[0].channelId,
+                channelId2: userData[0].channelId
             },
                 query: gql`
-                    query Query($usersId: ID, $channelId: ID) {
+                    query Query($usersId: ID, $channelId: ID, $channelId2: String) {
                         users(id: $usersId) {
                             _id
                             firstName
@@ -137,6 +150,11 @@ function ChannelSubscriptionPrice() {
                             createdAt
                             channelId
                         }
+                        getChannelActivePlans(channelId: $channelId2) {
+                            _id
+                            channelId
+                            isPaid
+                        }
                     }
                 `,
             }).then((result) => {
@@ -144,6 +162,7 @@ function ChannelSubscriptionPrice() {
                 setUserData(result.data.users);
                 setSubscriptionPlans(result.data.subscriptionPlans);
                 setShowAllSubscriptionPlanDetails(result.data.subscriptionPlans);
+                setChannelActivePlansDetail(result.data.getChannelActivePlans);
                 setIsCheckPaginationChange(true)
             });
         } else {
@@ -185,7 +204,7 @@ function ChannelSubscriptionPrice() {
             setApiMessageType('error')
             const errorMessage = error.response.data.message;
             
-            handleMessageBoxOpen()
+            handleMessageBoxOpen();
             setApiResponseMessage(errorMessage);
             setIsDeletingSubscriptionPlan(false)
             setLoading(false);
@@ -207,6 +226,31 @@ function ChannelSubscriptionPrice() {
         }
     },[isCheckPaginationChange])
 
+
+    useEffect(()=>{
+        if(isUpdatingActivePlan) {
+            // console.log("channelActivePlansDetail[0].channelId", channelActivePlansDetail);
+            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update/channel/active/plan/${channelActivePlansDetail[0]._id}`, {isPaid: activePlanInput}, {headers: {'x-access-token': userData[0].jwtToken }}).then((data)=>{
+                setApiMessageType('danger')
+                setApiResponseMessage('Channel Active plan changed successfully');
+                setIsUpdatingActivePlan(false);
+                setLoading(false);
+                // handleMessageBoxOpen()
+                setChannelActivePlansDetail([data.data.activePlan]);
+                handleClose("activatePlanChange");
+            }).catch((error)=>{
+                console.log('error', error);
+                setApiMessageType('error')
+                const errorMessage = error.response.data.message;
+                
+                // handleMessageBoxOpen()
+                setApiResponseMessage(errorMessage);
+                setIsUpdatingActivePlan(false)
+                // setLoading(false);
+            });
+        }
+    }, [isUpdatingActivePlan])
+
     
     const handleClickOpen = (dialogType, plan) => {
         switch(dialogType){
@@ -215,8 +259,17 @@ function ChannelSubscriptionPrice() {
                 setIsSubscriptionPlanEditing(false)
                 break;
             case 'subscriptionPlanDelete':
-                setSelectedRowDetails(plan)
-                setOpenDeleteDialog(true);
+                if(channelActivePlansDetail[0].isPaid && subscriptionPlans.length == 1 ){
+                    setApiMessageType('error')
+                    setApiResponseMessage("To delete last plan you need to change active plan type to free");
+                    handleMessageBoxOpen();
+                } else {
+                    setSelectedRowDetails(plan)
+                    setOpenDeleteDialog(true);
+                }
+                break;
+            case 'changeActivatePlan':
+                setOpenSubscriptionActivationDialog(true);
                 break;
         }
     };
@@ -228,6 +281,9 @@ function ChannelSubscriptionPrice() {
                 break;
             case 'subscriptionPlanDelete':
                 setOpenDeleteDialog(false);
+                break;
+            case 'activatePlanChange':
+                setOpenSubscriptionActivationDialog(false);
                 break;
         }
     };
@@ -269,11 +325,13 @@ function ChannelSubscriptionPrice() {
     const handleCancelBtnFunction = ()=>{
         setIsSubscriptionPlanEditing(true);
         setIsAddingSubscriptionPlan(false);
+        setIsPlanNeed(false);
     }
     
     const handleAddingSubscriptionPlan = ()=>{
         setIsSubscriptionPlanEditing(false);
         setIsAddingSubscriptionPlan(true);
+        setIsPlanNeed(false);
     }
 
     const handleListPlanUpdate = (id, planData)=>{
@@ -291,8 +349,10 @@ function ChannelSubscriptionPrice() {
     }
 
     const handleAddNewPlan = (newPlan)=>{
+        console.log('newPlan', newPlan)
         setSubscriptionPlans([...subscriptionPlans, newPlan]);
         setShowAllSubscriptionPlanDetails([...subscriptionPlans, newPlan]);
+
     }
 
     const theme = useTheme();
@@ -301,6 +361,17 @@ function ChannelSubscriptionPrice() {
         if(deleteInputValue.toLowerCase() == 'delete'){
             setIsDeletingSubscriptionPlan(true)
             handleClose('subscriptionPlanDelete')
+        }
+    }
+
+    const handleActivePlanUpdate = ()=>{
+        if(subscriptionPlans.length > 0){
+            setIsUpdatingActivePlan(true);
+            setLoading(true);
+        } else {
+            setIsPlanNeed(true);
+            setIsSubscriptionPlanEditing(false);
+            setIsAddingSubscriptionPlan(true);
         }
     }
 
@@ -337,6 +408,48 @@ function ChannelSubscriptionPrice() {
                                                     spacing={3}
                                                 >
                                                     <Grid item xs={12}></Grid>
+                                                    
+                                                    <Card style={{width: "97%", marginBottom:'35px' }}>
+                                                        <CardHeader title="Active channel plan" />
+                                                        <Divider />
+                                                        <Box>
+                                                            {/* <FormControl>
+                                                                <FormLabel id="demo-radio-buttons-group-label">The free plan is currently active, would you like to change your channel plan for users</FormLabel>
+                                                                <RadioGroup
+                                                                    aria-labelledby="demo-radio-buttons-group-label"
+                                                                    defaultValue="Free"
+                                                                    name="radio-buttons-group"
+                                                                >
+                                                                    <FormControlLabel value="free" control={<Radio />} label="Free" />
+                                                                    <FormControlLabel value="paid" control={<Radio />} label="Paid" />
+                                                                </RadioGroup>
+                                                            </FormControl> */}
+                                                            <Box style={{ display:'flex', justifyContent:'space-between', alignItems: 'center', padding: '20px' }} >
+                                                                <Typography variant='h4' component='h4'> The {channelActivePlansDetail.length > 0 && `${channelActivePlansDetail[0].isPaid}` == "true" ? "paid": "free"} plan is currently active, would you like to change your channel plan for users </Typography>
+                                                                <Button variant='contained' onClick={()=>handleClickOpen('changeActivatePlan')} style={{ marginRight: '10px', minWidth: '100px', height: '45px' }}> Edit </Button>
+                                                            </Box>
+                                                            {/* <FormControl style={{padding: '0px 20px'}}>
+                                                                <RadioGroup
+                                                                    aria-labelledby="demo-radio-buttons-group-label"
+                                                                    defaultValue="free"
+                                                                    name="radio-buttons-group"
+                                                                    style={{display: 'flex', flexDirection: 'row'}}
+                                                                >
+                                                                    <FormControlLabel value="free" control={<Radio />} label="Free" />
+                                                                    <FormControlLabel value="paid" control={<Radio />} label="Paid" />
+                                                                </RadioGroup>
+                                                            </FormControl> */}
+                                                        </Box>
+                                                        {/* <Box display='flex' justifyContent='end' marginRight='15px' marginBottom='15px'>
+                                                            <Button onClick={()=>handleClose('activatePlanChange')}>Cancel</Button>
+                                                            <Button autoFocus>
+                                                                Update
+                                                            </Button>
+                                                        </Box> */}
+                                                    </Card>
+
+                                                    
+
                                                     <Card style={{width: "97%"}}>
                                                         <CardHeader title="Channel Subscription Plans" />
                                                         <Divider />
@@ -447,6 +560,40 @@ function ChannelSubscriptionPrice() {
                                                         <Button onClick={handleDeleteSubscriptionPlan}>Delete</Button>
                                                     </DialogActions>
                                                 </Dialog>
+
+                                                <Dialog
+                                                    open={openSubscriptionActivationDialog}
+                                                    onClose={()=>handleClose('activatePlanChange')}
+                                                    aria-labelledby="alert-dialog-title"
+                                                    aria-describedby="alert-dialog-description"
+
+                                                >
+                                                    <DialogTitle id="alert-dialog-title">
+                                                        {"Change Channel Active Plan"}
+                                                    </DialogTitle>
+                                                    <DialogContent style={{ padding: '5px 24px' }}>
+                                                        <DialogContentText id="alert-dialog-description">
+                                                            <FormControl>
+                                                                <FormLabel style={{ marginBottom: '10px' }} id="demo-radio-buttons-group-label">The {channelActivePlansDetail.length > 0 && channelActivePlansDetail[0].isPaid == true ? "paid": "free"} plan is currently active, would you like to change your channel plan for users</FormLabel>
+                                                                <RadioGroup
+                                                                    aria-labelledby="demo-radio-buttons-group-label"
+                                                                    defaultValue={channelActivePlansDetail.length > 0 && channelActivePlansDetail[0].isPaid == true ? "true": "false"}
+                                                                    name="radio-buttons-group"
+                                                                    style={{display: 'flex', flexDirection: 'row'}}
+                                                                >
+                                                                    <FormControlLabel value="false" onClick={()=>{setActivePlanInput("false")}} control={<Radio />} label="Free" />
+                                                                    <FormControlLabel value="true" onClick={()=>{setActivePlanInput("true")}} control={<Radio />} label="Paid" />
+                                                                </RadioGroup>
+                                                            </FormControl>
+                                                        </DialogContentText>
+                                                    </DialogContent>
+                                                    <DialogActions style={{marginRight:'15px', marginBottom:'15px'}} >
+                                                        <Button onClick={()=>handleClose('activatePlanChange')}>Cancel</Button>
+                                                        <Button autoFocus onClick={handleActivePlanUpdate} disabled={loading}>
+                                                            {loading ? 'Updating plan...' : 'Update'}
+                                                        </Button>
+                                                    </DialogActions>
+                                                </Dialog>
                                             </Container >
                                         </>
                                     :
@@ -454,6 +601,7 @@ function ChannelSubscriptionPrice() {
                                             userData &&
                                             <AddSubscriptionPlan 
                                                 userData={userData}
+                                                isPlanNeeded={isPlanNeed}
                                                 cancelBtnFunction={handleCancelBtnFunction}
                                                 newPlanAddFunction={handleAddNewPlan}
                                             />

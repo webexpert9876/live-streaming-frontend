@@ -127,6 +127,17 @@ export default function Videos(){
     
     const [disableDeleteBtn, setDisableDeleteBtn] = useState(false);
     
+    const [currentChannelActivePlan, setCurrentChannelActivePlan] = useState([]);
+    
+    const [openBuySubscription, setOpenBuySubscription] = useState(false);
+    const [selectedBox, setSelectedBox] = useState(null);
+    const [channelPlanList, setChannelPlanList] = useState([
+        // { id: 1, planDuration:'month', timeDuration: 1, price: 10},
+        // { id: 2, planDuration:'month', timeDuration: 6, price: 50},
+        // { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
+      ]
+    );
+
     const classes = useStyles();
 
     const router = useRouter();
@@ -223,7 +234,7 @@ export default function Videos(){
                 if(channelApproveStatus == 'approved' && `${channelBlockedStatus}` == 'false'){
                     let videoOtherInfo = await client.query({
                         query: gql`
-                        query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String) {
+                        query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String, $channelId2: String) {
                             recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
                                 _id
                                 title
@@ -290,6 +301,11 @@ export default function Videos(){
                                 hours
                                 mins
                             }
+                            getChannelActivePlans(channelId: $channelId2) {
+                                _id
+                                channelId
+                                isPaid
+                            }
                         }
                         `,
                         variables: {
@@ -297,6 +313,7 @@ export default function Videos(){
                             "recentUploadedVideosChannelId2": videoInfo.videos[0].channelId,
                             "getLastLiveStreamVideoUserId2": videoInfo.videos[0].userId,
                             "channelId": videoInfo.videos[0].channelId,
+                            "channelId2": videoInfo.videos[0].channelId,
                             "chatVideoId": videoInfo.videos[0]._id
                         }
                     }).then((result) => {
@@ -311,7 +328,34 @@ export default function Videos(){
                     setRecentUploadedVideos(videoOtherInfo.recentUploadedVideos);
                     // setAllVideos(videoOtherInfo.videos);
                     setOldReceivedMessages(videoOtherInfo.chatMessages);
-        
+                    setCurrentChannelActivePlan(videoOtherInfo.getChannelActivePlans)
+
+
+                    if(videoOtherInfo.getChannelActivePlans[0].isPaid){
+                        client.query({
+                            variables: {
+                                channelId3: videoInfo.videos[0].channelId
+                            },
+                            query: gql`
+                                query Query($channelId3: ID,) {
+                                    subscriptionPlans(channelId: $channelId3) {
+                                        _id
+                                        planDuration
+                                        planDurationUnit
+                                        price
+                                        createdAt
+                                        channelId
+                                    }
+                
+                                }
+                            `,
+                        })
+                            .then((result) => {
+                                setChannelPlanList(result.data.subscriptionPlans);
+                            });
+                    }
+
+
                     if (userDetails && userIsLogedIn) {
                         let isArtistOrAdmin = false;
 
@@ -378,7 +422,7 @@ export default function Videos(){
                                 console.log('result.data.roles[0].role', result.data.roles[0].role)
                                 setIsPrivateVideo(true);
                             }
-
+                            console.log("result.data.subscriptionDetails---------------------", result.data.subscriptionDetails)
                             if(result.data.subscriptionDetails.length > 0){
                                 setIsChannelSubscribed(result.data.subscriptionDetails[0])
                                 if(result.data.subscriptionDetails[0].isActive){
@@ -490,7 +534,7 @@ export default function Videos(){
         player.on('timeupdate', ()=>{
             var time = player.currentTime();
             time = parseInt(time.toString());
-
+            console.log(time)
             if(time >= 5){
 
                 if(!isViewCreated){
@@ -507,18 +551,23 @@ export default function Videos(){
                     });
                 }
             }
+            if(currentChannelActivePlan[0].isPaid) {
 
-            if(time >= 30){
-                // console.log('----------------------- subscribed user --------------', subscribeInfo);
-                // console.log('-----------------------  video info --------------', videoInfor);
-                // console.log('-----------------------  user Detail info --------------', userDetail);
-                if(viewerRole != 'admin' && videoInfor.userId !== userDetail._id && videoInfor.videoPreviewStatus !== 'public'){
-                    
-                    if(`${subscribeInfo.isActive}` == 'false' ){
-                        // console.log('----------------------- subscribed user --------------');
-                        // console.log('----------------------- or public video --------------');
-                        player.pause();
-                        setIsLockVideo(true)
+                if(time >= 30){
+                    console.log('----------------------- subscribed user --------------', subscribeInfo);
+                    // console.log('-----------------------  video info --------------', videoInfor);
+                    // console.log('-----------------------  user Detail info --------------', userDetail);
+                    console.log('-----------------------  viewerRole --------------', viewerRole);
+                    console.log('-----------------------  videoInfor.userId --------------', videoInfor.userId);
+                    console.log('-----------------------  videoInfor.videoPreviewStatus --------------', videoInfor.videoPreviewStatus);
+                    if(viewerRole != 'admin' && videoInfor.userId !== userDetail._id && videoInfor.videoPreviewStatus !== 'public'){
+                        
+                        if(`${subscribeInfo.isActive}` == 'false' || Object.keys(subscribeInfo).length == 0 ){
+                            // console.log('----------------------- subscribed user --------------');
+                            // console.log('----------------------- or public video --------------');
+                            player.pause();
+                            setIsLockVideo(true)
+                        }
                     }
                 }
             }
@@ -800,6 +849,11 @@ export default function Videos(){
         setDisableDeleteBtn(true);
     }
 
+    const handleBoxClick = (subscriptionDetail, boxNumber) => {
+        console.log('subscriptionDetail boxNumber', subscriptionDetail);
+        setSelectedBox(boxNumber);
+    };
+
     return (
         <>
             {/* {isLockVideo?
@@ -961,7 +1015,13 @@ export default function Videos(){
                                                                     <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button>
                                                                 </Tooltip>
                                                                 :
-                                                                <Button onClick={()=>handleSubscribeChannel(true)} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button>
+                                                                    
+                                                                    currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                                                                        // <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                        <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true);}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button>
+                                                                    : 
+                                                                        <Button onClick={()=>{setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                
                                                             )
                                                         )
                                                     :
@@ -1178,6 +1238,53 @@ export default function Videos(){
                     <Button onClick={handleConfirmDelete} autoFocus disabled={disableDeleteBtn}>
                         Confirm
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openBuySubscription}
+                onClose={()=>setOpenBuySubscription(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth={true}
+                maxWidth={'sm'}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Subscribe channel"}
+                </DialogTitle>
+                <DialogContent sx={{paddingTop: "20px !important"}}>
+                    {
+                        currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                            <Typography variant="div" component={'div'} className={classes.container} >
+                                {channelPlanList.map((box, index) => (
+                                    <Box
+                                        key={box.id}
+                                        className={`${classes.box} ${selectedBox === index ? classes.selectedBox : ''}`}
+                                        onClick={() => handleBoxClick(box, index)}
+                                    >
+                                        <Typography variant="h4" component="h4">{`${box.planDuration} ${box.planDurationUnit}`}</Typography>
+                                        <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDurationUnit}`}</Typography>
+                                    </Box>
+                                ))}
+                            </Typography>
+                        :
+                            <Typography variant="div" component={'div'} className={classes.container} >
+                                <Typography variant="h4" component={'h4'} className={classes.container} >Currently this channel subscription is free for everyone</Typography>
+                            </Typography>
+                    }
+                </DialogContent>
+                <DialogActions>
+                    {
+                        currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                            <>        
+                                <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
+                                <Button autoFocus>
+                                    Buy
+                                </Button>
+                            </>
+                        : 
+                            <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
+                    }
                 </DialogActions>
             </Dialog>
                 

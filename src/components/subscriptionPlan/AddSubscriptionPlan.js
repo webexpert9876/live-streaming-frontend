@@ -54,7 +54,7 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-function AddSubscriptionPlan({userData, cancelBtnFunction, newPlanAddFunction}){
+function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlanAddFunction}){
 
     const [userInfo, setUserInfo] = useState([]);
 
@@ -242,6 +242,7 @@ function AddSubscriptionPlan({userData, cancelBtnFunction, newPlanAddFunction}){
                                     />
                                 </Box>
                                 <Divider />
+                                {isPlanNeeded && <Typography component={'h4'} variant='h4' style={{marginLeft: '20px', marginTop: '20px', color: 'red'}}>To activate the paid plan you need to add subscription plan first.</Typography>}
                                 <Box>
                                     <CardContent sx={{ p: 4 }}>
                                         <Typography variant="subtitle2">

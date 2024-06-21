@@ -99,10 +99,11 @@ export default function ChannelName() {
     const [openBuySubscription, setOpenBuySubscription] = useState(false);
     const classes = useStyles();
     const [selectedBox, setSelectedBox] = useState(null);
-    const [boxesData, setBoxesData] = useState([
-        { id: 1, planDuration:'month', timeDuration: 1, price: 10},
-        { id: 2, planDuration:'month', timeDuration: 6, price: 50},
-        { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
+    const [currentChannelActivePlan, setCurrentChannelActivePlan] = useState([]);
+    const [channelPlanList, setChannelPlanList] = useState([
+        // { id: 1, planDuration:'month', timeDuration: 1, price: 10},
+        // { id: 2, planDuration:'month', timeDuration: 6, price: 50},
+        // { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
       ]
     );
 
@@ -163,7 +164,7 @@ export default function ChannelName() {
                     setIsStatusPendingChannel(false);
                     let streamInfo = await client.query({
                         query: gql`
-                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!, $channelId3: ID) {
+                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!,  $channelId4: String) {
                             streams(artistId: $artistId) {
                                 title
                                 streamCategory
@@ -216,13 +217,10 @@ export default function ChannelName() {
                             countChannelTotalFollowers(channelId: $channelId2) {
                                 countFollower
                             }
-                            subscriptionPlans(channelId: $channelId3) {
+                            getChannelActivePlans(channelId: $channelId4) {
                                 _id
-                                planDuration
-                                planDurationUnit
-                                price
-                                createdAt
                                 channelId
+                                isPaid
                             }
                         }
                         `,
@@ -233,7 +231,8 @@ export default function ChannelName() {
                             "recentUploadedVideosChannelId2": channelInfo.channels[0]._id,
                             "channelId": channelInfo.channels[0]._id,
                             "channelId2": channelInfo.channels[0]._id,
-                            "channelId3": channelInfo.channels[0]._id
+                            // "channelId3": channelInfo.channels[0]._id,
+                            "channelId4": channelInfo.channels[0]._id
                         }
                     }).then((result) => {
                         return result.data
@@ -249,12 +248,41 @@ export default function ChannelName() {
                     setCurrentBroadcast(...streamInfo.liveStreamings);
                     setChannelTotalFollower(...streamInfo.countChannelTotalFollowers);
                     setStreams(streamInfo.streams);
-                    setBoxesData(streamInfo.subscriptionPlans);
+                    // setChannelPlanList(streamInfo.subscriptionPlans);
+                    console.log("streamInfo.getChannelActivePlans", streamInfo.getChannelActivePlans)
+                    console.log("streamInfo.getChannelActivePlans", streamInfo.getChannelActivePlans[0].isPaid)
+                    setCurrentChannelActivePlan(streamInfo.getChannelActivePlans);
 
                     if(streamInfo.liveStreamings.length > 0){
                         setViewers(streamInfo.liveStreamings[0].viewers);
                     }
-        
+                    
+                    if(streamInfo.getChannelActivePlans[0].isPaid){
+                        client.query({
+                            variables: {
+                                channelId3: channelInfo.channels[0]._id
+                            },
+                            query: gql`
+                                query Query($channelId3: ID,) {
+                                    subscriptionPlans(channelId: $channelId3) {
+                                        _id
+                                        planDuration
+                                        planDurationUnit
+                                        price
+                                        createdAt
+                                        channelId
+                                    }
+                
+                                }
+                            `,
+                        })
+                            .then((result) => {
+                                setChannelPlanList(result.data.subscriptionPlans);
+                                console.log('----------------------------------------------------------------------------------------old result.data.chatMessages', result.data.chatMessages)
+                            });
+                    }
+
+
                     if (streamInfo.liveStreamings.length > 0) {
                         client.query({
                             variables: {
@@ -752,7 +780,14 @@ export default function ChannelName() {
                                                                         <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                                                                     </Tooltip>
                                                                 :
-                                                                    <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                    <>                                                                    
+                                                                        {
+                                                                            currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                                                                            <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                        : 
+                                                                            <Button onClick={()=>{setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                        }
+                                                                    </>
                                                                 )
                                                             )
                                                             : null}
@@ -1126,24 +1161,38 @@ export default function ChannelName() {
                     {"Subscribe channel"}
                 </DialogTitle>
                 <DialogContent sx={{paddingTop: "20px !important"}}>
-                    <Typography variant="div" component={'div'} className={classes.container} >
-                        {boxesData.map((box, index) => (
-                            <Box
-                                key={box.id}
-                                className={`${classes.box} ${selectedBox === index ? classes.selectedBox : ''}`}
-                                onClick={() => handleBoxClick(box, index)}
-                            >
-                                <Typography variant="h4" component="h4">{`${box.planDuration} ${box.planDurationUnit}`}</Typography>
-                                <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDurationUnit}`}</Typography>
-                            </Box>
-                        ))}
-                    </Typography>
+                    {
+                        currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                            <Typography variant="div" component={'div'} className={classes.container} >
+                                {channelPlanList.map((box, index) => (
+                                    <Box
+                                        key={box.id}
+                                        className={`${classes.box} ${selectedBox === index ? classes.selectedBox : ''}`}
+                                        onClick={() => handleBoxClick(box, index)}
+                                    >
+                                        <Typography variant="h4" component="h4">{`${box.planDuration} ${box.planDurationUnit}`}</Typography>
+                                        <Typography variant="h5" component="h5" sx={{fontWeight: 400, marginTop: '8px'}}>{`$${box.price}/${box.planDurationUnit}`}</Typography>
+                                    </Box>
+                                ))}
+                            </Typography>
+                        :
+                            <Typography variant="div" component={'div'} className={classes.container} >
+                                <Typography variant="h4" component={'h4'} className={classes.container} >Currently this channel subscription is free for everyone</Typography>
+                            </Typography>
+                    }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
-                    <Button autoFocus>
-                        Buy
-                    </Button>
+                    {
+                        currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                            <>        
+                                <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
+                                <Button autoFocus>
+                                    Buy
+                                </Button>
+                            </>
+                        : 
+                            <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
+                    }
                 </DialogActions>
             </Dialog>
         </>
