@@ -115,6 +115,7 @@ function HeaderSearch() {
             }}
             placeholder="Search here..."
             fullWidth
+            className='search-input'
           />
         {/* </IconButton> */}
       {/* </Tooltip> */}

@@ -40,6 +40,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
 import SettingsInputAntennaIcon from '@mui/icons-material/SettingsInputAntenna';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -290,6 +293,23 @@ function UserSidebarMenu({userData}){
                     <SubMenuWrapper>
                         <List component="div">
                             <ListItem component="div">
+                                <NextLink href="/dashboards" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/dashboards'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<DashboardIcon />}
+                                    >
+                                        Dashboard
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
                                 <NextLink href="/dashboards/channel/stream" passHref>
                                     <Button
                                         className={
@@ -306,6 +326,7 @@ function UserSidebarMenu({userData}){
                                     </Button>
                                 </NextLink>
                             </ListItem>
+                            
                             <ListItem component="div">
                                 <NextLink href="/streaming/tools" passHref>
                                     <Button
@@ -381,7 +402,58 @@ function UserSidebarMenu({userData}){
                                         onClick={closeSidebar}
                                         startIcon={<PriceChangeIcon />}
                                     >
-                                        Subscription plans
+                                        Manage Subscription plans
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            {/* <ListItem component="div">
+                                <NextLink href="/stripe/onboarding" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/stripe/onboarding'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<AccountBalanceIcon />}
+                                    >
+                                        Revenue
+                                    </Button>
+                                </NextLink>
+                            </ListItem> */}
+                            <ListItem component="div">
+                                <NextLink href="/stripe/onboarding" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/stripe/onboarding'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<AccountBalanceIcon />}
+                                    >
+                                        Monetization & Account
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/transaction/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/transaction/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<MonetizationOnIcon />}
+                                    >
+                                        Transactions History
                                     </Button>
                                 </NextLink>
                             </ListItem>

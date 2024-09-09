@@ -19,6 +19,7 @@ import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
 import HistoryIcon from '@mui/icons-material/History';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 const MenuWrapper = styled(Box)(
     ({ theme }) => `
@@ -260,6 +261,24 @@ function UserSidebarMenu({userData}){
                       :
                       null
                     }
+                    
+                    <ListItem component="div">
+                      <NextLink href="/transaction/list" passHref>
+                          <Button
+                              className={
+                                  currentRoute === '/transaction/list'
+                                      ? 'active'
+                                      : ''
+                              }
+                              disableRipple
+                              component="a"
+                              onClick={closeSidebar}
+                              startIcon={<MonetizationOnIcon />}
+                          >
+                              Transactions
+                          </Button>
+                      </NextLink>
+                    </ListItem>
                   </List>
                 </SubMenuWrapper>
                 </List>

@@ -28,6 +28,7 @@ import StreamIcon from '@mui/icons-material/Stream';
 import GroupIcon from '@mui/icons-material/Group';
 import SettingsInputAntennaIcon from '@mui/icons-material/SettingsInputAntenna';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuthUser, setAuthState, selectAuthState, selectAuthUser } from '../../../../../store/slices/authSlice';
@@ -342,6 +343,23 @@ function UserSidebarMenu({userData}){
                                 </NextLink>
                             </ListItem>
                             <ListItem component="div">
+                                <NextLink href="/management/admin/connectAccount/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/admin/connectAccount/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<ManageAccountsIcon />}
+                                    >
+                                        Manage Connect Account
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
                                 <NextLink href="/streaming/tools" passHref>
                                     <Button
                                         className={
@@ -448,7 +466,7 @@ function UserSidebarMenu({userData}){
                                         onClick={closeSidebar}
                                         startIcon={<PriceChangeIcon />}
                                     >
-                                        Subscription plans
+                                        Manage Subscription plans
                                     </Button>
                                 </NextLink>
                             </ListItem>

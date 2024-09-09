@@ -12,7 +12,8 @@ import {
   Card,
   Box,
   useTheme,
-  styled
+  styled,
+  Typography
 } from '@mui/material';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 
@@ -25,12 +26,13 @@ import Projects from 'src/content/Dashboards/Tasks/Projects';
 import Checklist from 'src/content/Dashboards/Tasks/Checklist';
 import Profile from 'src/content/Dashboards/Tasks/Profile';
 import TaskSearch from 'src/content/Dashboards/Tasks/TaskSearch';
-import client from "../../../graphql";
+import client from "../../graphql";
 import { selectAuthUser } from 'store/slices/authSlice';
 import { gql } from "@apollo/client";
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import LoginDialog from 'src/components/pageAccessDialog/loginDialog'
+import axios from 'axios';
 
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
@@ -114,7 +116,7 @@ const TabsContainerWrapper = styled(Box)(
   `
 );
 
-function DashboardTasks() {
+function Dashboards() {
   const theme = useTheme();
   const authState = useSelector(selectAuthUser)
   const [userData, setUserData] = useState([]);
@@ -135,6 +137,11 @@ function DashboardTasks() {
   const [isFetchVideoData, setIsFetchVideoData] = useState(false);
   const [selectedVideosYear, setSelectedVideosYear] = useState("");
   
+  const [connectAccDetail, setConnectAccDetail] = useState(null);
+  const [fetchConnectAcc, setFetchConnectAcc] = useState(false);
+  const [payoutDetail, setPayoutDetail] = useState(null);
+  const [isShowPayout, setIsShowPayout] = useState(false);
+
   const router = useRouter();
 
   const tabs = [
@@ -212,12 +219,13 @@ function DashboardTasks() {
       client.query({
         variables: {
           getChannelAnalysisByChannelId: channelDetail[0]._id,
+          channelId: channelDetail[0]._id,
           // videoAnalysisId: channelDetail[0]._id
           videoAnalysisId: "64f5b09f6830acb8e65aa00f",
           year: `${currentYear}`
         },
         query: gql`
-          query Query($getChannelAnalysisByChannelId: ID, $videoAnalysisId: ID, $year: String) {
+          query Query($getChannelAnalysisByChannelId: ID, $videoAnalysisId: ID, $year: String, $channelId: String) {
             getChannelAnalysisByChannelId(id: $getChannelAnalysisByChannelId) {
               _id
               numberofvisit
@@ -227,10 +235,30 @@ function DashboardTasks() {
               uploadedVideo
               streamedVideo
             }
+            getConnectAccountInfo(channelId: $channelId) {
+              _id
+              connectAccountId
+              channelId
+              createdAt
+              isAccountCreated
+              isTransfer
+              AccountPaymentStatus
+            }
           }
         `,
       }).then((result)=>{
         console.log("result.data", result.data)
+        console.log("result.data.getConnectAccountInfo.length", result.data.getConnectAccountInfo[0])
+        
+        if(result.data.getConnectAccountInfo[0] != null) {
+          setConnectAccDetail(result.data.getConnectAccountInfo);
+          setIsShowPayout(true)
+        }
+        
+        if(result.data.getConnectAccountInfo.length == 1 ) {
+          setFetchConnectAcc(true);
+        }
+
         let channelAnanlysis = result.data.getChannelAnalysisByChannelId
         
         let videoAnalytics = result.data.videoAnalysis
@@ -312,6 +340,24 @@ function DashboardTasks() {
     }
   }, [isFetchVideoData])
 
+
+  useEffect(async () => {
+    console.log('fetchConnectAcc', fetchConnectAcc)
+    console.log('isShowPayout', isShowPayout)
+    if(fetchConnectAcc && isShowPayout) {
+      console.log('isShowPayout -------------', isShowPayout)
+      console.log('fetchConnectAcc----------', fetchConnectAcc)
+
+      await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/get/connected/account/balance/${connectAccDetail[0]?.connectAccountId}`).then((data)=>{
+      // await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/get/connected/account/balance/${connectAccDetail[0].connectAccountId}`).then((data)=>{
+          console.log('data data data', data);
+          setPayoutDetail(data.data.balance);
+      }).catch((error)=>{
+      console.log('error', error.response.data.message);
+      });
+    }
+  }, [fetchConnectAcc])
+
   const changeVideoFilterYear = (year)=> {
     console.log('year--------------------------------', year);
     setSelectedVideosYear(year);
@@ -379,7 +425,28 @@ function DashboardTasks() {
                 )}
               </Grid>
             </Card> */}
-
+            <Box className='payout-cards'>
+              <Card className='payout-single-card'>    
+                <Box >
+                  <Typography component={'h1'} variant='h1'>
+                      {payoutDetail ? (payoutDetail.pending[0]?.amount/100) : 0}
+                  </Typography>
+                  <Typography component={'h1'} variant='h1'>
+                    Total Payout Pending
+                  </Typography>
+                </Box>
+              </Card>
+              <Card>    
+                <Box>
+                  <Typography component={'h1'} variant='h1'>
+                  {payoutDetail ? (payoutDetail.instant_available[0]?.amount/100): 0}
+                  </Typography>
+                  <Typography component={'h1'} variant='h1'>
+                    Payout Available
+                  </Typography>
+                </Box>
+              </Card>
+            </Box>
             <Card variant="outlined" style={{marginTop: "10px"}}>
               <Grid
                 container
@@ -421,4 +488,4 @@ function DashboardTasks() {
 
 // DashboardTasks.getLayout = (page) => <SidebarLayout>{page}</SidebarLayout>;
 
-export default DashboardTasks;
+export default Dashboards;

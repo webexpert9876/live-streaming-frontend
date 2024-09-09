@@ -417,17 +417,28 @@ function HeaderNotifications() {
           vertical: 'top',
           horizontal: 'right'
         }}
+        PaperProps={{
+          sx: {
+            width: { xs: '85%', sm: '400px' }, // Responsive width: 90% on mobile, 400px on small screens and up
+            height: { xs: '500px', sm: '400px' },
+            marginRight: { xs: '45px' },
+            maxWidth: '100%',
+          }
+        }}
       >
         <Box
-          sx={{ p: 2 }}
+          sx={{ zIndex: 99, width: "400px", position: "fixed" }}
           display="flex"
           alignItems="center"
           justifyContent="space-between"
         >
-          <Typography variant="h5">Notifications</Typography>
+          <Typography sx={{ 
+            // backgroundColor: "#19235c"
+            p: 2, backgroundColor: "#8C7CF0", width: "100%", borderRadius: "10px 10px 0px 0px"
+          }} variant="h5">Notifications</Typography>
+          <Divider />
         </Box>
-        <Divider />
-        <List sx={{ p: 0 }}>
+        <List sx={{ p: 0, marginTop: "55px" }}>
         {
           notificationList.length > 0 ?
           notificationList.map((notification, index)=>(
@@ -435,11 +446,19 @@ function HeaderNotifications() {
             <ListItemButton
               key={index}
               selected={notification.notificationType == 'live'? true: notification.isRead == false? true: false}
-              sx={{ p: 2, minWidth: 350, display: { xs: 'block', sm: 'flex' } }}
+              sx={{ 
+                p: 2, minWidth: 350, display: { xs: 'block', sm: 'flex' },
+                padding: "10px 0px 10px 20px"
+                // paddingRight: {xs: "45px"}
+              }}
               onClick={()=>{ handleNotificationOpen(notification)}}
             >
               <Box flex="1">
-                <Box display="flex" justifyContent="space-between">
+                <Box sx={{
+                  display: 'block',
+                  justifyContent: "space-between",
+                  // paddingRight: {xs: "10px"}
+                }}>
                   <Typography sx={{ fontWeight: 'bold' }}>
                     {notification.message}
                   </Typography>

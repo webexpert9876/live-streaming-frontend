@@ -97,6 +97,10 @@ function ChannelSubscriptionPrice() {
   const [apiMessageType, setApiMessageType] = useState('');
   
   const [isPlanNeed, setIsPlanNeed] = useState(false);
+  const [isPlanCreateLimitComplete, setIsPlanCreateLimitComplete] = useState(false);
+  
+  const [isChannelMonetized, setIsChannelMonetized] = useState(false);
+  const [openMonetizedDialog, setOpenMonetizedDialog] = useState(false);
 
   useEffect(()=>{
     // if(userInfo.length == 0){
@@ -125,10 +129,11 @@ function ChannelSubscriptionPrice() {
                 usersId: userData[0]._id,
                 // channelId: "650d7b91542338448f5daceb"
                 channelId: userData[0].channelId,
-                channelId2: userData[0].channelId
+                channelId2: userData[0].channelId,
+                channelId3: userData[0].channelId
             },
                 query: gql`
-                    query Query($usersId: ID, $channelId: ID, $channelId2: String) {
+                    query Query($usersId: ID, $channelId: ID, $channelId2: String, $channelId3: String) {
                         users(id: $usersId) {
                             _id
                             firstName
@@ -149,11 +154,20 @@ function ChannelSubscriptionPrice() {
                             price
                             createdAt
                             channelId
+                            planUpdateCount
                         }
                         getChannelActivePlans(channelId: $channelId2) {
                             _id
                             channelId
                             isPaid
+                        }
+                        getConnectAccountInfo(channelId: $channelId3) {
+                            AccountPaymentStatus
+                            _id
+                            channelId
+                            connectAccountId
+                            isAccountCreated
+                            userId
                         }
                     }
                 `,
@@ -164,6 +178,17 @@ function ChannelSubscriptionPrice() {
                 setShowAllSubscriptionPlanDetails(result.data.subscriptionPlans);
                 setChannelActivePlansDetail(result.data.getChannelActivePlans);
                 setIsCheckPaginationChange(true)
+                if(result.data.subscriptionPlans.length > 2){
+                    setIsPlanCreateLimitComplete(true);
+                }
+
+                if(result.data.getConnectAccountInfo.length > 0) {
+                    if(result.data.getConnectAccountInfo[0].isAccountCreated == 'created') {
+                        setIsChannelMonetized(true);
+                    } else {
+                        setIsChannelMonetized(false);
+                    }
+                }
             });
         } else {
             setIsAdminUser(false);
@@ -269,7 +294,11 @@ function ChannelSubscriptionPrice() {
                 }
                 break;
             case 'changeActivatePlan':
-                setOpenSubscriptionActivationDialog(true);
+                if(isChannelMonetized) {
+                    setOpenSubscriptionActivationDialog(true);
+                } else {
+                    setOpenMonetizedDialog(true);
+                }
                 break;
         }
     };
@@ -283,7 +312,11 @@ function ChannelSubscriptionPrice() {
                 setOpenDeleteDialog(false);
                 break;
             case 'activatePlanChange':
-                setOpenSubscriptionActivationDialog(false);
+                if(openMonetizedDialog) {
+                    setOpenMonetizedDialog(false)
+                } else {
+                    setOpenSubscriptionActivationDialog(false);
+                }
                 break;
         }
     };
@@ -397,7 +430,7 @@ function ChannelSubscriptionPrice() {
                                     isSubscriptionPlanEditing?
                                         <>
                                             <PageTitleWrapper>
-                                                <PageHeader categoryAddFunction={handleAddingSubscriptionPlan}/>
+                                                <PageHeader categoryAddFunction={handleAddingSubscriptionPlan} isLimitReached={isPlanCreateLimitComplete}/>
                                             </PageTitleWrapper>
                                             <Container maxWidth="lg">
                                                 <Grid
@@ -408,7 +441,17 @@ function ChannelSubscriptionPrice() {
                                                     spacing={3}
                                                 >
                                                     <Grid item xs={12}></Grid>
-                                                    
+                                                    <Card style={{width: "97%", marginBottom:'35px' }}>
+                                                        <CardHeader sx={{background: '#FFA319', color: 'red'}} title="Important Notice" />
+                                                        <Divider />
+                                                        <Box>
+                                                            <Box style={{ alignItems: 'center', padding: '20px' }} >
+                                                                <Typography variant='h4' component='h4'>1. You can create only three subscription plan </Typography>
+                                                                <Typography variant='h4' component='h4'>2. Each plan you create can be updated only 3 times a year</Typography>
+                                                                <Typography variant='h4' component='h4'>3. You cannot update the plan after 3 updates. You have to wait for one year from the plan create date.</Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </Card>
                                                     <Card style={{width: "97%", marginBottom:'35px' }}>
                                                         <CardHeader title="Active channel plan" />
                                                         <Divider />
@@ -459,11 +502,40 @@ function ChannelSubscriptionPrice() {
                                                                     <TableRow>
                                                                         <TableCell>Price</TableCell>
                                                                         <TableCell>Duration</TableCell>
+                                                                        <TableCell>Plan Change Count</TableCell>
+                                                                        <TableCell>Plan Created Date</TableCell>
                                                                         <TableCell align="right">Actions</TableCell>
                                                                     </TableRow>
                                                                 </TableHead>
                                                                 <TableBody>
                                                                     {showAllSubscriptionPlanDetails.map((plan) => {
+                                                                        let d;
+                                                                        let newD;
+                                                                        const transactionDate = plan.createdAt ;
+                                                        
+                                                                        if (typeof transactionDate === 'string') {
+                                                                          if (!isNaN(transactionDate) && transactionDate.length >= 10) {
+                                                                            // Handle as Unix timestamp string
+                                                                            newD = new Date(parseInt(transactionDate, 10));
+                                                                          } else {
+                                                                            // Handle as ISO string
+                                                                            newD = new Date(transactionDate);
+                                                                          }
+                                                                        } else if (typeof transactionDate === 'number') {
+                                                                          if (transactionDate.toString().length === 10) {
+                                                                            // Unix timestamp in seconds
+                                                                            newD = new Date(transactionDate * 1000);
+                                                                          } else if (transactionDate.toString().length === 13) {
+                                                                            // Unix timestamp in milliseconds
+                                                                            newD = new Date(transactionDate);
+                                                                          }
+                                                                        }
+                                                        
+                                                                        if (newD && !isNaN(newD.getTime())) {
+                                                                          d = newD.toLocaleDateString()
+                                                                        } else {
+                                                                          d = transactionDate
+                                                                        }
                                                                         return (
                                                                             <TableRow hover key={plan._id}>
                                                                                 <TableCell>
@@ -486,6 +558,26 @@ function ChannelSubscriptionPrice() {
                                                                                         {`${plan.planDuration} ${plan.planDurationUnit} `}
                                                                                     </Typography>
                                                                                 </TableCell>
+                                                                                <TableCell>
+                                                                                    <Typography
+                                                                                        variant="body1"
+                                                                                        fontWeight="bold"
+                                                                                        color="text.primary"
+                                                                                        gutterBottom
+                                                                                    >
+                                                                                        {plan.planUpdateCount == 3 ? 'limit reached': plan.planUpdateCount }
+                                                                                    </Typography>
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <Typography
+                                                                                        variant="body1"
+                                                                                        fontWeight="bold"
+                                                                                        color="text.primary"
+                                                                                        gutterBottom
+                                                                                    >
+                                                                                        { d}
+                                                                                    </Typography>
+                                                                                </TableCell>
                                                                                 <TableCell align="right">
                                                                                     <Tooltip title="Edit Subscription Plan" arrow>
                                                                                         <IconButton
@@ -497,12 +589,13 @@ function ChannelSubscriptionPrice() {
                                                                                             }}
                                                                                             color="inherit"
                                                                                             size="small"
+                                                                                            disabled={plan.planUpdateCount == 3 ? true: false }
                                                                                             onClick={()=>{handleClickOpen('subscriptionPlanEdit', plan)}}
                                                                                         >
                                                                                             <EditTwoToneIcon fontSize="small" />
                                                                                         </IconButton>
                                                                                     </Tooltip>
-                                                                                    <Tooltip title="Delete Subscription Plan" arrow>
+                                                                                    {/* <Tooltip title="Delete Subscription Plan" arrow>
                                                                                         <IconButton
                                                                                             sx={{
                                                                                                 '&:hover': { background: theme.colors.error.lighter },
@@ -514,7 +607,7 @@ function ChannelSubscriptionPrice() {
                                                                                         >
                                                                                             <DeleteTwoToneIcon fontSize="small" />
                                                                                         </IconButton>
-                                                                                    </Tooltip>
+                                                                                    </Tooltip> */}
                                                                                 </TableCell>
                                                                             </TableRow>
                                                                         );
@@ -536,7 +629,7 @@ function ChannelSubscriptionPrice() {
                                                     </Card>
                                                 </Grid>
                                                 
-                            {/* ---------------------------------------Tattoo Category Delete box---------------------------------- */}
+                            {/* ---------------------------------------Dialog box---------------------------------- */}
                                                 <Dialog open={openDeleteDialog} onClose={()=>handleClose('subscriptionPlanDelete')}>
                                                     <DialogTitle>Delete Subscription plan</DialogTitle>
                                                     <DialogContent>
@@ -593,6 +686,38 @@ function ChannelSubscriptionPrice() {
                                                             {loading ? 'Updating plan...' : 'Update'}
                                                         </Button>
                                                     </DialogActions>
+                                                </Dialog>
+
+                                                <Dialog
+                                                    open={openMonetizedDialog}
+                                                    onClose={()=>handleClose('activatePlanChange')}
+                                                    aria-labelledby="alert-dialog-title"
+                                                    aria-describedby="alert-dialog-description"
+
+                                                >
+                                                    <DialogTitle id="alert-dialog-title">
+                                                        <Typography variant='h4' component={'h4'}>
+                                                            Monetization required for active paid subscription plans
+                                                        </Typography>
+                                                    </DialogTitle>
+                                                    <DialogContent style={{ padding: '5px 24px' }}>
+                                                        <DialogContentText id="alert-dialog-description">
+                                                            <Box>
+                                                                <Typography variant='h5' component={'h5'}>
+                                                                    Before activating the paid plan you need to monetize your channel by clicking the button below
+                                                                </Typography>
+                                                                <Box className='monetize-pending-pop'>
+                                                                    <Button variant='contained' onClick={()=>router.push('/stripe/onboarding')}>Monetize Channel</Button>
+                                                                </Box>
+                                                            </Box>
+                                                        </DialogContentText>
+                                                    </DialogContent>
+                                                    {/* <DialogActions style={{marginRight:'15px', marginBottom:'15px'}} >
+                                                        <Button onClick={()=>handleClose('activatePlanChange')}>Cancel</Button>
+                                                        <Button autoFocus onClick={handleActivePlanUpdate} disabled={loading}>
+                                                            {loading ? 'Updating plan...' : 'Update'}
+                                                        </Button>
+                                                    </DialogActions> */}
                                                 </Dialog>
                                             </Container >
                                         </>

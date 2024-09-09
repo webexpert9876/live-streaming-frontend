@@ -127,7 +127,7 @@ const Header = () => {
                 setIsLoggedIn(true);
                 setUserDetail([...result.data.users]);
                 // console.log(response.data);
-                router.push('/dashboards/tasks');
+                router.push('/dashboards');
             }
         });
     }, [router.query.id]);

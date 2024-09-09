@@ -88,7 +88,7 @@ function Logo() {
 
   return (
 
-      <LogoWrapper href="/" sx={width}>
+      <LogoWrapper href="/" className='logo-main' sx={width}>
         {/* <Image
       src="/pages/Assets/img/logo.png"
       width={500}
@@ -102,7 +102,6 @@ function Logo() {
           alt="Picture of the author"
           width="165px"
           height="60px"
-          
         />
       </LogoWrapper>
     

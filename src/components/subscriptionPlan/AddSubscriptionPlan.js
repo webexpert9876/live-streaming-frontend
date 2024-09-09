@@ -57,9 +57,14 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlanAddFunction}){
 
     const [userInfo, setUserInfo] = useState([]);
+  
+    const [totalAmount, setTotalAmount] = useState(0); // Example initial amount
+    const [platformFee, setPlatformFee] = useState(0);
+    const [stripeFee, setStripeFee] = useState(0);
+    const [earnings, setEarnings] = useState(0);
 
     const [subscriptionPlanInput, setSubscriptionPlanInput] = useState({
-        price: '',
+        price: 0,
         planDuration: '',
         planDurationUnit: "month"
     })
@@ -78,6 +83,7 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
     const [planDurationUnitErrorMessage, setPlanDurationUnitErrorMessage] = useState('Subscription Plan Duration Unit is required');
     const [openPlanDurationError, setOpenPlanDurationError] = useState(false);
     const [planDurationErrorMessage, setPlanDurationErrorMessage] = useState('Subscription Plan Duration is required');
+    const [priceBreakDown, setPriceBreakDown] = useState(true);
 
     const [isAddingPlan, setIsAddingPlan] = useState(false);
 
@@ -100,21 +106,33 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
 
             axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create/subscription/plan`, subscriptionPlanNewDetail, {headers: {'x-access-token': userInfo[0].jwtToken }
             }).then((data)=>{
-                
-                setApiMessageType('success');
-                setApiResponseMessage('New Subscription plan added successfully');
-                setSubscriptionPlanInput({
-                    price: '',
-                    planDuration: '',
-                    planDurationUnit: "month"
-                });
-
-                
-                newPlanAddFunction(data.data.subscriptionPlan);
-                
-                setIsAddingPlan(false)
-                setLoading(false);
-                handleMessageBoxOpen()
+                if(data.data.isPriceExists){
+                    setApiMessageType('error')
+                    const errorMessage = data.data.message;
+                    
+                    handleMessageBoxOpen()
+                    setApiResponseMessage(errorMessage);
+                    setIsAddingPlan(false)
+                    setLoading(false);
+                } else {
+                    setApiMessageType('success');
+                    setApiResponseMessage('New Subscription plan added successfully');
+                    setSubscriptionPlanInput({
+                        price: 0,
+                        planDuration: '',
+                        planDurationUnit: "month"
+                    });
+                    
+                    setPlatformFee(0);
+                    setStripeFee(0);
+                    setEarnings(0);
+    
+                    newPlanAddFunction(data.data.subscriptionPlan);
+                    
+                    setIsAddingPlan(false)
+                    setLoading(false);
+                    handleMessageBoxOpen()
+                }
             }).catch((error)=>{
                 console.log('error', error);
                 setApiMessageType('error')
@@ -138,6 +156,64 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
         setOpen(true);
     };
 
+    useEffect(()=>{
+        if(priceBreakDown){
+
+            const totalAmount = subscriptionPlanInput.price;
+            console.log('totalAmount', totalAmount);
+            
+            // Platform percentage (25%)
+            const platformPercentage = 0.25;
+            console.log('platformPercentage', platformPercentage);
+    
+            // Stripe fee calculation (2.9% + 30¢)
+            const stripeFeePercentage = 0.029;
+            console.log('stripeFeePercentage', stripeFeePercentage);
+    
+            const fixedStripeFee = 0.30;
+            console.log('fixedStripeFee', fixedStripeFee);
+            
+            // // Step 1: Calculate Stripe fees
+            // const stripeFee = (totalAmount * stripeFeePercentage) + fixedStripeFee;
+            // console.log('stripeFee', stripeFee);
+            
+            // // Step 2: Calculate the platform's base share
+            // const platformBaseShare = totalAmount * platformPercentage;
+            // console.log('platformBaseShare', platformBaseShare);
+            
+            // // Step 3: Calculate the total platform fee including Stripe fees
+            // const platformFee = platformBaseShare + stripeFee;
+            // console.log('platformFee', platformFee);
+            
+            // // Step 4: Calculate the amount to be transferred to the user
+            // const userAmount = totalAmount - platformFee;
+            // console.log('userAmount', userAmount);
+
+            let stripeFee = (totalAmount * stripeFeePercentage) + fixedStripeFee;
+            stripeFee = Math.round((stripeFee * 100) / 100); // Round to the nearest cent
+
+            // Step 2: Calculate the platform's base share
+            let platformBaseShare = totalAmount * platformPercentage;
+            platformBaseShare = Math.round((platformBaseShare * 100) / 100); // Round to the nearest cent
+
+            // Step 3: Calculate the total platform fee including Stripe fees
+            let platformFee = platformBaseShare + stripeFee;
+            platformFee = Math.round((platformFee * 100) / 100); // Round to the nearest cent
+
+            // Step 4: Calculate the amount to be transferred to the user
+            let userAmount = totalAmount - platformFee;
+            userAmount = Math.round((userAmount * 100) / 100);
+            platformBaseShare = Math.trunc(platformBaseShare)
+            stripeFee = Math.trunc(stripeFee)
+            userAmount = Math.trunc(userAmount)
+
+            setPlatformFee(platformBaseShare);
+            setStripeFee(stripeFee);
+            setEarnings(userAmount);
+            setPriceBreakDown(false);
+        }
+    }, [priceBreakDown])
+
     const handleFormChange = (e)=>{
 
         if(e.target.name == 'price'){
@@ -153,6 +229,7 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                     setOpenPriceError(true)
                 } else {
                     setOpenPriceError(false)
+                    setPriceBreakDown(true);
                 }
             } else {
                 setPriceErrorMessage("Subscription Plan Price is required");
@@ -210,7 +287,6 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
             setOpen(true);
         }
     }
-
     
     return(
         <>
@@ -220,7 +296,7 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                         <title>Add subscription plan</title>
                     </Head>
 
-                    <Container maxWidth="lg" >
+                    <Container maxWidth="lg" className='add-subscription-main-div' >
                         <Grid
                             container
                             direction="row"
@@ -230,7 +306,7 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                             mt={3}
                         >
                             {/* <Grid item xs={12}></Grid> */}
-                            <Card style={{width: "97%"}}>
+                            <Card style={{width: "97%"}} >
                                 <Box sx={{display: 'flex'}}>
                                     <Tooltip arrow placement="top" title="Go back" disabled={loading} onClick={cancelBtnFunction}>
                                         <IconButton color="primary" sx={{ p: 2 }}>
@@ -244,22 +320,22 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                                 <Divider />
                                 {isPlanNeeded && <Typography component={'h4'} variant='h4' style={{marginLeft: '20px', marginTop: '20px', color: 'red'}}>To activate the paid plan you need to add subscription plan first.</Typography>}
                                 <Box>
-                                    <CardContent sx={{ p: 4 }}>
-                                        <Typography variant="subtitle2">
-                                            <Grid container spacing={0}>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={1} pr={3} pb={2}>
+                                    <CardContent sx={{ p: 4 }} className='add-sub-card-inner-content'>
+                                        <Typography variant="div" component={'div'} className='common-flex'>
+                                            <Grid container spacing={0} className='vertical-line'>
+                                                <Grid item xs={12} sm={5} md={3} textAlign={{ sm: 'right' }} className='common-align'>
+                                                    <Box mt={1} pr={3} pb={2} className='plan-text'>
                                                         Price:
                                                     </Box>
                                                 </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
-                                                    <Text color="black">
+                                                <Grid item xs={12} sm={5} md={9} className='common-align'>
+                                                    <Text color="black" sx={{display: 'flex'}}>
+                                                        <Box marginRight={'5px'}>$</Box>
                                                         <TextField
                                                             autoFocus
                                                             margin="dense"
                                                             id="price"
                                                             type="text"
-                                                            fullWidth
                                                             variant="standard"
                                                             name='price'
                                                             value={subscriptionPlanInput.price}
@@ -273,39 +349,39 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                                                             {priceErrorMessage}
                                                     </Box>: null} */}
                                                 </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={1} pr={3} pb={2}>
+                                                <Grid item xs={12} sm={5} md={3} textAlign={{ sm: 'right' }} className='common-align'>
+                                                    <Box mt={1} pr={3} pb={2} className='plan-text'>
                                                         Plan Type:
                                                     </Box>
                                                 </Grid>
-                                                <Grid item xs={12} sm={8} md={9} sx={{marginTop: "10px"}}>
+                                                <Grid item xs={12} sm={5} md={9} sx={{marginTop: "10px"}} className='common-align'>
                                                     <Typography width={250} color="black">
-                                                    <FormControl fullWidth>
-                                                        <InputLabel id="simple-select-label">Plan Type</InputLabel>
-                                                        <Select
-                                                            labelId="simple-select-label"
-                                                            id="planDurationUnit"
-                                                            value={subscriptionPlanInput.planDurationUnit}
-                                                            label="Plan Type"
-                                                            name='planDurationUnit'
-                                                            onChange={handleFormChange}
-                                                            error={openPlanDurationUnitError}
-                                                            helperText={openPlanDurationUnitError?planDurationUnitErrorMessage:null}
-                                                        >
-                                                            <MenuItem value={"month"}>Month</MenuItem>
-                                                            <MenuItem value={"year"}>year</MenuItem>
-                                                        </Select>
-                                                    </FormControl>
+                                                        <FormControl fullWidth>
+                                                            <InputLabel id="simple-select-label">Plan Type</InputLabel>
+                                                            <Select
+                                                                labelId="simple-select-label"
+                                                                id="planDurationUnit"
+                                                                value={subscriptionPlanInput.planDurationUnit}
+                                                                label="Plan Type"
+                                                                name='planDurationUnit'
+                                                                onChange={handleFormChange}
+                                                                error={openPlanDurationUnitError}
+                                                                helperText={openPlanDurationUnitError?planDurationUnitErrorMessage:null}
+                                                            >
+                                                                <MenuItem value={"month"}>Month</MenuItem>
+                                                                <MenuItem value={"year"}>year</MenuItem>
+                                                            </Select>
+                                                        </FormControl>
                                                     </Typography>
                                                 </Grid>
-                                                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
-                                                    <Box mt={1} pr={3} pb={2}>
+                                                <Grid item xs={12} sm={5} md={3} textAlign={{ sm: 'right' }} className='common-align'>
+                                                    <Box mt={1} pr={3} pb={2} className='plan-text'>
                                                         plan Duration:
                                                     </Box>
                                                 </Grid>
-                                                <Grid item xs={12} sm={8} md={9}>
+                                                <Grid item xs={12} sm={5} md={9} className='common-align'>
                                                     <Typography width={250} color="black">
-                                                        <TextField
+                                                        {/* <TextField
                                                             autoFocus
                                                             margin="dense"
                                                             id="planDuration"
@@ -319,14 +395,58 @@ function AddSubscriptionPlan({userData, isPlanNeeded, cancelBtnFunction, newPlan
                                                             required
                                                             error={openPlanDurationError}
                                                             helperText={openPlanDurationError?planDurationErrorMessage:null}
-                                                        />
+                                                        /> */}
+                                                        <FormControl fullWidth>
+                                                            <InputLabel id="simple-select-label">Plan Duration</InputLabel>
+                                                            <Select
+                                                                labelId="simple-select-label"
+                                                                id="planDuration"
+                                                                value={subscriptionPlanInput.planDuration}
+                                                                label="Plan Type"
+                                                                name='planDuration'
+                                                                onChange={handleFormChange}
+                                                                error={openPlanDurationError}
+                                                                helperText={openPlanDurationError?planDurationErrorMessage:null}
+                                                            >
+                                                                <MenuItem value={1}>1</MenuItem>
+                                                                <MenuItem value={2}>2</MenuItem>
+                                                                <MenuItem value={3}>3</MenuItem>
+                                                                <MenuItem value={4}>4</MenuItem>
+                                                                <MenuItem value={5}>5</MenuItem>
+                                                                <MenuItem value={6}>6</MenuItem>
+                                                                <MenuItem value={7}>7</MenuItem>
+                                                                <MenuItem value={8}>8</MenuItem>
+                                                                <MenuItem value={9}>9</MenuItem>
+                                                                <MenuItem value={10}>10</MenuItem>
+                                                                <MenuItem value={11}>11</MenuItem>
+                                                                <MenuItem value={12}>12</MenuItem>
+                                                            </Select>
+                                                        </FormControl>
                                                     </Typography>
                                                 </Grid>
                                             </Grid>
+                                            <Box className='real-time-price-box-parent'>
+                                                <Box className='common-flex real-time-price-box'>
+                                                    <Typography component='h4'> Total amount:  </Typography>
+                                                    <Typography component='h4' className='real-time-price-box-txt'> {`$ ${subscriptionPlanInput.price}`} </Typography>
+                                                </Box>
+                                                <Box className='common-flex real-time-price-box'>
+                                                    <Typography component='h4'> Platform Fees:  </Typography>
+                                                    <Typography component='h4' className='real-time-price-box-txt'>{`$ ${platformFee}`} </Typography>
+                                                </Box>
+                                                <Box className='common-flex real-time-price-box'>
+                                                    <Typography component='h4'> Stripe Fees:  </Typography>
+                                                    <Typography component='h4' className='real-time-price-box-txt'> {`$ ${stripeFee}`} </Typography>
+                                                </Box>
+                                                <Box className='common-flex real-time-price-box'>
+                                                    <Typography component='h4'> Your earning:  </Typography>
+                                                    <Typography component='h4' className='real-time-price-box-txt'> {`$ ${earnings}`} </Typography>
+                                                </Box>
+                                            </Box>
                                         </Typography>
-                                        <Typography sx={{textAlign: 'end'}}>
-                                            <Button onClick={cancelBtnFunction} disabled={loading}>Cancel</Button>
-                                            <Button onClick={handleFormSubmit} disabled={loading}>{loading ? 'Adding Plan...' : 'Add Plan'}</Button>
+                                        <Typography sx={{textAlign: 'end', marginTop: '30px'}}>
+                                            <Button onClick={cancelBtnFunction} disabled={loading} sx={{marginRight: '10px'}} >Cancel</Button>
+                                            <Button onClick={handleFormSubmit} disabled={loading} variant='contained'>{loading ? 'Adding Plan...' : 'Add Plan'}</Button>
                                         </Typography>
                                     </CardContent>
                                 </Box>

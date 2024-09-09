@@ -2,7 +2,7 @@ import { Typography, Button, Grid } from '@mui/material';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 
-function PageHeader() {
+function PageHeader({userData}) {
   const user = {
     name: 'Catherine Pike',
     avatar: '/static/images/avatars/1.jpg'
@@ -13,8 +13,8 @@ function PageHeader() {
         <Typography variant="h3" component="h3" gutterBottom>
           Transactions
         </Typography>
-        <Typography variant="subtitle2">
-          {user.name}, these are your recent transactions
+        <Typography variant="subtitle2" sx={{textTransform: 'capitalize'}}>
+          {`${userData[0].firstName} ${userData[0].lastName}`}, these are your recent transactions
         </Typography>
       </Grid>
       {/* <Grid item>

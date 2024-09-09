@@ -100,7 +100,7 @@ export default function StreamingTools(){
                             <Box sx={{ marginTop: "30px"}}>
                                 <Grid container spacing={{ xs: 2, md: 3, lg: 3 }} columns={{ xs: 4, sm: 6, md: 8, lg: 10 }} >
                                     <Grid item xs={4} sm={4} md={4} lg={4}>
-                                        <Card sx={{ maxWidth: 345, paddingBottom: "15px" }}>
+                                        <Card sx={{ maxWidth: 678, paddingBottom: "15px" }}>
                                             <CardActionArea>
                                                 <CardMedia
                                                     component="img"
@@ -124,7 +124,7 @@ export default function StreamingTools(){
                                             </CardActions>
                                         </Card>
                                     </Grid>
-                                    <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    {/* <Grid item xs={4} sm={4} md={4} lg={4}>
                                         <Card sx={{ maxWidth: 345, paddingBottom: "15px" }}>
                                             <CardActionArea>
                                                 <CardMedia
@@ -148,7 +148,7 @@ export default function StreamingTools(){
                                                 <Button variant="contained" size="small" onClick={()=>{ router.push("https://www.xsplit.com/broadcaster")}}>Download</Button>
                                             </CardActions>
                                         </Card>
-                                    </Grid>
+                                    </Grid> */}
                                 </Grid>
                             </Box>
                         </Box>

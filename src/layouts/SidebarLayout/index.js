@@ -51,7 +51,7 @@ const SidebarLayout = ({ children, userData }) => {
             }
           }}
         >
-          <Box display="block">{children}</Box>
+          <Box display="block" className='inner-component-main-div for-stripe-onboarding'>{children}</Box>
           
         </Box>
       </Box>

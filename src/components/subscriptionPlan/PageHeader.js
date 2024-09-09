@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 
-function PageHeader({categoryAddFunction}) {
+function PageHeader({categoryAddFunction, isLimitReached}) {
     const dispatch = useDispatch();
     const nextRouter = useRouter();
 
@@ -40,6 +40,7 @@ function PageHeader({categoryAddFunction}) {
                     sx={{ mt: { xs: 2, md: 0 } }}
                     variant="contained"
                     startIcon={<AddTwoToneIcon fontSize="small" />}
+                    disabled={isLimitReached}
                     // onClick={()=>{nextRouter.push('/management/video/add')}}
                     onClick={categoryAddFunction}
                 >

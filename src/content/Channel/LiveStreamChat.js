@@ -100,6 +100,36 @@ const pinMessageCss = {
   width: '32%'
 }
 
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined,
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Handler to call on window resize
+      const handleResize = () => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      };
+
+      // Add event listener
+      window.addEventListener('resize', handleResize);
+
+      // Call handler right away so state gets updated with initial window size
+      handleResize();
+
+      // Remove event listener on cleanup
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []); // Empty array ensures that effect is only run on mount and unmount
+
+  return windowSize;
+}
+
 export default function LiveStreamChat(props) {
 
   const [open, setOpen] = React.useState(true);
@@ -121,7 +151,9 @@ export default function LiveStreamChat(props) {
   const router = useRouter();
   const [pinnedMessage, setPinnedMessage] = useState({});
   const [isPinnedMessage, setIsPinnedMessage] = useState(false);
-
+  const [screenWidth, setScreenWidth] = useState(0);
+  const { width, height } = useWindowSize();
+  console.log('width--------------------------------', width)
   // const useStyles = makeStyles((theme) => ({
   //   customScrollbar: {
   //     '&::-webkit-scrollbar-track': {
@@ -130,6 +162,15 @@ export default function LiveStreamChat(props) {
   //     },
   //   },
   // }));
+
+  useEffect(()=>{
+    setScreenWidth(width);
+    if(width <= 840) {
+      setOpen(true);
+    } else {
+      setOpen(false)
+    }
+  }, [width]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -339,7 +380,7 @@ export default function LiveStreamChat(props) {
 
   return (
 
-    <Drawer sx={{
+    <Drawer className='drawer-chat' sx={{
       '& .MuiDrawer-paper': {
         position: 'relative'        
       },
@@ -354,38 +395,42 @@ export default function LiveStreamChat(props) {
       backgroundColor: 'rgba(0,0,0,.1)',
       outline: '1px solid slategrey'
     } }}> {/* Set the background color of the Drawer */}
-    <Box style={{position: "fixed"}}>
-      <DrawerHeader sx={drawerStyle} className='minHeightTitleMenu ' >
-        <IconButton onClick={handleDrawerClose} sx={{
-          ...(!open && { display: 'none' }),
-        }}>
-          <div style={{ fontSize: "12px", color: "#fff" }}>CHATS</div> {<ChevronRightIcon style={{ color: "#fff" }} />}
-        </IconButton>
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleDrawerOpen}
-          edge="start"
-          sx={{
-            marginRight: 5,
-            ...(open && { display: 'none' }),
-          }}
-          style={{ color: "#fff" }}>
-          <ChevronLeftIcon />
-        </IconButton>
-      </DrawerHeader>
-      
-      <Divider />
+    <Box className='chat-wrapper'>
+      {screenWidth >= 841 && 
+        <>
+          <DrawerHeader sx={drawerStyle} className='minHeightTitleMenu ' >
+            <IconButton onClick={handleDrawerClose} sx={{
+              ...(!open && { display: 'none' }),
+            }}>
+              <div style={{ fontSize: "12px", color: "#fff" }}>CHATS</div> {<ChevronRightIcon style={{ color: "#fff" }} />}
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{
+                marginRight: 5,
+                ...(open && { display: 'none' }),
+              }}
+              style={{ color: "#fff" }}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </DrawerHeader>
+          
+          <Divider />
+        </>
+      }
       {/* {!isLoggedIn && <Typography>Please login first</Typography>} */}
       {
         oldReceivedMessages.length > 0 || receivedMessages.length > 0 ? 
           <>
             {open ?
               <>
-                <Typography ref={chatBoxRef} sx={{ margin: '15px', height: '650px', overflowY: 'scroll', scrollbarWidth: 'none' }}>
+                <Typography ref={chatBoxRef} className='message-list' >
                   {oldReceivedMessages.map((data, index) => (
                     `${data.isPinned}` === `true`? 
-                      <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
+                      <Card className='pin-card' key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
@@ -429,7 +474,7 @@ export default function LiveStreamChat(props) {
                   ))}
                   {oldReceivedMessages ? receivedMessages.length > 0 ? <div style={{ color: 'red' }}>----------------------------------------- NEW</div> : null : null}
                   {receivedMessages.map((data, index) => (
-                    `${data.isPinned}` === `true` ? <Card sx={{ minWidth: 275, dsplay: 'flex', justifyContent: 'space-between', ...pinMessageCss }} key={index}>
+                    `${data.isPinned}` === `true` ? <Card className='pin-card' key={index}>
                         <CardContent>
                           <Box sx={{}}>
                             <Typography sx={{ display: 'flex', mb: '4px' }} fontSize={'12px'} >
@@ -476,9 +521,16 @@ export default function LiveStreamChat(props) {
                 {/* <Typography variant="body1" component="div"  sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}> */}
                   {
                     isLoggedIn?
-                      <Typography variant="body1" component="div" sx={{ padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
+                      <Typography variant="body1" component="div" className='chat-btn'>
                             {/* <Typography>{chosenEmoji.emoji}</Typography> */}
                             {/* {chosenEmoji ? <Emoji unified={chosenEmoji.unified} size={77} /> : null} */}
+                            { isClickOnEmoji && 
+                              <Box sx={{zIndex: 999,
+                                position: 'relative',
+                                bottom: '634px'}}>
+                                <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/>
+                              </Box>
+                            }
                             <TextField style={messageInput} multiline placeholder="Send a message" value={message} onChange={(e) => setMessage(e.target.value)} InputProps={{
                               startAdornment: (
                                 <InputAdornment position="start">
@@ -492,7 +544,7 @@ export default function LiveStreamChat(props) {
                                 <InsertEmoticonIcon />
                               </Typography>
                             </Box> */}
-                            { isClickOnEmoji && <EmojiPicker width={325} height={450} onEmojiClick={onEmojiClick}/> }
+                            
                       </Typography>
                     :
                       <Typography variant="body1" component="div" sx={{ backgroundColor: '#fff', color: '#000', textAlign: 'center', padding: '20px 20px 10px', bottom: 0, width: '100%' }}>
