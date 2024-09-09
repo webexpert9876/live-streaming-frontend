@@ -66,16 +66,44 @@ const commentUpdateButton = { marginTop: '10px', border: 'none', background: '#9
 const cmtUpdateCancelButton = { marginTop: '10px', marginRight: "10px", border: 'none', background: 'rgb(145 71 255 / 29%)', borderRadius: '3px', padding: '5px 10px 5px 10px', color: 'white', float: 'right' };
 
 
-const useStyles = makeStyles({
+// const useStyles = makeStyles({
+//     scrollableContent: {
+//       overflowY: 'scroll',
+//       height: "500px",
+//       '&::-webkit-scrollbar': {
+//         display: 'none',
+//       },
+//     },
+//   });
+
+const useStyles = makeStyles((theme) => ({
     scrollableContent: {
-      overflowY: 'scroll',
-      height: "500px",
-      '&::-webkit-scrollbar': {
-        display: 'none',
+        overflowY: 'scroll',
+        height: "500px",
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+    },
+    container: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    },
+    box: {
+      width: '30%',
+      padding: '20px',
+      border: '1px solid #ccc',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      cursor: 'pointer',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.05)',
       },
     },
-  });
-
+    selectedBox: {
+      border: '2px solid blue',
+    },
+}));
 
 export default function Videos(){
     const [channelDetails, setChannelDetails] = useState({});
@@ -137,6 +165,13 @@ export default function Videos(){
         // { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
       ]
     );
+    const [isRequirementPending, setIsRequirementPending] = useState(null);
+    const [buy, setBuy]= useState(false);
+    const [userSelectedPlan, setUserSelectedPlan] = useState({
+        price: 0,
+        planDurationUnit: '',
+        planDuration: 0
+    });
 
     const classes = useStyles();
 
@@ -234,7 +269,7 @@ export default function Videos(){
                 if(channelApproveStatus == 'approved' && `${channelBlockedStatus}` == 'false'){
                     let videoOtherInfo = await client.query({
                         query: gql`
-                        query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String, $channelId2: String) {
+                        query Query ($recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $chatVideoId: String!, $getLastLiveStreamVideoUserId2: String!, $channelId: String, $channelId2: String, $channelId3: String) {
                             recentLiveStreamVideos(channelId: $recentLiveStreamVideosChannelId2) {
                                 _id
                                 title
@@ -306,6 +341,15 @@ export default function Videos(){
                                 channelId
                                 isPaid
                             }
+                            getConnectAccountInfo(channelId: $channelId3) {
+                                AccountPaymentStatus
+                                _id
+                                channelId
+                                connectAccountId
+                                isAccountCreated
+                                userId
+                                isRequirementPending
+                            }
                         }
                         `,
                         variables: {
@@ -314,6 +358,7 @@ export default function Videos(){
                             "getLastLiveStreamVideoUserId2": videoInfo.videos[0].userId,
                             "channelId": videoInfo.videos[0].channelId,
                             "channelId2": videoInfo.videos[0].channelId,
+                            "channelId3": videoInfo.videos[0].channelId,
                             "chatVideoId": videoInfo.videos[0]._id
                         }
                     }).then((result) => {
@@ -331,28 +376,32 @@ export default function Videos(){
                     setCurrentChannelActivePlan(videoOtherInfo.getChannelActivePlans)
 
 
-                    if(videoOtherInfo.getChannelActivePlans[0].isPaid){
-                        client.query({
-                            variables: {
-                                channelId3: videoInfo.videos[0].channelId
-                            },
-                            query: gql`
-                                query Query($channelId3: ID,) {
-                                    subscriptionPlans(channelId: $channelId3) {
-                                        _id
-                                        planDuration
-                                        planDurationUnit
-                                        price
-                                        createdAt
-                                        channelId
+                    if(videoOtherInfo.getConnectAccountInfo[0].isRequirementPending) {
+                        setIsRequirementPending(videoOtherInfo.getConnectAccountInfo[0].isRequirementPending);
+                    } else {
+                        if(videoOtherInfo.getChannelActivePlans[0].isPaid){
+                            client.query({
+                                variables: {
+                                    channelId3: videoInfo.videos[0].channelId
+                                },
+                                query: gql`
+                                    query Query($channelId3: ID,) {
+                                        subscriptionPlans(channelId: $channelId3) {
+                                            _id
+                                            planDuration
+                                            planDurationUnit
+                                            price
+                                            createdAt
+                                            channelId
+                                        }
+                    
                                     }
-                
-                                }
-                            `,
-                        })
-                            .then((result) => {
-                                setChannelPlanList(result.data.subscriptionPlans);
-                            });
+                                `,
+                            })
+                                .then((result) => {
+                                    setChannelPlanList(result.data.subscriptionPlans);
+                                });
+                        }
                     }
 
 
@@ -506,6 +555,39 @@ export default function Videos(){
             }
         }
     }, [isFetchingVideo])
+
+    useEffect(async ()=>{
+        console.log("userSelectedPlan userSelectedPlan userSelectedPlan", userSelectedPlan)
+        const currentUrl = `http://localhost:3000${router.asPath}`;
+        if(buy){
+            let data = {
+                userId: userDetail._id,
+                channelId: channelDetails._id,
+                channelName: channelDetails.channelName,
+                amount: userSelectedPlan.price,
+                unit: userSelectedPlan.planDurationUnit,
+                duration: userSelectedPlan.planDuration,
+                url: currentUrl,
+                email: userDetail.email
+            }
+            console.log("data", data)
+            console.log("userSelectedPlan.price", userSelectedPlan.price)
+            console.log("userSelectedPlan.planDurationUnit", userSelectedPlan.planDurationUnit)
+            console.log("userSelectedPlan.planDuration", userSelectedPlan.planDuration)
+            try {
+                const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/payment/checkout`, 
+                    data,
+                    { headers: { 'x-access-token': userDetail.jwtToken } });
+                
+                console.log('result-----------', result)
+                setBuy(false)
+                router.push(result.data.url);
+            } catch (error) {
+                console.log('error', error)
+                setBuy(false)
+            }
+        }
+    },[buy])
 
     const playerRef = React.useRef(null);
 
@@ -852,7 +934,18 @@ export default function Videos(){
     const handleBoxClick = (subscriptionDetail, boxNumber) => {
         console.log('subscriptionDetail boxNumber', subscriptionDetail);
         setSelectedBox(boxNumber);
+        console.log('subscriptionDetail', subscriptionDetail.price);
+        setUserSelectedPlan({
+            price: subscriptionDetail.price,
+            planDurationUnit: subscriptionDetail.planDurationUnit,
+            planDuration: subscriptionDetail.planDuration
+        });
     };
+
+    const handleSubscriptionPurchase = (subscriptionDetail)=>{
+        console.log('subscriptionDetail', subscriptionDetail);
+        setBuy(true)
+    }
 
     return (
         <>
@@ -1015,12 +1108,12 @@ export default function Videos(){
                                                                     <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button>
                                                                 </Tooltip>
                                                                 :
-                                                                    
-                                                                    currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
+                                                                    !isRequirementPending &&
+                                                                    currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid &&
                                                                         // <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                                                                         <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true);}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px', marginLeft: '20px'  }}>Subscribe</Button>
-                                                                    : 
-                                                                        <Button onClick={()=>{setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                    // : 
+                                                                    //     <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
                                                                 
                                                             )
                                                         )
@@ -1278,7 +1371,7 @@ export default function Videos(){
                         currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
                             <>        
                                 <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
-                                <Button autoFocus>
+                                <Button autoFocus variant="contained" onClick={handleSubscriptionPurchase}>
                                     Buy
                                 </Button>
                             </>

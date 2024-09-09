@@ -30,6 +30,8 @@ import 'video.js/dist/video-js.css';
 import httpSourceSelector from 'videojs-http-source-selector';
 import 'videojs-contrib-quality-levels';
 import { makeStyles } from '@mui/styles';
+import LockIcon from '@mui/icons-material/Lock';
+import VideoJS from '../../src/components/videojs player/VideoJsOffline';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -78,7 +80,9 @@ export default function ChannelName() {
     const [oldReceivedMessages, setOldReceivedMessages] = React.useState([]);
     const [value, setValue] = React.useState('1');
     const [isChannelFollowing, setIsChannelFollowing] = useState({});
-    const [isChannelSubscribed, setIsChannelSubscribed] = useState({});
+    const [isChannelSubscribed, setIsChannelSubscribed] = useState({
+        isActive: 'false'
+    });
     const [isSubscribedUser, setIsSubscribedUser] = useState(false);
     let userDetails = useSelector(selectAuthUser);
     let userIsLogedIn = useSelector(selectAuthState);
@@ -99,6 +103,12 @@ export default function ChannelName() {
     const [openBuySubscription, setOpenBuySubscription] = useState(false);
     const classes = useStyles();
     const [selectedBox, setSelectedBox] = useState(null);
+    const [userSelectedPlan, setUserSelectedPlan] = useState({
+        price: 0,
+        planDurationUnit: '',
+        planDuration: 0
+    });
+    const [buy, setBuy]= useState(false);
     const [currentChannelActivePlan, setCurrentChannelActivePlan] = useState([]);
     const [channelPlanList, setChannelPlanList] = useState([
         // { id: 1, planDuration:'month', timeDuration: 1, price: 10},
@@ -106,6 +116,7 @@ export default function ChannelName() {
         // { id: 3, planDuration:'year', timeDuration: 1, price: 90 },
       ]
     );
+    const [isRequirementPending, setIsRequirementPending] = useState(null);
 
     useEffect(async ()=>{
         if(!router.query.channelName) {
@@ -118,6 +129,41 @@ export default function ChannelName() {
         setIsFetchingChannel(true)
 
     }, [router.query.channelName]);
+
+
+    useEffect(async ()=>{
+        console.log("userSelectedPlan userSelectedPlan userSelectedPlan", userSelectedPlan)
+        const currentUrl = `http://localhost:3000${router.asPath}`;
+        if(buy){
+            let data = {
+                userId: userDetail._id,
+                channelId: channelDetails._id,
+                channelName: channelDetails.channelName,
+                amount: userSelectedPlan.price,
+                unit: userSelectedPlan.planDurationUnit,
+                duration: userSelectedPlan.planDuration,
+                url: currentUrl,
+                email: userDetail.email
+            }
+            console.log("data", data)
+            console.log("userSelectedPlan.price", userSelectedPlan.price)
+            console.log("userSelectedPlan.planDurationUnit", userSelectedPlan.planDurationUnit)
+            console.log("userSelectedPlan.planDuration", userSelectedPlan.planDuration)
+            try {
+                const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/payment/checkout`, 
+                    data,
+                    { headers: { 'x-access-token': userDetail.jwtToken } });
+                
+                console.log('result-----------', result)
+                setBuy(false)
+                router.push(result.data.url);
+            } catch (error) {
+                console.log('error', error)
+                setBuy(false)
+            }
+        }
+    },[buy])
+
 
     useEffect(async ()=>{
 
@@ -162,9 +208,14 @@ export default function ChannelName() {
                 if(channelStatus == 'approved' && channelBlockedStatus == 'false'){
                     console.log('channel found')
                     setIsStatusPendingChannel(false);
+                    let authUserDetails = localStorage.getItem('authUser');
+                    console.log('authUserDetails', authUserDetails)
+                    authUserDetails = JSON.parse(authUserDetails);
+                    console.log('authUserDetails after', authUserDetails)
+
                     let streamInfo = await client.query({
                         query: gql`
-                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!,  $channelId4: String) {
+                        query Query ($artistId: String!, $recentLiveStreamVideosChannelId2: String!, $recentUploadedVideosChannelId2: String!, $channelId: String, $channelId2: String!,  $channelId4: String, $channelId5: String) {
                             streams(artistId: $artistId) {
                                 title
                                 streamCategory
@@ -222,6 +273,15 @@ export default function ChannelName() {
                                 channelId
                                 isPaid
                             }
+                            getConnectAccountInfo(channelId: $channelId5) {
+                                AccountPaymentStatus
+                                _id
+                                channelId
+                                connectAccountId
+                                isAccountCreated
+                                userId
+                                isRequirementPending
+                            }
                         }
                         `,
                         variables: {
@@ -232,12 +292,37 @@ export default function ChannelName() {
                             "channelId": channelInfo.channels[0]._id,
                             "channelId2": channelInfo.channels[0]._id,
                             // "channelId3": channelInfo.channels[0]._id,
-                            "channelId4": channelInfo.channels[0]._id
+                            "channelId4": channelInfo.channels[0]._id,
+                            "channelId5": channelInfo.channels[0]._id,
                         }
                     }).then((result) => {
                         return result.data
                     });
                     
+                    let subscriberInfo;
+
+                    if (userDetails && userIsLogedIn) {
+                        subscriberInfo = await client.query({
+                            query: gql`
+                            query Query ( $userId: String, $channelId: String ) {
+                                subscriptionDetails(channelId: $channelId, userId: $userId) {
+                                    isActive
+                                }
+                            }
+                            `,
+                            variables: {
+                                "channelId": channelInfo.channels[0]._id,
+                                "userId": authUserDetails._id,
+                            }
+                        }).then((result) => {
+                            return result.data
+                        });
+
+                        if(subscriberInfo.subscriptionDetails.length > 0){
+                            setIsChannelSubscribed(subscriberInfo.subscriptionDetails[0])
+                            setIsSubscribedUser(true);
+                        }
+                    }
                     console.log('----------------------------streamInfo', streamInfo)
         
                     // setChannelDetails(...channelInfo.channels);
@@ -252,35 +337,44 @@ export default function ChannelName() {
                     console.log("streamInfo.getChannelActivePlans", streamInfo.getChannelActivePlans)
                     console.log("streamInfo.getChannelActivePlans", streamInfo.getChannelActivePlans[0].isPaid)
                     setCurrentChannelActivePlan(streamInfo.getChannelActivePlans);
+                    
 
+                    
                     if(streamInfo.liveStreamings.length > 0){
                         setViewers(streamInfo.liveStreamings[0].viewers);
                     }
                     
-                    if(streamInfo.getChannelActivePlans[0].isPaid){
-                        client.query({
-                            variables: {
-                                channelId3: channelInfo.channels[0]._id
-                            },
-                            query: gql`
-                                query Query($channelId3: ID,) {
-                                    subscriptionPlans(channelId: $channelId3) {
-                                        _id
-                                        planDuration
-                                        planDurationUnit
-                                        price
-                                        createdAt
-                                        channelId
+                    // console.log('streamInfo.getConnectAccountInfo[0].isRequirementPending', streamInfo.getConnectAccountInfo[0].isRequirementPending);
+                    if(streamInfo.getConnectAccountInfo[0].isRequirementPending) {
+                        setIsRequirementPending(streamInfo.getConnectAccountInfo[0].isRequirementPending);
+                    } else {
+                        if(streamInfo.getChannelActivePlans[0].isPaid){
+                            console.log('in plan')
+                            client.query({
+                                variables: {
+                                    channelId3: channelInfo.channels[0]._id
+                                },
+                                query: gql`
+                                    query Query($channelId3: ID,) {
+                                        subscriptionPlans(channelId: $channelId3) {
+                                            _id
+                                            planDuration
+                                            planDurationUnit
+                                            price
+                                            createdAt
+                                            channelId
+                                        }
+                    
                                     }
-                
-                                }
-                            `,
-                        })
-                            .then((result) => {
-                                setChannelPlanList(result.data.subscriptionPlans);
-                                console.log('----------------------------------------------------------------------------------------old result.data.chatMessages', result.data.chatMessages)
-                            });
+                                `,
+                            })
+                                .then((result) => {
+                                    setChannelPlanList(result.data.subscriptionPlans);
+                                    console.log('----------------------------------------------------------------------------------------old result.data.chatMessages', result.data.chatMessages)
+                                });
+                        }
                     }
+                    
 
 
                     if (streamInfo.liveStreamings.length > 0) {
@@ -316,6 +410,8 @@ export default function ChannelName() {
                             });
                     }
         
+                    let isChannelSubscribInfo;
+
                     if (userDetails && userIsLogedIn) {
                         
                         let isArtistOrAdmin = false;
@@ -365,22 +461,25 @@ export default function ChannelName() {
                                 "isShowingPrivateVideo": isArtistOrAdmin
                             }
                         }).then((result) => {
-                            console.log('subscription detail', result.data);
+                            // console.log('subscription detail', result.data);
                             setIsChannelFollowing(result.data.isChannelFollowing[0])
                             setUserDetail(userDetails);
                             setAllVideos(result.data.videos);
                             if(result.data.subscriptionDetails.length > 0){
                                 setIsChannelSubscribed(result.data.subscriptionDetails[0])
-                                if(result.data.subscriptionDetails[0].isActive){
-                                    console.log("in if ")
-                                    setIsSubscribedUser(true)
+
+                                if(result.data.subscriptionDetails[0].isActive == 'true'){
+                                    setIsSubscribedUser(true);
+                                    // setShowPlayer(true);
                                 } else {
                                     console.log("else ffelse")
                                     
                                 }
                             } else {
                                 setIsSubscribedUser(false)
-                                setIsChannelSubscribed({})
+                                setIsChannelSubscribed({
+                                    isActive: 'false'
+                                })
                             }
                             return result.data
                         });
@@ -414,8 +513,12 @@ export default function ChannelName() {
                         });
                     }
 
-                    if(streamInfo.liveStreamings.length > 0){
-                        setShowPlayer(true)
+                    if(subscriberInfo?.subscriptionDetails.length > 0){
+                        if(streamInfo.liveStreamings.length > 0 ) {
+                            if(subscriberInfo.subscriptionDetails[0]?.isActive == 'true'){    
+                                setShowPlayer(true)
+                            }
+                        }
                     }
                 } else if(channelStatus == 'approved' && channelBlockedStatus == 'true') {
                     setIsBlockedChannel(true);
@@ -433,7 +536,7 @@ export default function ChannelName() {
     
 
     React.useEffect(() => {
-        if(showPlayer){
+        if( showPlayer && videoRef ) {            
             setTimeout(()=>{
 
                 if(playerRef.current){
@@ -466,6 +569,7 @@ export default function ChannelName() {
                   player.httpSourceSelector();
                   
                 } else {
+                    
                   const player = playerRef.current;
                   player.autoplay(true);
                   player.src([{
@@ -588,7 +692,7 @@ export default function ChannelName() {
                         firstName: userDetail.firstName,
                         lastName: userDetail.lastName
                     }
-                    console.log('following................')
+                    // console.log('following................')
                     socket.emit('follow', {followedUserId: channelDetails.userId, userDetails: userInfo, followingInfo: result.data.followingDetails});
                     setChannelTotalFollower((prevState)=>({
                         ...prevState,
@@ -606,7 +710,7 @@ export default function ChannelName() {
                 if (result) {
                     setIsChannelFollowing(result.data.followingDetails)
 
-                    console.log('Unfollowing................')
+                    // console.log('Unfollowing................')
                     socket.emit('unfollow', {followedUserId: channelDetails.userId, followingInfo: result.data.followingDetails});
                     setChannelTotalFollower((prevState)=>({
                         ...prevState,
@@ -633,6 +737,22 @@ export default function ChannelName() {
             // } catch (error) {
             //     console.log('error', error)
             // }
+            console.log("userSelectedPlan", userSelectedPlan)
+            // try {
+            //     const result = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/payment/checkout`, 
+            //         {
+            //             channelId: channelDetails._id,
+            //             amount: userSelectedPlan.price,
+            //             unit: userSelectedPlan.planDurationUnit,
+            //             duration: userSelectedPlan.planDuration
+            //         }, 
+            //         { headers: { 'x-access-token': userDetail.jwtToken } });
+                
+            //     console.log('result-----------', result)
+            //     router.push(result.data.url);
+            // } catch (error) {
+            //     console.log('error', error)
+            // }
         } else {
            console.log('Unsubscribe')
         }
@@ -651,15 +771,22 @@ export default function ChannelName() {
     const handleBoxClick = (subscriptionDetail, boxNumber) => {
         console.log('subscriptionDetail boxNumber', subscriptionDetail);
         setSelectedBox(boxNumber);
+        console.log('subscriptionDetail', subscriptionDetail.price);
+        setUserSelectedPlan({
+            price: subscriptionDetail.price,
+            planDurationUnit: subscriptionDetail.planDurationUnit,
+            planDuration: subscriptionDetail.planDuration
+        });
     };
 
     const handleSubscriptionPurchase = (subscriptionDetail)=>{
         console.log('subscriptionDetail', subscriptionDetail);
+        setBuy(true)
     }
 
     return (
         <>
-            <Box sx={{ display: 'flex' }} style={headerMargin}>
+            <Box className="chl-container">
                 <LeftMenu />
                 {isPageLoading?
                     <Box sx={{textAlign: 'center', width: '100%', padding: '15%'}}>
@@ -683,26 +810,55 @@ export default function ChannelName() {
                                     </Typography>
                                 </Box>}
                                 {showChannelDetails &&
-                                    <Box component="main" sx={{ flexGrow: 1, width: '100%', position: 'relative'}}>
+                                    <Box className="sadf" component="main" sx={{ flexGrow: 1, width: '100%', position: 'relative',}}>
                                         {/* <Box sx={{height: '100%', marginRight: '-36px', paddingRight: '35px', overflowY: 'scroll' }}> */}
                                         <Box sx={{height: '100%', marginRight: '0px', paddingRight: '0px', overflowY: 'scroll' }}>
                                             {currentBroadcast ?
-                                                <Typography variant="body1" component={'div'} sx={{ paddingBottom: '10px' }}>
-                                                    {/* <VideoJS options={{ autoplay: true, controls: true, responsive: true, fluid: true, className: 'online-video',
-                                                        sources: [{
-                                                            // src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-                                                            // src: 'http://localhost:8080/master-d7733280-c444-4e1a-ab7f-7d14607e1bab.m3u8',
-                                                            // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
-                                                            // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
-                                                            // src: `http://localhost:8080/index.m3u8`,
-                                                            src: `${currentBroadcast.streamUrl}`,
-                                                            type: 'application/x-mpegURL'
-                                                        }]
-                                                    }} 
-                                                    onReady={handlePlayerReady}
-                                                    /> */}
-                                                    <div ref={videoRef} />
-                                                </Typography> :
+                                                <>
+                                                {isChannelSubscribed.isActive == 'true' &&
+                                                    <Typography variant="body1" component={'div'} className="video-wrapper">
+                                                        {/* <VideoJS options={{ autoplay: true, controls: true, responsive: true, fluid: true, className: 'online-video',
+                                                            sources: [{
+                                                                // src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+                                                                // src: 'http://localhost:8080/master-d7733280-c444-4e1a-ab7f-7d14607e1bab.m3u8',
+                                                                // src: `${process.env.NEXT_PUBLIC_LIVE_STREAM_URL}/${currentBroadcast.streamUrl}`,
+                                                                // src: `https://livestreamingmaria.s3.us-west-1.amazonaws.com/hls+streams/index.m3u8`,
+                                                                // src: `http://localhost:8080/index.m3u8`,
+                                                                src: `${currentBroadcast.streamUrl}`,
+                                                                type: 'application/x-mpegURL'
+                                                            }]
+                                                        }} 
+                                                        onReady={handlePlayerReady}
+                                                        /> */}
+                                                        <div ref={videoRef} />
+                                                    </Typography> 
+                                                }
+                                                {isChannelSubscribed.isActive == 'false' &&
+                                                    <Box sx={{position: 'relative', display: 'flex'}} >
+                                                        <Box sx={{filter: 'blur(5px)', height: '60%', width: '100%', position: "relative"}}>
+                                                            <VideoJS  options={{
+                                                                autoplay: false,
+                                                                controls: true,
+                                                                responsive: true,
+                                                                fluid: true,
+                                                                poster: `https://dummyimage.com/740x415/000/fff`,
+                                                                className: 'video-page-player',
+                                                                sources: [{
+                                                                    // src: 'https://5b44cf20b0388.streamlock.net:8443/vod/smil:bbb.smil/playlist.m3u8',
+                                                                    // src: `${process.env.NEXT_PUBLIC_S3_VIDEO_URL}/${videoDetails.url}`,
+                                                                    src: ``,
+                                                                    type: "video/mp4"
+                                                                }]
+                                                            }} />
+                                                            {/* <img src="https://dummyimage.com/740x415/000/fff" /> */}
+                                                        </Box>
+                                                        <Box sx={{ position: 'absolute', bottom: '50%', left: '35%', textAlign: 'center'}}>
+                                                            <LockIcon fontSize="large"/>
+                                                            <Typography variant="h4" component='h4' >Unlock Live Stream by subscribe channel</Typography>
+                                                        </Box>
+                                                    </Box>}
+                                                </>
+                                            :
                                                 <Box>
                                                     <Typography variant="body1" component={'div'} sx={{ backgroundImage: "url(https://dummyimage.com/1835x550/000/fff)", width: '100%', height: '550px', backgroundRepeat: 'no-repeat' }}>
                                                         <Typography variant="p" component={'p'} style={offline}>Offline</Typography>
@@ -710,6 +866,7 @@ export default function ChannelName() {
                                                 </Box>
                                             }
                                             {channelDetails && <Box
+                                                className="channel-subscriber-section"
                                                 sx={{
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
@@ -720,26 +877,29 @@ export default function ChannelName() {
                                                     <Typography variant="body1" component={'div'} sx={{ display: 'flex' }}>
                                                         <Typography variant="body1" component={'div'} sx={{position: "relative"}}>
                                                             {/* <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} style={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"></img> */}
-                                                            <Avatar alt={`${channelDetails.channelName}`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} sx={{ borderRadius: '100%', height: '65px', width: '65px', margin: '8px 12px 18px 18px', border: currentBroadcast? "2px solid red": null }} width="500" height="600"/>
-                                                            {currentBroadcast && <Typography variant="h5" component="h5" sx={{ fontSize: '13px', fontWeight: 300 ,backgroundColor: 'red', borderRadius: '5px', width: '50px', position: 'absolute', top: '65px', left: '25px', color: '#fff'}}>Live</Typography>}
+                                                            <Avatar className="chl-icon" alt={`${channelDetails.channelName}`} src={`${process.env.NEXT_PUBLIC_S3_URL}/${channelDetails.channelPicture}`} sx={{ border: currentBroadcast? "2px solid red": null }} width="500" height="600"/>
+                                                            {currentBroadcast && <Typography className="chl-live" variant="h5" component="h5" >Live</Typography>}
                                                         </Typography>
 
-                                                        <Typography variant="body1" component={'div'} sx={{}}>
-                                                            <Typography variant="h3" component="h3" sx={{ fontWeight: 600, fontSize: '20px', cursor: 'pointer' }} align="left">{channelDetails.channelName}</Typography>
-                                                            {currentBroadcast ? <Typography variant="body1" component={'div'} sx={{}}>
-                                                                <Typography variant="h4" component="h4" sx={{ fontWeight: 600, fontSize: '15px', marginTop: '8px' }} align="left">{currentBroadcast.description}</Typography>
-                                                                <Typography variant="body1" component={'div'} sx={{ display: 'flex', marginTop: '5px' }}>
+                                                        <Typography variant="body1" component={'div'}>
+                                                            <Typography variant="h3" component="h3" className="chl-name" sx={{ fontWeight: 600, fontSize: '20px', cursor: 'pointer' }} align="left">{channelDetails.channelName}</Typography>
+                                                            {currentBroadcast ? <Typography variant="body1" component={'div'} className="div-desc-title-tag">
+                                                                <Typography variant="h4" component="h4" className="chnl-desc">{currentBroadcast.description}</Typography>
+                                                                <Typography variant="body1" component={'div'} className="tag-cat-title">
                                                                     {currentBroadcast.tattooCategoryDetails ?<Link
+                                                                        className="channel-cat-title"
                                                                         onClick={() => router.push(`/single-category/${currentBroadcast.tattooCategoryDetails[0].urlSlug}`)}
-                                                                        sx={{ fontWeight: 400, paddingRight: '10px', cursor: 'pointer' }} align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Link>:null}
-
-                                                                    {currentBroadcast.tags && currentBroadcast.tags.map((tag, index) => {
-                                                                        return (<Button key={index} variant="contained" sx={{ fontWeight: 400, fontSize: '12px', borderRadius: '50px', backgroundColor: 'grey', padding: '0px', margin: '0px 2px' }}>
-                                                                            <Link
-                                                                                onClick={() => router.push(`/tag/${tag}`)}
-                                                                                sx={{ color: '#fff' }}>{tag}</Link>
-                                                                        </Button>)
-                                                                    })}
+                                                                        align="left">{currentBroadcast.tattooCategoryDetails[0].title}</Link>
+                                                                    :null}
+                                                                    <Box className="channel-tags-btn-list">
+                                                                        {currentBroadcast.tags && currentBroadcast.tags.map((tag, index) => {
+                                                                            return (<Button key={index} className="chnl-tag-btn">
+                                                                                <Link
+                                                                                    onClick={() => router.push(`/tag/${tag}`)}
+                                                                                    sx={{ color: '#fff' }}>{tag}</Link>
+                                                                            </Button>)
+                                                                        })}
+                                                                    </Box>
                                                                 </Typography>
                                                             </Typography> :
                                                                 <Typography variant="h5" component={"h5"} sx={{ fontSize: '15px', marginTop: '8px' }}>
@@ -754,7 +914,7 @@ export default function ChannelName() {
                                                     <Typography variant="body1" component={'div'} sx={{ gap: "15px", display: "flex" }}>                            
                                                         {isChannelFollowing ?
                                                             (isChannelFollowing.isFollowing ?
-                                                                <Button variant="contained" startIcon={<FavoriteIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(false)}} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Following</Button>
+                                                                <Button className="follow-sub-btn" variant="contained" startIcon={<FavoriteIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(false)}} >Following</Button>
                                                                 :
                                                                 (Object.keys(userDetail).length === 0 ?
                                                                     <Tooltip title={<React.Fragment>Please <Link 
@@ -762,35 +922,37 @@ export default function ChannelName() {
                                                                     onClick={()=> router.push("/auth/login")}
                                                                     style={{cursor:"pointer"}}
                                                                     >login</Link> to follow channel</React.Fragment>} placement="right-start">
-                                                                        <Button variant="contained" startIcon={<FavoriteBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                                                        <Button variant="contained" startIcon={<FavoriteBorderIcon />} className="follow-sub-btn">Follow</Button>
                                                                     </Tooltip>
                                                                     :
-                                                                    <Button variant="contained" startIcon={<FavoriteBorderIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(true)}} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Follow</Button>
+                                                                    <Button className="follow-sub-btn" variant="contained" startIcon={<FavoriteBorderIcon />} disabled={isClickedFollowing} onClick={() =>{setIsClickedFollowing(true); handleFollow(true)}} >Follow</Button>
                                                                 )
                                                             )
                                                             : null}
                                                         {isChannelSubscribed ?
-                                                            (isChannelSubscribed.isActive ?
+                                                            (isChannelSubscribed.isActive == 'true' ?
                                                                 // <Button variant="contained" startIcon={<FavoriteIcon />} onClick={() => handleFollow(false)} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
-                                                                <Button onClick={()=>handleSubscribeChannel(false)} variant="contained" startIcon={<StarIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
-                                                                :
+                                                                // <Button onClick={()=>handleSubscribeChannel(false)} variant="contained" startIcon={<StarIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'rgb(112, 99, 192)', padding: '8px 30px', borderRadius: '5px' }}>Subscribed</Button>
+                                                                <Button className="follow-sub-btn" variant="contained" startIcon={<StarIcon />} >Subscribed</Button>
+                                                            :
                                                                 (Object.keys(userDetail).length === 0 ?
                                                                     <Tooltip title={<React.Fragment>Please
                                                                         <Link onClick={()=> router.push("/auth/login")} style={{cursor:"pointer"}}>login</Link> to subscribe channel</React.Fragment>} placement="right-start">
-                                                                        <Button variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                        <Button className="follow-sub-btn" variant="contained" startIcon={<StarBorderIcon />} sx={{ backgroundColor: 'grey' }}>Subscribe</Button>
                                                                     </Tooltip>
                                                                 :
-                                                                    <>                                                                    
-                                                                        {
-                                                                            currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
-                                                                            <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
-                                                                        : 
-                                                                            <Button onClick={()=>{setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                    <>
+                                                                        {!isRequirementPending &&
+                                                                            currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid &&
+                                                                            <Button className="follow-sub-btn" onClick={()=>{ setOpenBuySubscription(true) }} variant="contained" startIcon={<StarBorderIcon />} sx={{ backgroundColor: 'grey' }}>Subscribe</Button>
+                                                                            // <Button onClick={()=>{handleSubscribeChannel(true); setOpenBuySubscription(true)}} variant="contained" startIcon={<StarBorderIcon />} sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button>
+                                                                        // :
+                                                                        //     <Button disabled={isRequirementPending} className="follow-sub-btn" variant="contained" startIcon={<StarBorderIcon />} sx={{ backgroundColor: 'grey' }}>Subscribe</Button>
                                                                         }
                                                                     </>
                                                                 )
                                                             )
-                                                            : null}
+                                                        : null}
                                                         {/* <Button variant="contained" sx={{ fontWeight: 400, fontSize: '12px', backgroundColor: 'grey', padding: '8px 30px', borderRadius: '5px' }}>Subscribe</Button> */}
                                                     </Typography>
                                                     <Typography variant="body1" component={'div'} sx={{ gap: "50px", display: "flex", margin: '10px 40px' }}>
@@ -1146,7 +1308,7 @@ export default function ChannelName() {
                             </Box>   
                     )
                 }
-                {isClickOnChannel && currentBroadcast && userDetail && channelDetails ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} channelInfo={channelDetails} /> : null}
+                {isClickOnChannel && currentBroadcast && userDetail && channelDetails && !isPageLoading ? <LiveStreamChat funcHandleViewers={handleLiveStreamViewers} liveStreamInfo={currentBroadcast} viewerUser={userDetail} oldReceivedMessages={oldReceivedMessages} channelInfo={channelDetails} /> : null}
             </Box >
 
             <Dialog
@@ -1186,7 +1348,7 @@ export default function ChannelName() {
                         currentChannelActivePlan.length > 0 && currentChannelActivePlan[0].isPaid ? 
                             <>        
                                 <Button onClick={()=>setOpenBuySubscription(false)}>Cancel</Button>
-                                <Button autoFocus>
+                                <Button autoFocus variant="contained" onClick={handleSubscriptionPurchase}>
                                     Buy
                                 </Button>
                             </>
