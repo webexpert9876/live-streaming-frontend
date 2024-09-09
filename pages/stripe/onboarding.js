@@ -13,10 +13,24 @@ import { Grid, Container, Box, Typography, Button, Card, CardContent } from '@mu
 import Footer from 'src/components/Footer';
 
 import { useStripeConnect } from "../../hooks/useStripeConnect";
-import {
-  ConnectAccountOnboarding,
-  ConnectComponentsProvider,
-} from "@stripe/react-connect-js";
+
+import dynamic from 'next/dynamic';
+
+// Dynamically import ConnectAccountOnboarding so it's not SSR'd
+const ConnectAccountOnboarding = dynamic(
+  () => import('@stripe/react-connect-js').then((mod) => mod.ConnectAccountOnboarding),
+  { ssr: false }
+);
+
+const ConnectComponentsProvider = dynamic(
+  () => import('@stripe/react-connect-js').then((mod) => mod.ConnectComponentsProvider),
+  { ssr: false }
+);
+
+// import {
+//   ConnectAccountOnboarding,
+//   ConnectComponentsProvider,
+// } from "@stripe/react-connect-js";
 
 export default function StripeOnBoarding() {
   const [isFetched, setIsFetched]=useState(false);
