@@ -11,7 +11,7 @@
 // import { useRouter } from 'next/router';
 
 
-// function PaymentComplete(){
+function PaymentComplete(){
 
 //     const router = useRouter();
 //     const [loading, setLoading] = useState(true);
@@ -81,7 +81,11 @@
 //             )}
 //         </>
 //     );
+    return (
+        <>
+            failed payment
+        </>
+    )
+}
 
-// }
-
-// export default PaymentComplete
+export default PaymentComplete
