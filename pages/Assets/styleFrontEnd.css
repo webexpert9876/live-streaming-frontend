@@ -296,3 +296,378 @@ body .css-13mxmup {
 .socialShareLink path {
     fill: #fff;
 }
+
+.stripe-component {
+    margin: 0% 8%;
+    text-align: center;
+    display: grid;
+}
+
+.common-flex {
+    display: flex;
+}
+
+.real-time-price-box-parent {
+    width: 100%;
+    margin-left: 30px;
+    padding-right: 50px;
+    margin-right: 50px;
+}
+.real-time-price-box  {
+    margin: 10px 0px !important;
+    justify-content: space-between;
+}
+.real-time-price-box > h4 {
+    font-size: 17px !important;
+}
+.real-time-price-box-txt {
+    margin-left: 30px !important;
+}
+
+.vertical-line {
+    border-right: 2px solid rgb(112, 99, 192) !important;
+}
+
+.monetize-pending-pop {
+    text-align: center;
+    margin-top: 35px;
+    margin-bottom: 35px;
+}
+
+.add-plan-stripe-dash-box {
+    display: flex;
+    padding: 45px;
+    justify-content: space-between;
+}
+
+.vertical-line-box {
+    border: 3px #8c7cf0 solid;
+    margin-left: 50px;
+}
+
+.tag-cat-title {
+    margin-top: 5px;
+    display: flex;
+}
+
+.channel-cat-title {
+    font-weight: 400;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+.chnl-tag-btn{
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    border-radius: 50px !important;
+    background-color: grey !important;
+    padding: 0px !important;
+    margin: 0px 2px !important;
+}
+
+.chnl-desc{
+    font-weight: 600;
+    font-size: 15px;
+    margin-top: 8px;
+    text-align: left;
+}
+.chl-icon {
+    border-radius: 100% !important;
+    height: 65px !important;
+    width: 65px !important;
+    margin: 8px 12px 18px 18px !important;
+}
+.chl-live {
+    font-size: 13px !important;
+    font-weight: 300 !important; 
+    background-color: red !important;
+    border-radius: 5px !important;
+    width: 50px !important;
+    position: absolute !important;
+    top: 65px !important;
+    left: 25px !important;
+    color: #fff !important;
+}
+.follow-sub-btn {
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    background-color: rgb(112, 99, 192) !important;
+    padding: 8px 30px !important;
+    border-radius: 5px !important;
+}
+.channel-tags-btn-list {
+    display: flex;
+}
+.chl-container {
+    display: flex;
+    margin-top: 90px !important;
+}
+.video-wrapper {
+    padding-bottom: 10px;
+}
+.chat-wrapper {
+    position: fixed;
+}
+.message-list {
+    margin: 15px !important;
+    height: calc(100vh - 300px);
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+.chat-btn {
+    background-color: #fff;
+    padding: 10px 20px;
+    display: block;
+    align-items: center;
+    z-index: 1000;
+    background-color: #111631;
+}
+.payout-cards {
+    display: flex;
+    gap: 20px;
+}
+.payout-cards > div {
+    width: 100%;
+    padding: 75px;
+}
+.payout-single-card {
+    /* height: 250px;
+    padding: 25px; */
+}
+
+@media screen and (max-width: 480px) {
+    .inner-component-main-div {
+        margin-left: 26px;
+    }
+    .for-stripe-onboarding {
+        margin-left: 0px;
+    }
+    .add-subscription-main-div {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+    .add-sub-card-inner-content {
+        padding: 16px !important;
+    }
+    .real-time-price-box-parent {
+        width: 100% !important;
+        margin-left: 0px !important;
+        padding-right: 0px;
+        margin-right: 0px;
+    }
+    .common-flex {
+        display: block;
+    }
+    .vertical-line {
+        border-right: none !important ;
+        border-bottom: 2px solid rgb(112, 99, 192);
+        margin-bottom: 20px;
+        padding-bottom: 25px;
+    }
+    .real-time-price-box {
+        display: flex;
+    }
+    .common-align {
+        margin-top: 5px !important;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .real-time-price-box-parent {
+        width: 100% !important;
+        margin-left: 30px;
+        padding-right: 0px;
+        margin-right: 0px;
+    }
+}
+
+@media screen and (max-width: 962px) {
+    .plan-text {
+        padding-bottom: 0px !important;
+    }
+    .inner-component-main-div {
+        margin-left: 26px;
+    }
+    .for-stripe-onboarding {
+        margin-left: 0px;
+    }
+    .add-subscription-main-div {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+    .add-sub-card-inner-content {
+        padding: 16px !important;
+    }
+    .real-time-price-box-parent {
+        width: 100% !important;
+        margin-left: 0px !important;
+        padding-right: 0px;
+        margin-right: 0px;
+    }
+    .common-flex {
+        display: block;
+    }
+    .vertical-line {
+        border-right: none !important ;
+        border-bottom: 2px solid rgb(112, 99, 192);
+        margin-bottom: 20px;
+        padding-bottom: 25px;
+    }
+    .real-time-price-box {
+        display: flex;
+    }
+    .channel-tags-btn-list {
+        display: flex;
+    }
+    .tag-cat-title {
+        margin-top: 5px !important;
+        display: block;
+    }
+    .channel-cat-title {
+        font-weight: 400;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    .chnl-tag-btn{
+        font-weight: 400 !important;
+        font-size: 12px !important;
+        border-radius: 50px !important;
+        background-color: grey !important;
+        padding: 0px !important;
+        margin: 0px 2px !important;
+    }
+    .div-desc-title-tag {
+        text-align: left;
+    }
+    .chnl-desc{
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        margin-top: 8px !important;
+        text-align: left;
+    }
+    .chl-name {
+        font-size: 18px;
+    }
+    .chl-icon {
+        width: 58px !important;
+        height: 58px !important;
+    }
+    .chl-live {
+        font-size: 12px !important;
+        width: 47px !important;
+        top: 58px !important;
+        left: 24px !important;
+    }
+    .follow-sub-btn {
+        font-weight: 400 !important;
+        font-size: 12px !important;
+        background-color: rgb(112, 99, 192) !important;
+        padding: 8px 15px !important;
+        border-radius: 5px !important;
+    }
+    .topmargin {
+        display: none ;
+    }
+    .logo-main {
+        width: 125px !important;
+    }
+    .search-input > div > input {
+        /* width: 20px !important; */
+        font-size: 12px !important;
+    }
+}
+
+@media screen and (min-width: 600px) and (max-width: 962px) {
+    .common-align {
+        margin-top: 20px !important;
+    }
+}
+@media screen and (min-width: 601px) and (max-width: 963px) {
+    .common-align {
+        margin-top: 20px !important;
+    }
+}
+@media screen and (max-width: 2500px) and (min-width: 964px) {
+    .common-align {
+        margin-top: 20px !important;
+    }
+}
+@media screen and (max-width: 599px){
+    .common-align {
+        margin-top: 5px !important;
+    }
+}
+
+@media screen and (max-width: 972px){
+    .add-plan-stripe-dash {
+        padding: 45px 0px;
+    }
+    .add-plan-stripe-dash-box {
+        padding: 45px 0px;
+    }
+}
+
+@media screen and (max-width: 746px){
+    
+    .add-plan-stripe-dash {
+        margin: 0% 5%;
+    }
+    .add-plan-stripe-dash {
+        padding: 0px;
+    }
+}
+
+@media screen and (max-width: 598px){
+    
+    .add-plan-stripe-dash-box {
+        display: block;
+    }
+    .vertical-line-box {
+        border: 2px #8c7cf0 solid;
+        margin: 40px 0px;
+    }
+}
+
+@media screen and (max-width: 840px) {
+    .chl-container {
+        display: block;
+        margin-top: 92px !important;
+    }
+    .channel-tags-btn-list {
+        display: none;
+    }
+    .video-wrapper {
+        padding-bottom: 0px;
+        margin-left: 3px !important;
+    }
+    .channel-subscriber-section {
+        margin-bottom: 0px !important;
+    }
+    .channel-subscriber-section > div {
+        padding-bottom: 0px !important;
+    }
+    .chat-wrapper {
+        position: relative;
+        height: 350px;
+    }
+    .drawer-chat, .drawer-chat > div{
+        width: 100% !important;
+    }
+    .message-list {
+        margin: 15px;
+        height: calc(100vh - 600px);
+        overflow-y: scroll;
+        scrollbar-width: none;
+    }
+    .pin-card {
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        margin-top: 0px;
+        /* width: 32%; */
+        min-width: 275px;
+        /* display: flex; */
+        justify-content: space-between;
+    }
+}
+

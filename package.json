@@ -23,6 +23,8 @@
     "@mui/styles": "5.8.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@silvermine/videojs-quality-selector": "^1.3.1",
+    "@stripe/connect-js": "^3.3.12",
+    "@stripe/react-connect-js": "^3.3.13",
     "apexcharts": "3.35.3",
     "apollo-server-express": "^1.4.0",
     "axios": "^1.4.0",

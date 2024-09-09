@@ -8,8 +8,8 @@ const redirects = {
   async redirects() {
     return [
       {
-        source: '/dashboards',
-        destination: '/dashboards/tasks',
+        source: '/dashboards/tasks',
+        destination: '/dashboards',
         permanent: true
       }
     ];

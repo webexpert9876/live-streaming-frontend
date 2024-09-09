@@ -69,7 +69,7 @@ const LoginForm = () => {
         dispatch(setAuthState(true));
         dispatch(setAuthUser(response.data.user));
         // console.log(response.data);
-        router.push('/dashboards/tasks');
+        router.push('/dashboards');
         setLoading(false);
       })
       .catch((error) => {
