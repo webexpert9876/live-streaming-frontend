@@ -24,12 +24,8 @@ const validationSchema = Yup.object().shape({
   email: Yup.string()
     .required('Email is required')
     .email('Email is invalid')
-    .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/),
+    .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter a valid email address.'),
 });
-
-
-
-
 
 const defaultTheme = createTheme();
 
@@ -66,13 +62,14 @@ export default function SignInSide() {
     })
       .then((response) => {
         // Handle the response from the API 
-        setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
+        setResponseMessage(`Email has been sent to your email address`);
         setLoading(false);
       })
       .catch((error) => {
         // Handle errors        
           const errorMessage = error.response.data.message;
-          setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
+          setResponseMessage(errorMessage);
+          // setResponseMessage(`If the ${email} address you entered matched an existing account, please check your email for instructions on what to do next.`);
         setLoading(false);
       })
   };
@@ -150,7 +147,7 @@ export default function SignInSide() {
 
                 </Button>
                 {/* {loading && <div style={{ color: "#fff" }}>Loading...</div>} */}
-                {responseMessage && <div style={{ color: "#0f0", textAlign: "center" }}>{responseMessage}</div>}
+                {responseMessage && <div style={{ color: "red", textAlign: "center" }}>{responseMessage}</div>}
                 <Copyright sx={{ mt: 5 }} />
               </Box>
             </FormControl>

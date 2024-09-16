@@ -10,7 +10,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -52,11 +51,9 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
-
+const emailRegex = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
 
 export default function SignInSide() {
   const [firstName, setFirstName] = useState('');
@@ -67,11 +64,24 @@ export default function SignInSide() {
   const [promotions, setPromotions] = useState('');
   const [style, setStyle] = useState([]);
   const [styleList, setStyleList] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');  
+  const [errorMessage, setErrorMessage] = useState({
+    firstNameMsg: '',
+    lastNameMsg: '',
+    usernameMsg: '',
+    passwordMsg: '',
+  });  
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');  
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignInGoogle, setIsSignInGoogle] = useState(false);
   const router = useRouter();
+
+  const [firstNameError, setFirstNameError] = useState(false);
+  const [lastNameError, setLastNameError] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [styleError, setStyleError] = useState(false);
 
 
   useEffect(()=>{
@@ -81,15 +91,38 @@ export default function SignInSide() {
   },[isSignInGoogle])
 
   const handleFirstNameChange = (event) => {
-    setFirstName(event.target.value);
+    let val = event.target.value.trim()
+    const nameRegex = /^[A-Za-z0-9]+$/;
+    setFirstName(val);
+    if(!nameRegex.test(val)) {
+      setErrorMessage((prev)=>({...prev, firstNameMsg: 'Please enter valid first name, do not use special characters.'}));
+      setFirstNameError(true);
+    } else {
+    }
   };
 
   const handleLastNameChange = (event) => {
-    setLastName(event.target.value);
+    let val = event.target.value.trim()
+    const nameRegex = /^[A-Za-z0-9]+$/;
+    setLastName(val);
+    if(!nameRegex.test(val)) {
+      setErrorMessage((prev)=>({...prev, lastNameMsg: 'Please enter valid last name, do not use special characters.'}));
+      setLastNameError(true);
+    } else {
+    }
+    // setLastName(event.target.value.trim());
   };
   
   const handleUserNameChange = (event) => {
-    setUsername(event.target.value);
+    let val = event.target.value.trim()
+    const nameRegex = /^[A-Za-z0-9]+$/;
+    setUsername(val);
+    if(!nameRegex.test(val)) {
+      setErrorMessage((prev)=>({...prev, usernameMsg: 'Please enter valid user name, do not use special characters.'}));
+      setUsernameError(true);
+    } else {
+    }
+    // setUsername(event.target.value.trim());
   };
 
   const handleEmailChange = (event) => {
@@ -97,7 +130,15 @@ export default function SignInSide() {
   };
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
+    // let val = event.target.value.trim()
+    // const nameRegex = /^[A-Za-z0-9]+$/;
+    // if(nameRegex.test(val)) {
+    //   setPassword(val);
+    // } else {
+    //   setErrorMessage((prev)=>({...prev, passwordMsg: 'Please enter valid password name, do not use special characters.'}));
+    //   setPasswordError(true);
+    // }
+    setPassword(event.target.value.trim());
   };
 
   const handlePromotionsChange = (event) => {
@@ -108,45 +149,95 @@ export default function SignInSide() {
     setStyle(event.target.value);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setLoading(true);
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .required('Email is required')
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email format'),
+  });
 
-    // Send registration request to the API using Axios
-    axios
+  const validateForm =async () => {
+    let valid = true;
+
+    if (!firstName) {
+      setErrorMessage((prev)=>({...prev, firstNameMsg: 'First name is required'}));
+      setFirstNameError(true);
+      valid = false;
+    } else {
+        setFirstNameError(false);
+    }
+    if (!lastName) {
+      setErrorMessage((prev)=>({...prev, lastNameMsg: 'Last name is required.'}));
+      setLastNameError(true);
+      valid = false;
+    } else {
+      setLastNameError(false);
+    }
+    if (!username) {
+      setErrorMessage((prev)=>({...prev, usernameMsg: 'Username is required.'}));
+      setUsernameError(true);
+      valid = false;
+    } else {
+        setUsernameError(false);
+    }
+    if (!email) {
+      setEmailErrorMessage('Email is required')
+      setEmailError(true);
+      valid = false;
+    } else {
+      try {
+        await validationSchema.validate({ email: email })
+        setEmailError(false)
+      } catch(err) {
+        valid = false
+        setEmailError(true)
+        setEmailErrorMessage('Please Enter valid email address')
+      }
+    }
+    if (!password) {
+      setErrorMessage((prev)=>({...prev, passwordMsg: 'Password is required.'}));
+      setPasswordError(true);
+      valid = false;
+    } else {
+        setPasswordError(false);
+    }
+    return valid;
+  };
+
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    let valid = await validateForm();
+    console.log(`${valid} && ${!firstNameError} && ${!lastNameError} && ${!usernameError} && ${!passwordError} && ${!emailError}`)
+    if(valid && !firstNameError && !lastNameError && !usernameError && !passwordError && !emailError) {
+      console.log('fetching')
+      setLoading(true);
+      axios
       .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`, {
         firstName,
         lastName,
         username,
         email,
         password,
-        promotions,
         style,
       })
       .then((response) => {
-        // Handle the successful registration response from the API
         setSuccessMessage('You are successfuly register!');
         setErrorMessage('');
-        // Optionally, you can redirect the user to a success page or perform other actions
         setLoading(false);
-        
       })
       .catch((error) => {
-        // Handle errors
         if (error.response) {          
           setSuccessMessage('');
-          // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
           setErrorMessage(errorMessage);
         } else if (error.request) {          
-          // The request was made but no response was received
           console.error('No response received from the server.');
         } else {
-          // Something happened in setting up the request that triggered an error
           console.error('Error occurred while sending the request.', error.message);          
         }
         setLoading(false);
-      });      
+      });
+    }      
   };
 
   // This is style start
@@ -154,7 +245,6 @@ export default function SignInSide() {
     axios
     .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/public/api/free/get/all/category`)
     .then((response) => {
-      // get the styles
       setStyleList(response.data.TattoCategories)   
     })
     .catch((error) => {
@@ -246,9 +336,17 @@ export default function SignInSide() {
                       value={firstName}
                       onChange={handleFirstNameChange}
                       label="First Name"
-
+                      inputProps={{
+                        pattern: "[A-Za-z ]+",
+                      }}
                       autoFocus
                     />
+                    {firstNameError && (
+                      <Typography color="error" sx={{ textAlign: 'left', fontSize: '0.875em' }}>
+                          {/* First Name is required. */}
+                          {errorMessage.firstNameMsg}
+                      </Typography>
+                    )}
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -261,6 +359,12 @@ export default function SignInSide() {
                       name="lastName"
                       autoComplete="family-name"
                     />
+                    {lastNameError && (
+                      <Typography color="error" sx={{ textAlign: 'left', fontSize: '0.875em' }}>
+                          {/* Last Name is required. */}
+                          {errorMessage.lastNameMsg}
+                      </Typography>
+                    )}
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
@@ -272,6 +376,12 @@ export default function SignInSide() {
                       label="username"
                       name="username"
                     />
+                    {usernameError && (
+                      <Typography color="error" sx={{ textAlign: 'left', fontSize: '0.875em' }}>
+                          {/* Username is required. */}
+                          {errorMessage.usernameMsg}
+                      </Typography>
+                    )}
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
@@ -283,7 +393,14 @@ export default function SignInSide() {
                       label="Email Address"
                       name="email"
                       autoComplete="email"
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     />
+                    {emailError && (
+                      <Typography color="error" sx={{ textAlign: 'left', fontSize: '0.875em' }}>
+                          {/* Email is required. */}
+                          {emailErrorMessage}
+                      </Typography>
+                    )}
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
@@ -297,6 +414,12 @@ export default function SignInSide() {
                       onChange={handlePasswordChange}
                       autoComplete="new-password"
                     />
+                    {passwordError && (
+                      <Typography color="error" sx={{ textAlign: 'left', fontSize: '0.875em' }}>
+                          {/* Password is required. */}
+                          {errorMessage.passwordMsg}
+                      </Typography>
+                    )}
                   </Grid>
                   <Grid item xs={12}>
                     <FormControl sx={{ width: "100%" }}>
@@ -322,25 +445,20 @@ export default function SignInSide() {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <FormControlLabel
                       onChange={handlePromotionsChange}
                       id={promotions}
                       control={<Checkbox value="allowExtraEmails" color="primary" />}
                       label="I want to receive inspiration, marketing promotions and updates via email."
                     />
-                  </Grid>
+                  </Grid> */}
                 </Grid>
-                <FormControl>
+                {/* <FormControl>
                  
                   {errorMessage && <p style={{ color: "#f00" }}> {errorMessage} </p>} 
                   {successMessage && <p style={{ color: "#0f0" }}>{successMessage}</p>}
-
-                  
-
-
-       
-                </FormControl>
+                </FormControl> */}
 
                 <Button
                   type="submit"

@@ -73,7 +73,6 @@ const LoginForm = () => {
         setLoading(false);
       })
       .catch((error) => {
-          // The request was made and the server responded with a status code outside the range of 2xx
           const errorMessage = error.response.data.message;
           setErrorMessage(errorMessage);        
         setLoading(false);
@@ -81,7 +80,7 @@ const LoginForm = () => {
   };
 
   const mapStateToProps = (state) => ({
-    authUser: state.auth.authUser, // Replace 'auth' with the key where your authUser is stored in the Redux store
+    authUser: state.auth.authUser, 
   });
 
 
@@ -159,10 +158,10 @@ const LoginForm = () => {
                     autoComplete="current-password"
                   />
                   {errorMessage && <p style={{ color: "#f00" }}>{errorMessage}</p>}
-                  <FormControlLabel
+                  {/* <FormControlLabel
                     control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
-                  />
+                  /> */}
 
                   <Button
                     type="submit"
