@@ -257,23 +257,6 @@ function UserSidebarMenu({userData}){
                 >
                     <SubMenuWrapper>
                         <List component="div">
-                            {/* <ListItem component="div">
-                                <NextLink href="/management/transactions" passHref>
-                                    <Button
-                                        className={
-                                            currentRoute === '/management/transactions'
-                                                ? 'active'
-                                                : ''
-                                        }
-                                        disableRipple
-                                        component="a"
-                                        onClick={closeSidebar}
-                                        startIcon={<TableChartTwoToneIcon />}
-                                    >
-                                        Transactions List
-                                    </Button>
-                                </NextLink>
-                            </ListItem> */}
                             <ListItem component="div">
                                 <NextLink href="/management/admin/category/list" passHref>
                                     <Button
@@ -356,6 +339,23 @@ function UserSidebarMenu({userData}){
                                         startIcon={<ManageAccountsIcon />}
                                     >
                                         Manage Connect Account
+                                    </Button>
+                                </NextLink>
+                            </ListItem>
+                            <ListItem component="div">
+                                <NextLink href="/management/admin/transaction/list" passHref>
+                                    <Button
+                                        className={
+                                            currentRoute === '/management/admin/transaction/list'
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        disableRipple
+                                        component="a"
+                                        onClick={closeSidebar}
+                                        startIcon={<ListAltIcon />}
+                                    >
+                                        Transactions List
                                     </Button>
                                 </NextLink>
                             </ListItem>
@@ -477,7 +477,7 @@ function UserSidebarMenu({userData}){
                     component="div"
                     subheader={
                         <ListSubheader component="div" disableSticky>
-                            Components
+                            Content
                         </ListSubheader>
                     }
                 >
@@ -538,7 +538,7 @@ function UserSidebarMenu({userData}){
                                     onClick={closeSidebar}
                                     startIcon={<SubscriptionsIcon />}
                                 >
-                                    Subscribe channels
+                                    Subscribed channels
                                 </Button>
                             </NextLink>
                         </ListItem>

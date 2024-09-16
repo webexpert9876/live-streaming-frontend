@@ -59,6 +59,10 @@ const getStatusLabel = (transactionStatus) => {
         text: 'NotCreated',
         color: 'error'
     },
+    rejected: {
+        text: 'Rejected',
+        color: 'error'
+    },
     created: {
         text: 'Created',
         color: 'success'
@@ -139,7 +143,49 @@ const applyTransferFilters = (txnData, filters) => {
     });
 };
 
+const applyRequireDocFilters = (txnData, filters) => {
+    console.log('txnData applyRequireDocFilters', txnData)
+    return txnData.filter((txn) => {
+        let matches = true;
+
+        let requirement = `${txn.isRequirementPending}`
+        
+        if (filters.status && requirement !== filters.status) {
+            matches = false;
+        }
+
+        return matches;
+    });
+};
+const applyPayoutEnabledFilters = (txnData, filters) => {
+    console.log('txnData applyRequireDocFilters', txnData)
+    return txnData.filter((txn) => {
+        let matches = true;
+
+        let requirement = `${txn.isPayoutEnabled}`
+        
+        if (filters.status && requirement !== filters.status) {
+            matches = false;
+        }
+
+        return matches;
+    });
+};
+const applyPayoutTypeFilters = (txnData, filters) => {
+    console.log('txnData applyRequireDocFilters', txnData)
+    return txnData.filter((txn) => {
+        let matches = true;
+        
+        if (filters.status && txn.payoutType !== filters.status) {
+            matches = false;
+        }
+
+        return matches;
+    });
+};
+
 const applyPagination = (txnData, page, limit) => {
+    console.log('txnData', txnData)
     return txnData.slice(page * limit, page * limit + limit);
 };
   
@@ -159,6 +205,15 @@ export default function ConnectAccountList(){
         status: null
     });
     const [filtersSecond, setFiltersSecond] = useState({
+        status: null
+    });
+    const [filterDocRequirement, setFilterDocRequirement] = useState({
+        status: null
+    });
+    const [filterPayoutEnabled, setFilterPayoutEnabled] = useState({
+        status: null
+    });
+    const [filterPayoutType, setFilterPayoutType] = useState({
         status: null
     });
     const [txnList, setTxnList] = useState(null);
@@ -276,6 +331,12 @@ export default function ConnectAccountList(){
              filteredTxnList = applyFilters(txnList, filters);
             } else if(filterName == 'transfer') {
                 filteredTxnList = applyTransferFilters(txnList, filtersSecond);
+            } else if(filterName == 'requirementPending') {                
+                filteredTxnList = applyRequireDocFilters(txnList, filterDocRequirement);
+            } else if(filterName == 'payoutEnabled') {                
+                filteredTxnList = applyPayoutEnabledFilters(txnList, filterPayoutEnabled);
+            } else if(filterName == 'payoutType') {                
+                filteredTxnList = applyPayoutTypeFilters(txnList, filterPayoutType);
             } else {
                 filteredTxnList = applyFilters(txnList, filters);
             }
@@ -349,6 +410,56 @@ export default function ConnectAccountList(){
             name: 'Rejected'
         }
     ];
+    const requirementPending = [
+        {
+            id: 'all',
+            name: 'All'
+        },
+        {
+            id: 'true',
+            name: 'Yes'
+        },
+        {
+            id: 'false',
+            name: 'No'
+        }
+    ];
+    const payoutEnabledOptions = [
+        {
+            id: 'all',
+            name: 'All'
+        },
+        {
+            id: 'true',
+            name: 'Yes'
+        },
+        {
+            id: 'false',
+            name: 'No'
+        }
+    ];
+    const payoutTypeOptions = [
+        {
+            id: 'all',
+            name: 'All'
+        },
+        {
+            id: 'daily',
+            name: 'Daily'
+        },
+        {
+            id: 'week',
+            name: 'Week'
+        },
+        {
+            id: 'month',
+            name: 'Month'
+        },
+        {
+            id: 'manual',
+            name: 'Manual'
+        }
+    ];
 
     const handleStatusChange = (e, filterStatus) => {
         let value = null;
@@ -363,13 +474,32 @@ export default function ConnectAccountList(){
                 status: value
             }));
         }
-        
         if(filterStatus == 'transfer') {
             setFiltersSecond((prevFilters) => ({
                 ...prevFilters,
                 status: value
             }));
         }
+        if(filterStatus == 'requirementPending') {
+            setFilterDocRequirement((prevFilters) => ({
+                ...prevFilters,
+                status: value
+            }));
+        }
+        if(filterStatus == 'payoutEnabled') {
+            setFilterPayoutEnabled((prevFilters) => ({
+                ...prevFilters,
+                status: value
+            }));
+        }
+        if(filterStatus == 'payoutType') {
+            setFilterPayoutType((prevFilters) => ({
+                ...prevFilters,
+                status: value
+            }));
+        }
+
+        console.log('filterStatus', filterStatus)
         setFilterName(filterStatus)
         setPage(0)
         setIsCheckStatusChange(true)
@@ -438,25 +568,29 @@ export default function ConnectAccountList(){
     useEffect(()=>{
         if(isRejectingAccount){
             setRejectLoading(true)
-            // axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/artist-admin/delete/video/${selectedRowVideoDetails._id}`, {headers: {'x-access-token': userData[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
-            //     setApiMessageType('success')
-            //     setApiResponseMessage('Account deleted successfully');
-            //     removeAccountFromList(selectedRowVideoDetails._id)
-            //     setIsRejectingAccount(false);
-            //     setLoading(false);
-            //     handleMessageBoxOpen();
-            //     setRejectLoading(false);
-            // }).catch((error)=>{
-            //     console.log('error', error);
-            //     setApiMessageType('error')
-            //     const errorMessage = error.response.data.message;
+            let rejectData = {
+                connectAccountId: selectedAccountDetails.connectAccountId,
+                adminUserId: userDetail[0]._id
+            }
+            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reject/connected/account/${selectedAccountDetails.connectAccountId}`, rejectData, {headers: {'x-access-token': userDetail[0].jwtToken }}).then((data)=>{
+                setApiMessageType('success')
+                setApiResponseMessage('Account Rejected successfully');
+                handleRejectAccountDetail(selectedAccountDetails._id)
+                setIsRejectingAccount(false);
+                setLoading(false);
+                handleMessageBoxOpen();
+                setRejectLoading(false);
+            }).catch((error)=>{
+                console.log('error', error);
+                setApiMessageType('error')
+                const errorMessage = error.response.data.message;
                 
-            //     handleMessageBoxOpen()
-            //     setApiResponseMessage(errorMessage);
-            //     setIsRejectingAccount(false)
-            //     setLoading(false);
-            //     setRejectLoading(false);
-            // });
+                handleMessageBoxOpen()
+                setApiResponseMessage(errorMessage);
+                setIsRejectingAccount(false)
+                setLoading(false);
+                setRejectLoading(false);
+            });
         }
     },[isRejectingAccount])
 
@@ -495,7 +629,10 @@ export default function ConnectAccountList(){
     useEffect(()=>{
         if(isDeletingAccount){
             setDeleteLoading(true)
-            axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/remove/connected/account/${selectedAccountDetails.connectAccountId}`, {headers: {'x-access-token': userDetail[0].jwtToken, 'Content-Type': 'multipart/form-data'}}).then((data)=>{
+            let deleteData = { connectAccountId: selectedAccountDetails.connectAccountId,
+                adminUserId: userDetail[0]._id
+            }
+            axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/remove/connected/account/${selectedAccountDetails.connectAccountId}`, deleteData, {headers: {'x-access-token': userDetail[0].jwtToken }}).then((data)=>{
                 setApiMessageType('success')
                 setApiResponseMessage('Account deleted successfully');
                 removeAccountFromList(selectedAccountDetails._id)
@@ -528,9 +665,15 @@ export default function ConnectAccountList(){
     };
 
     const handleUpdateAccountDetail = () => {
+                                                 
+        setConnectAccountList(updatedList);
+    }
+    
+    const handleRejectAccountDetail = () => {
         const updatedList = connectAccountList.map(account => 
-            account.connectAccountId === selectedAccountDetails.connectAccountId ? { ...account, payoutType: selectedChangePayout} : account
+            account.connectAccountId === selectedAccountDetails.connectAccountId ? { ...account, isAccountCreated: 'rejected', isTransfer: 'rejected', isPayoutEnabled: false, payoutType: 'manual'} : account
         );
+        setTxnList(updatedList);
         setConnectAccountList(updatedList);
     }
 
@@ -538,7 +681,8 @@ export default function ConnectAccountList(){
         const updatedArray  = filteredTransactionList.filter(obj => obj._id !== id);
         setFilteredTransactionList(updatedArray)
         let newList = updatedArray.slice(page * limit, page * limit + limit);
-
+        
+        setTxnList(newList);
         setConnectAccountList(newList);
     }
 
@@ -567,17 +711,17 @@ export default function ConnectAccountList(){
             </PageTitleWrapper>
             <Container maxWidth="xl">
                 <Grid
-                container
-                direction="row"
-                justifyContent="center"
-                alignItems="stretch"
-                spacing={3}
+                    container
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="stretch"
+                    spacing={3}
                 >
                     <Grid item xs={12}>
                         <Card>
                             <CardHeader
                                 action={
-                                    <Box width={400}padding={'10px 5px 0px 0px'} display={'flex'}>
+                                    <Box minWidth={800} padding={'10px 5px 0px 0px'} display={'flex'}>
                                         <Box width={'100%'}>
                                             <FormControl fullWidth variant="outlined">
                                                 <InputLabel>Account Status</InputLabel>
@@ -605,6 +749,57 @@ export default function ConnectAccountList(){
                                                     autoWidth
                                                 >
                                                     {transferStatusOptions.map((statusOption) => (
+                                                        <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                            {statusOption.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
+                                        <Box ml={'10px'} width={'100%'}>
+                                            <FormControl fullWidth variant="outlined" >
+                                                <InputLabel>Requirement Pending</InputLabel>
+                                                <Select
+                                                    value={filterDocRequirement.status || 'all'}
+                                                    onChange={(e)=>{handleStatusChange(e, 'requirementPending')}}
+                                                    label="Status"
+                                                    autoWidth
+                                                >
+                                                    {requirementPending.map((statusOption) => (
+                                                        <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                            {statusOption.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
+                                        <Box ml={'10px'} width={'100%'}>
+                                            <FormControl fullWidth variant="outlined" >
+                                                <InputLabel>Payout Enabled</InputLabel>
+                                                <Select
+                                                    value={filterPayoutEnabled.status || 'all'}
+                                                    onChange={(e)=>{handleStatusChange(e, 'payoutEnabled')}}
+                                                    label="Status"
+                                                    autoWidth
+                                                >
+                                                    {payoutEnabledOptions.map((statusOption) => (
+                                                        <MenuItem key={statusOption.id} value={statusOption.id}>
+                                                            {statusOption.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
+                                        <Box ml={'10px'} width={'100%'}>
+                                            <FormControl fullWidth variant="outlined" >
+                                                <InputLabel>Payout Type</InputLabel>
+                                                <Select
+                                                    value={filterPayoutType.status || 'all'}
+                                                    onChange={(e)=>{handleStatusChange(e, 'payoutType')}}
+                                                    label="Status"
+                                                    autoWidth
+                                                >
+                                                    {payoutTypeOptions.map((statusOption) => (
                                                         <MenuItem key={statusOption.id} value={statusOption.id}>
                                                             {statusOption.name}
                                                         </MenuItem>
@@ -730,7 +925,7 @@ export default function ConnectAccountList(){
                                                                 </Typography>
 
                                                             </TableCell>
-                                                            <TableCell align="right" sx={{gap: '10px'}}>
+                                                            <TableCell align="center" sx={{display: 'flex', gap: '5px'}}>
                                                                 <Tooltip title="Edit Payout" arrow>
                                                                     <IconButton
                                                                     sx={{
@@ -851,7 +1046,7 @@ export default function ConnectAccountList(){
                 <DialogTitle>Reject Artist Stripe Account</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure? You want reject this Stripe Connect Account.
+                        Are you sure? You want to Reject this Stripe Connect account. After Reject, you won't be able to re-enable this account.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -865,7 +1060,7 @@ export default function ConnectAccountList(){
                 <DialogTitle>Delete Artist Stripe Account</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure? You want delete this Stripe Connect Account.
+                        Are you sure? You want to delete this Stripe Connect account. This will permanently remove the Artist Stripe account from Stripe.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

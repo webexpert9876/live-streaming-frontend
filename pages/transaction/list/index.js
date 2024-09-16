@@ -6,11 +6,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthUser, selectAuthState } from 'store/slices/authSlice';
 import client from "../../../graphql";
 import { gql } from "@apollo/client";
-import Head from 'next/head';
 import PageHeader from 'src/content/Management/Transactions/PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Grid, Container } from '@mui/material';
+import { Grid, Container  } from '@mui/material';
 import Footer from 'src/components/Footer';
+import Head from 'next/head';
 
 import RecentTransactions from 'src/content/Management/Transactions/RecentTransactions';
   
@@ -54,8 +54,8 @@ export default function PaymentList(){
                       createdAt
                   }
                   interestedStyleDetail {
-                  title
-                  _id
+                    title
+                    _id
                   }
                 }
               }

@@ -348,7 +348,7 @@ function UserSidebarMenu({userData}){
                                 onClick={closeSidebar}
                                 startIcon={<SubscriptionsIcon />}
                             >
-                                Subscribe channels
+                                Subscribed channels
                             </Button>
                           </NextLink>
                       </ListItem>

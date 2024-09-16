@@ -345,7 +345,7 @@ export default function ChannelName() {
                     }
                     
                     // console.log('streamInfo.getConnectAccountInfo[0].isRequirementPending', streamInfo.getConnectAccountInfo[0].isRequirementPending);
-                    if(streamInfo.getConnectAccountInfo[0].isRequirementPending) {
+                    if(streamInfo?.getConnectAccountInfo[0]?.isRequirementPending) {
                         setIsRequirementPending(streamInfo.getConnectAccountInfo[0].isRequirementPending);
                     } else {
                         if(streamInfo.getChannelActivePlans[0].isPaid){

@@ -72,6 +72,7 @@ const Header = () => {
     const authState = useSelector(selectAuthState);
     const [isLoggedIn, setIsLoggedIn] = useState(authState);
     const router = useRouter()
+    const currentPath = router.pathname;
     const routeInfo = useSelector(selectRouteInfo);
     const [currentRouteInfo, setCurrentRouteInfo] = useState(routeInfo)
     const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
@@ -79,9 +80,24 @@ const Header = () => {
     const authStateUser = useSelector(selectAuthUser);
     const dispatch = useDispatch();
     const [loginType, setLoginType] = useState('')
-    const [userDetail, setUserDetail] = useState([])
+    const [userDetail, setUserDetail] = useState([]);
 
+    const hideUrls = [
+        '/single-category/[categorySlug]',
+        '/tag/[slug]',
+        '/channel/[channelName]',
+        '/channel/request',
+        '/user/[userName]',
+        'video/[id]',
+        '/live/channels',
+        '/'
+    ]
 
+    const shouldHideIcon = hideUrls.some((url) => {
+        return (
+          currentPath === url
+        );
+    });
 
     useEffect(async ()=>{
         if(!router.query.id) {
@@ -198,7 +214,7 @@ const Header = () => {
                         <HeaderUserbox />
                     </>
                     }
-                    <Box
+                    {!shouldHideIcon && <Box
                         component="span"
                         sx={{
                             ml: 2,
@@ -214,7 +230,7 @@ const Header = () => {
                                 )}
                             </IconButton>
                         </Tooltip>
-                    </Box>
+                    </Box>}
                 </Box>
             </HeaderWrapperLogin>) : (<HeaderWrapper className='stickyHeader'>
                 {/* {currentRouteInfo ? (<HeaderWrapper className='stickyHeader'> */}

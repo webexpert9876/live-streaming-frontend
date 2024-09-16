@@ -464,7 +464,7 @@ function UserSidebarMenu({userData}){
                     component="div"
                     subheader={
                         <ListSubheader component="div" disableSticky>
-                            Components
+                            Content
                         </ListSubheader>
                     }
                 >
@@ -660,7 +660,7 @@ function UserSidebarMenu({userData}){
                                     onClick={closeSidebar}
                                     startIcon={<SubscriptionsIcon />}
                                 >
-                                    Subscribe channels
+                                    Subscribed channels
                                 </Button>
                             </NextLink>
                         </ListItem>

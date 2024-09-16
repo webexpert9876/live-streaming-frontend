@@ -889,7 +889,11 @@ export default function Videos(){
     }, [isDeletingComment]);
 
     const handleWriteComment = () =>{
-        setIsAddedComment(true)
+        if(comment){
+            setIsAddedComment(true)
+        } else {
+            console.log('in else');
+        }
     }
     
     const toggleToolTipClick = (index) => {
